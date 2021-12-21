@@ -1,0 +1,414 @@
+---
+title: "Gene Flow Models for *Palythoa tuberculosa*"
+output: html_notebook
+---
+
+Rob Toonen asked me to take a look at this dataset sequenced and analyzed by 'Ale'alani Dudoit. From
+Rob:  
+> It is a zoanthid - Palythoa tuberculosa - that is most common in anthropogenically disturbed habitats.  It seems like it could be a cool story, and she has plenty of SNPs or contigs to do whatever analysis you think would be most interesting to work up.
+
+'Ale'a:
+> Mahalo for checking out our data Eric, would be great to try out Migrate-n and see what results come of it. A couple other folks in the lab had similar interesting fst/structure results with their data (corals and fish) where O'ahu is more genetically similar to Kure/Midway atoll than to neighboring islands. Would be interesting to see if we get any cool results as Rob mentioned with military transport b/w O'ahu and Midway during WWII.
+I can send along my TotalRawSNPs and Filtered vcf files through scp command if you have a destination path you can provide me. Please let me know what other info you need from me, happy to send along. And yes, not urgent to get results this month but hoping to graduate next semester.
+
+Eric:
+
+>So it turns out that dDocent (or actually an associated perl script) can make haplotypes, but it will need the bam files for each individual. Supposedly we have unlimited storage on Google Drive at PSU, so I’m going to test that. I’ve shared a folder that you can use to upload the bam files.
+
+
+# Transfer files
+
+So, now I've received all .bam and .bai files for each individual, as well as locality metadata and total and filtered SNP datasets from 'Ale'a on Google Drive. I compressed these on my mac, and now need to transfer them to Argonaute. I will do this with the gdown python package (pip install gdown). This involves looking up the google id for each file in the URL of the share link and pasting that into gdown thusly
+
+```{bash eval=F}
+gdown https://drive.google.com/uc?id=19nagmzHPQgKE4PPlyHikcWc7lBZFMbXB --output ptuberculosa_metadata.csv
+gdown https://drive.google.com/uc?id=19g9fMRdPH-_AG-l6kytu-lv6kd3qYpQD --output popmap
+gdown https://drive.google.com/uc?id=1ASB4yOnwDzDhFPA7Pev4CyIl6M6SX8_P --output popmap.csv
+gdown https://drive.google.com/uc?id=19ZsobdvBIs3bQukW0Q-ivpdlJEdGguns --output reference.fasta
+gdown https://drive.google.com/uc?id=19XNrJvZKMQ3L7qTIuExajc5KY6-gj3P8 --output mm0.9minq30mac3thin500.recode.vcf
+gdown https://drive.google.com/uc?id=19vth-3IMkfMfxq4cp0QLOUgC2yFqnZ3C --output TotalRawSNPs.vcf
+gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output bam_files.zip
+
+```
+
+
+# Filter SNPs
+
+'Ale' already filtered the SNPs quite a bit, but I need to start that process over because coalescent programs are sensitive to ascertainment bias. Also, need to knit them back into haplotypes. As Peter Beerli says on page 15 of the migrate-n manual:
+
+>We use a rather restrictive ascertainment models for SNPs ?. A better approach than using SNPs is the use of short reads which may or many not contain SNPs. I find that SNPs are an inferior datatype because commonly researchers are adding criteria such as a minor SNP allele must occur at a frequency higher than x, and singletons are excluded etc.
+
+> We have found ALL variable sites and use them even if there are only a few members of another alleles present. In principal it is as you would sequence a stretch of DNA and then remove the invariant sites. Each stretch is treated as completely linked. You can combine many of such “loci” to improve your estimates.
+
+
+I've installed dDocent into a dedicated environment following instructions [here](https://www.ddocent.com/bioconda/). 
+```{bash, eval = F}
+conda activate ddocent_env
+```
+Following the tutorial, but altering filtering parameters. Keeping all SNPs with even a single occurence (Minor Allele Count = 1), but they must occur in 90% of individuals (mac 1) and be of high quality (minQ 30). We are keeping genotypes with as few as 3 reads. This is because evidence to keep these SNPs is based on their existence in multiple individuals.
+
+```{bash, eval = F}
+vcftools --vcf ../TotalRawSNPs.vcf --max-missing 0.1 --mac 1 --minQ 30 --minDP 3 --recode --recode-INFO-all --out rawg.1mac1dp3
+
+```
+
+>After filtering, kept 93 out of 93 Individuals
+Outputting VCF file...
+After filtering, kept 28128 out of a possible 52804 Sites
+Run Time = 9.00 seconds
+
+Run this error checking script to see the potential impact of shallow-sequenced genotypes
+
+```{bash, eval = F}
+ErrorCount.sh rawg.1mac1dp3.recode.vcf
+```
+
+>This script counts the number of potential genotyping errors due to low read depth
+It report a low range, based on a 50% binomial probability of observing the second allele in a heterozygote and a high range based on a 25% probability.
+Potential genotyping errors from genotypes from only 1 read range from 0.0 to 0.0
+Potential genotyping errors from genotypes from only 2 reads range from 0.0 to 0.0
+Potential genotyping errors from genotypes from only 3 reads range from 3808.875 to 12797.82
+Potential genotyping errors from genotypes from only 4 reads range from 3860.25 to 19517.424
+Potential genotyping errors from genotypes from only 5 reads range from 913.78125 to 6930
+93 number of individuals and 28128 equals 2615904 total genotypes
+Total genotypes not counting missing data 2508832
+Total potential error rate is between 0.0034210765208670807 and 0.015642834593946504
+SCORCHED EARTH SCENARIO
+WHAT IF ALL LOW DEPTH HOMOZYGOTE GENOTYPES ARE ERRORS?????
+The total SCORCHED EARTH error rate is 0.04841934414101861.
+
+Look at missing data per individual
+
+```{bash}
+vcftools --vcf rawg.1mac1dp3.recode.vcf --missing-indv
+
+mawk '!/IN/' out.imiss | cut -f5 > totalmissing
+gnuplot << \EOF 
+set terminal dumb size 120, 30
+set autoscale 
+unset label
+set title "Histogram of % missing data per individual"
+set ylabel "Number of Occurrences"
+set xlabel "% of missing data"
+#set yr [0:100000]
+binwidth=0.01
+bin(x,width)=width*floor(x/width) + binwidth/2.0
+plot 'totalmissing' using (bin($1,binwidth)):(1.0) smooth freq with boxes
+pause -1
+
+```
+
+```{bash}
+                                                                                                                        
+                                         Histogram of % missing data per individual                                     
+     20 +-----------------------------------------------------------------------------------------------------------+   
+        |    * *      +            +             +            +             +            +             +            |   
+        |    * **                                             'totalmissing' using (bin($1,binwidth)):(1.0) ******* |   
+        |    * **                                                                                                   |   
+        |    * **                                                                                                   |   
+        |    * **                                                                                                   |   
+     15 |-+  * **                                                                                                 +-|   
+        |    * **                                                                                                   |   
+        |   ** **                                                                                                   |   
+        |   ** **                                                                                                   |   
+        |   ** **                                                                                                   |   
+     10 |-+ ** **                                                                                                 +-|   
+        |   ** **                                                                                                   |   
+        |   ** ***                                                                                                  |   
+        |   ** ***                                                                                                  |   
+        |   ** ***                                                                                                  |   
+        |   ** *****                                                                                                |   
+      5 |-+ ** *** *                                                                                              +-|   
+        |  *** *** ****                                                                                             |   
+        |  *** *** ** *                                                                                             |   
+        |  *** *** ** *                                                                                             |   
+        |  *** *** ** *******                                                                                       |   
+        |***** *** ** *** * *******************************************************************************         |   
+      0 +-----------------------------------------------------------------------------------------------------------+   
+        0            0.1          0.2           0.3          0.4           0.5          0.6           0.7          0.8  
+                                                      % of missing data                                                 
+```
+
+'Ale' has probably removed any really bad individuals already. I'll keep all of these for now.
+
+Now filter based on missingness within populations. Puritz wrote a script for this that creates lots of output, so I created ./filterpop directory to run it in. I am removing loci that are missing 10% of data in any of 10 populations. I altered popmap to remove spaces from pop names too.
+
+```{bash, eval=F}
+pop_missing_filter.sh ../rawg.1mac1dp3.recode.vcf ../../popmap 0.1 10 rawg1mac1dp3allpops.1.vcf
+```
+
+This filter keeps loci with Allele Balance  between 0.25 and 0.75. From Jon:
+>Allele balance is: a number between 0 and 1 representing the ratio of reads showing the reference allele to all reads, considering only reads from individuals called as heterozygous Because RADseq targets specific locations of the genome, we expect that the allele balance in our data (for real loci) should be close to 0.5
+
+So this will keep only really high quality SNPs
+
+```{bash, eval=F}
+ vcffilter -s -f "AB > 0.25 & AB < 0.75 | AB < 0.01" ./filterpops/rawg1mac1dp3allpops.1.vcf.recode.vcf > rawg.1mac1dp3allpop.1.ABfil.vcf
+ 
+ mawk '!/#/' *ABfil.vcf | wc -l
+2756
+```
+
+Now remove SNPs that occur on both strands of a read. Jon: 
+
+> Unless you are using super small genomic fragment or really long reads (MiSeq). A SNP should be covered only by forward or only reverse reads. The filter is based on proportions, so that a few extraneous reads won’t remove an entire locus.... In plain english, it’s keeping loci that have over 100 times more forward alternate reads than reverse alternate reads and 100 times more forward reference reads than reverse reference reads along with the reciprocal....That only removes a small proportion of loci, but these loci are likely to be paralogs, microbe contamination, or weird PCR chimeras.
+
+```{basjh. eval = F}
+vcffilter -f "SAF / SAR > 100 & SRF / SRR > 100 | SAR / SAF > 100 & SRR / SRF > 100" -s rawg.1mac1dp3allpop.1.ABfil.vcf > rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf
+
+mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf | wc -l
+7
+```
+
+Hmmm... that's a bit too stringent... maybe these were done on a MiSeq?
+
+
+> The next filter looks at the ratio of mapping qualities between reference and alternate alleles...The rationale here is that, again, because RADseq loci and alleles all should start from the same genomic location there should not be large discrepancy between the mapping qualities of two alleles.
+
+```{bash eval =F}
+vcffilter -f "MQM / MQMR > 0.9 & MQM / MQMR < 1.05" rawg.1mac1dp3allpop.1.ABfil.vcf > rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf
+mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf | wc -l
+2512
+```
+
+>Yet another filter that can be applied is whether or not their is a discrepancy in the properly paired status of for reads supporting reference or alternate alleles....Since de novo assembly is not perfect, some loci will only have unpaired reads mapping to them. This is not a problem. The problem occurs when all the reads supporting the reference allele are paired but not supporting the alternate allele. That is indicative of a problem.
+
+```{bash eval = F}
+vcffilter -f "PAIRED > 0.05 & PAIREDR > 0.05 & PAIREDR / PAIRED < 1.75 & PAIREDR / PAIRED > 0.25 | PAIRED < 0.05 & PAIREDR < 0.05" -s rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf > rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf
+
+mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf| wc -l
+2141
+```
+
+
+```{bash eval = F}
+dDocent_filters rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf 
+This script will automatically filter a FreeBayes generated VCF file using criteria related to site depth,
+quality versus depth, strand representation, allelic balance at heterzygous individuals, and paired read representation.
+The script assumes that loci and individuals with low call rates (or depth) have already been removed. 
+
+Contact Jon Puritz (jpuritz@gmail.com) for questions and see script comments for more details on particular filters 
+
+Number of sites filtered based on allele balance at heterozygous loci, locus quality, and mapping quality / Depth
+ 1192 of 2141 
+
+Are reads expected to overlap?  In other words, is fragment size less than 2X the read length?  Enter yes or no.
+yes
+Is this from a mixture of SE and PE libraries? Enter yes or no.
+no
+Number of additional sites filtered based on properly paired status
+ 0 of 949 
+
+Number of sites filtered based on high depth and lower than 2*DEPTH quality score
+ 78 of 949 
+
+
+                                                                                                                        
+                                                                                                                        
+                                               Histogram of mean depth per site                                         
+       30 +---------------------------------------------------------------------------------------------------------+   
+          |    +    +   **+    +    +    +     +    +    +    +     +    +    +    +     +    +    +    +     +    +|   
+          |             **                                'meandepthpersite' using (bin($1,binwidth)):(1.0) ******* |   
+          |         *** **                                                                                          |   
+       25 |-+       * * **                                                                                        +-|   
+          |        ** ****    **                                                                                    |   
+          |        ** ****    **                                                                                    |   
+          |        ** ****    **                                                                                    |   
+       20 |-+   ** ** ****    **                                                                                  +-|   
+          | **  ** ** ****    **                                                                                    |   
+          | **  ** ** *****   ** **                                                                                 |   
+       15 |***  ** ** *****   ** **                                                                               +-|   
+          |**** ** ** *****   ** **                                                                                 |   
+          |**** ** ** ******* ** **                                                                                 |   
+          |**** ***** ******* ** **              **                                                                 |   
+       10 |********** *************   ***        **                                                               +-|   
+          |********** ************** ****     ** **                                                                 |   
+          |********** ************** ****     ** **                                                                 |   
+          |********** ********************** *** ***          *****                                                 |   
+        5 |********** ******************** * ************     * ***                                               +-|   
+          |********** ******************** **************  ** * *******  **                                         |   
+          |********** ******************** ******************** ****************** ************ *** ***  ***       *|   
+          |********** ******************** ******************** ************ *** *** ****** * *** *** **** *********|   
+        0 +---------------------------------------------------------------------------------------------------------+   
+          10   15   20    25   30   35   40    45   50   55   60    65   70   75   80    85   90   95  100   105  110   
+                                                          Mean Depth                                                    
+                                                                                                                        
+If distrubtion looks normal, a 1.645 sigma cutoff (~90% of the data) would be 10141.7555
+The 95% cutoff would be 101
+Would you like to use a different maximum mean depth cutoff than 101, yes or no
+no
+Number of sites filtered based on maximum mean depth
+ 81 of 949 
+
+Number of sites filtered based on within locus depth mismatch
+ 36 of 868 
+
+Total number of sites filtered
+ 1309 of 2141 
+
+Remaining sites
+ 832 
+
+Filtered VCF file is called rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf.FIL.recode.vcf
+
+Filter stats stored in rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf.filterstats
+(ddocent_env) ecrandall@Argonaute:~/eric_data/ptuberculosa/filtering$ 
+```
+
+This script apparently does many of the other steps that I did above manually, so I started from an earlier checkpoint
+
+```{bash, eval = F}
+dDocent_filters  rawg1mac1dp3allpops.1.vcf.recode.vcf  rawg.1mac1dp3allpop.1.dDfil.vcf 
+This script will automatically filter a FreeBayes generated VCF file using criteria related to site depth,
+quality versus depth, strand representation, allelic balance at heterzygous individuals, and paired read representation.
+The script assumes that loci and individuals with low call rates (or depth) have already been removed. 
+
+Contact Jon Puritz (jpuritz@gmail.com) for questions and see script comments for more details on particular filters 
+
+Number of sites filtered based on allele balance at heterozygous loci, locus quality, and mapping quality / Depth
+ 23877 of 25261 
+
+Are reads expected to overlap?  In other words, is fragment size less than 2X the read length?  Enter yes or no.
+yes
+Is this from a mixture of SE and PE libraries? Enter yes or no.
+no
+Number of additional sites filtered based on properly paired status
+ 197 of 1384 
+
+Number of sites filtered based on high depth and lower than 2*DEPTH quality score
+ 1673 of 1187 
+
+
+                                                                                                                        
+                                                                                                                        
+                                               Histogram of mean depth per site                                         
+       60 +---------------------------------------------------------------------------------------------------------+   
+          | +    +     +    +     +    +    +     +    +     +    +     +    +    +     +    +     +    +     +    +|   
+          |                                               'meandepthpersite' using (bin($1,binwidth)):(1.0) ******* |   
+          |           **                                                                                            |   
+       50 |-+         **                                                                                          +-|   
+          |           **                                                                                            |   
+          |        ** **                                                                                            |   
+          |        ** **   **                                                                                       |   
+       40 |-+      ** **   **                                                                                     +-|   
+          |    **  ** **   **                                                                                       |   
+          |    ** *** ***  ** **                                                                                    |   
+       30 |-+  *********** *****                                                                                  +-|   
+          | ** *********** *****                                                                                    |   
+          | ** *****************                                                                                    |   
+          | ********************                                                                                    |   
+       20 |-********************  **                                                                              +-|   
+          |********************** ***                                                                               |   
+          |********************** ***                                                                               |   
+          |****************************     *                                                                       |   
+       10 |**************************** *** *                                                                     +-|   
+          |******************************** **   **    ***** **                                                     |   
+          |**************************************************** **       **         ***                             |   
+          |************************************************************************** ****  **  ** +  *** **  +*****|   
+        0 +---------------------------------------------------------------------------------------------------------+   
+            12   18    24   30    36   42   48    54   60    66   72    78   84   90    96  102   108  114   120  126   
+                                                          Mean Depth                                                    
+                                                                                                                        
+If distrubtion looks normal, a 1.645 sigma cutoff (~90% of the data) would be 11589.30825
+The 95% cutoff would be 116
+Would you like to use a different maximum mean depth cutoff than 116, yes or no
+no
+Number of sites filtered based on maximum mean depth
+ 109 of 1187 
+
+Number of sites filtered based on within locus depth mismatch
+ 21 of 1072 
+
+Total number of sites filtered
+ 24210 of 25261 
+
+Remaining sites
+ 1051 
+
+Filtered VCF file is called rawg.1mac1dp3allpop.1.dDfil.vcf.FIL.recode.vcf
+
+Filter stats stored in rawg.1mac1dp3allpop.1.dDfil.vcf.filterstats
+
+mv rawg.1mac1dp3allpop.1.dDfil.vcf.FIL.recode.vcf rawg.1mac1dp3allpop.1.dDfil.vcf
+```
+
+Now to filter by HWE
+
+>The next filter to apply is HWE. Heng Li also found that HWE is another excellent filter to remove erroneous variant calls. We don’t want to apply it across the board, since population structure will create departures from HWE as well. We need to apply this by population. I’ve included a perl script written by Chris Hollenbeck, one of the PhD student’s in my current lab that will do this for us.
+
+>Let’s filter our SNPs by population specific HWE First, we need to convert our variant calls to SNPs To do this we will use another command from vcflib called vcfallelicprimatives
+
+```{bash, eval =F}
+vcfallelicprimitives rawg.1mac1dp3allpop.1.dDfil.vcf --keep-info --keep-geno > rawg.1mac1dp3allpop.1.dDfil.prim.vcf
+```
+
+> This will decompose complex variant calls into phased SNP and INDEL genotypes and keep the INFO flags for loci and genotypes. Next, we can feed this VCF file into VCFtools to remove indels.
+
+```{bash, eval =F}
+vcftools --vcf rawg.1mac1dp3allpop.1.dDfil.prim.vcf --remove-indels --recode --recode-INFO-all --out SNP.rawg.1mac1dp3allpop.1.dDfil
+```
+
+>Outputting VCF file...
+After filtering, kept 1096 out of a possible 1126 Sites
+Run Time = 0.00 seconds
+
+Now apply the HWE filter, in filterhwe folder
+
+```{bash, eval = F}
+filter_hwe_by_pop.pl -v ../SNP.rawg.1mac1dp3allpop.1.dDfil.recode.vcf -p ../../popmap -o SNP.rawg.1mac1dp3allpop.1.dDfil.HWE -h 0.01 -c 0.1
+```
+
+>Processing population: BigIsland (17 inds)
+Processing population: FrenchFrigateShoals (9 inds)
+Processing population: Kauai (15 inds)
+Processing population: Kure (10 inds)
+Processing population: MaroReef (5 inds)
+Processing population: Maui (10 inds)
+Processing population: Molokai (10 inds)
+Processing population: Oahu (10 inds)
+Processing population: Pearl_Hermes (4 inds)
+Processing population: PioneerBanks (3 inds)
+Outputting results of HWE test for filtered loci to 'filtered.hwe'
+Kept 997 of a possible 1096 loci (filtered 99 loci)
+
+
+Hmm... the HWE filter is not working great, likely because of low sample sizes. It's leaving me with mostly loci without individuals with alternate homozygotes 
+
+```{bash, eval = F}
+conda deactivate
+```
+
+# Haplotyping
+
+## rad_haplotyper.pl
+
+First, gotta remove the -RG from the .bam and .bai files.
+
+```{bash}
+for f in *.bam; do mv "$f" "${f%-RG.bam}.bam" ; done
+for f in *.bam.bai; do  mv "$f" "${f%-RG.bam.bai}.bam.bai" ; done
+```
+
+Now, to install the rad_haplotyper environment following [these](https://github.com/chollenbeck/rad_haplotyper) instructions
+
+... rad_haplotyper isn't working because the Vcf Perl module changed its name to VCF... breaking the script.
+
+Remember to remove the environment: $ conda remove rad_haplotyper_env
+
+
+
+
+## Microhaplot
+
+I am now going to try [microhaplot](https://ngthomas.github.io/microhaplot/index.html) by Thomas Ng and Eric Anderson!!
+
+Now, have to convert the bam files to sam files.
+
+```{bash eval = F}
+for bam in *.bam                                                                                                                               130 
+do
+echo $bam
+samtools view -h -o ../sam_files/${bam%-RG.bam}.sam $bam
+done
+
+```

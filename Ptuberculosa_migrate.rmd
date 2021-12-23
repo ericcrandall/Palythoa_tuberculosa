@@ -405,10 +405,80 @@ I am now going to try [microhaplot](https://ngthomas.github.io/microhaplot/index
 Now, have to convert the bam files to sam files.
 
 ```{bash eval = F}
-for bam in *.bam                                                                                                                               130 
+for bam in *.bam                                                                                                      
 do
 echo $bam
-samtools view -h -o ../sam_files/${bam%-RG.bam}.sam $bam
+samtools view -h -o ../sam_files/${bam%.bam}.sam $bam
 done
 
+for bam in *.bam                                                                                                      
+do
+echo $bam
+mv $bam ${bam%-RG.bam}.bam
+done
+
+for bam in *.bai                                                                                                      
+do
+echo $bam
+mv $bam ${bam%-RG.bam.bai}.bam.bai
+done
+
+for bam in *.bam                                                                                                      
+do
+echo $bam
+samtools idxstats $bam > ./idxstats/${bam%.bam}_idxstats.txt
+done
+
+
+for bam in *.bam                                                                                                      
+do
+echo $bam
+samtools view -h -o /Users/edc5240/Datasets/Ptuberculosa/sam_files/${bam%.bam}.sam $bam
+done
+```
+
+### Tutorial
+
+Do the [tutorial](https://ngthomas.github.io/microhaplot/articles/microhaplot-walkthrough.html)
+
+```{r}
+library(microhaplot)
+shiny_dir <- "/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/Ptuberculosa_data/shiny_dir"
+microhaplot::mvShinyHaplot(shiny_dir)
+
+app.path <- file.path(shiny_dir, "microhaplot")
+microhaplot::runShinyHaplot(app.path)
+```
+
+
+#### Load Data
+Then follow along [here](https://ngthomas.github.io/microhaplot/articles/microhaplot-data-prep.html) to get data into microhaplot. 
+
+```{r}
+library(microhaplot)
+
+run.label <- "Ptuberculosa"
+
+path <- "/Users/edc5240/Datasets/Ptuberculosa"
+sam.path <- "/Users/edc5240/Datasets/Ptuberculosa/sam_files"
+# untar(system.file("extdata",
+#                   "sebastes_sam.tar.gz",
+#                   package="microhaplot"),
+#       exdir = sam.path)
+
+
+label.path <- file.path(path, "labels.txt")
+vcf.path <- file.path(path, "mm0.9minq30mac3thin500.recode.vcf")
+
+mvShinyHaplot(file.path(path,"shiny_dir"))
+app.path <- file.path(path,"shiny_dir", "microhaplot")
+
+haplo.read.tbl <- prepHaplotFiles(run.label = run.label,
+                            sam.path = sam.path,
+                            out.path = path,
+                            label.path = label.path,
+                            vcf.path = vcf.path,
+                            app.path = app.path)
+
+runShinyHaplot(path = "/Users/edc5240/Datasets/Ptuberculosa/shiny_dir/microhaplot")
 ```

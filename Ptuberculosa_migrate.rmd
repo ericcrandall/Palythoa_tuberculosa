@@ -1,15 +1,18 @@
 ---
 title: "Gene Flow Models for *Palythoa tuberculosa*"
-output: html_notebook
-  toc: true
-  toc_float: true
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
 ---
 
 Rob Toonen asked me to take a look at this dataset sequenced and analyzed by 'Ale'alani Dudoit. From
 Rob:  
+
 > It is a zoanthid - Palythoa tuberculosa - that is most common in anthropogenically disturbed habitats.  It seems like it could be a cool story, and she has plenty of SNPs or contigs to do whatever analysis you think would be most interesting to work up.
 
 'Ale'a:
+
 > Mahalo for checking out our data Eric, would be great to try out Migrate-n and see what results come of it. A couple other folks in the lab had similar interesting fst/structure results with their data (corals and fish) where O'ahu is more genetically similar to Kure/Midway atoll than to neighboring islands. Would be interesting to see if we get any cool results as Rob mentioned with military transport b/w O'ahu and Midway during WWII.
 I can send along my TotalRawSNPs and Filtered vcf files through scp command if you have a destination path you can provide me. Please let me know what other info you need from me, happy to send along. And yes, not urgent to get results this month but hoping to graduate next semester.
 
@@ -35,8 +38,9 @@ gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output 
 gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 ```
 
+# dDocent Approach
 
-# Filter SNPs
+## Filter SNPs
 
 'Ale' already filtered the SNPs quite a bit, but I need to start that process over because coalescent programs are sensitive to ascertainment bias. Also, need to knit them back into haplotypes. As Peter Beerli says on page 15 of the migrate-n manual:
 
@@ -382,9 +386,9 @@ Hmm... the HWE filter is not working great, likely because of low sample sizes. 
 conda deactivate
 ```
 
-# Haplotyping
+## Haplotyping
 
-## rad_haplotyper.pl
+### rad_haplotyper.pl
 
 First, gotta remove the -RG from the .bam and .bai files.
 
@@ -402,7 +406,7 @@ Remember to remove the environment: $ conda remove rad_haplotyper_env
 
 
 
-## Microhaplot
+### Microhaplot
 
 I am now going to try [microhaplot](https://ngthomas.github.io/microhaplot/index.html) by Thomas Ng and Eric Anderson!!
 

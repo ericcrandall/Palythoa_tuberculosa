@@ -1,6 +1,8 @@
 ---
 title: "Gene Flow Models for *Palythoa tuberculosa*"
 output: html_notebook
+  toc: true
+  toc_float: true
 ---
 
 Rob Toonen asked me to take a look at this dataset sequenced and analyzed by 'Ale'alani Dudoit. From

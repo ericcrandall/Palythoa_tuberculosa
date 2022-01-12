@@ -50,9 +50,11 @@ gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder 
 
 
 I've installed dDocent into a dedicated environment following instructions [here](https://www.ddocent.com/bioconda/). 
+
 ```{bash, eval = F}
 conda activate ddocent_env
 ```
+
 Following the tutorial, but altering filtering parameters. Keeping all SNPs with even a single occurence (Minor Allele Count = 1), but they must occur in 90% of individuals (mac 1) and be of high quality (minQ 30). We are keeping genotypes with as few as 3 reads. This is because evidence to keep these SNPs is based on their existence in multiple individuals.
 
 ```{bash, eval = F}
@@ -543,5 +545,37 @@ process_radtags -p ./raw/ -o ./cleaned/ --rescue --clean --quality --paired --fi
 
 ```
 
+> 724964572 total sequences
+        0 failed Illumina filtered reads (0.0%)
+227835784 reads contained adapter sequence (31.4%)
+        0 barcode not found drops (0.0%)
+ 28941251 low quality read drops (4.0%)
+ 63374437 RAD cutsite not found drops (8.7%)
+404813100 retained reads (55.8%)
 
+## Pipeline
+
+
+Hmm... gotta rename the cleaned files too
+
+```{bash eval = F}
+cd cleaned
+for f in *001.1.fq.gz
+do
+mv $f ${f/_R[12]_001.1.fq.gz/.1.fq.gz}
+done
+
+for f in *001.2.fq.gz
+do
+mv $f ${f/_R[12]_001.2.fq.gz/.2.fq.gz}
+done
+```
+
+
+I'm going to use the denovo_map.pl. This command will take data from `./cleaned` and the popmap I created for dDocent and -m 3 reads per stack, -n 4 distance between stacks, -M 4 distance between catalog loci. Running on 12 -T threads and only keeping loci that appear in 75% of individuals in all 10 populations
+
+```{bash}
+denovo_map.pl --samples ./cleaned/ --popmap ../popmap --out-path ./pipeline --paired \
+-m 3 -n 4 -M 4 -T 12 -r 75 -p 10 -X "populations: --fasta-samples"
+```
 

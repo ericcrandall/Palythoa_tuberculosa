@@ -29,6 +29,8 @@ gdown https://drive.google.com/uc?id=19XNrJvZKMQ3L7qTIuExajc5KY6-gj3P8 --output 
 gdown https://drive.google.com/uc?id=19vth-3IMkfMfxq4cp0QLOUgC2yFqnZ3C --output TotalRawSNPs.vcf
 gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output bam_files.zip
 
+
+gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 ```
 
 
@@ -482,3 +484,58 @@ haplo.read.tbl <- prepHaplotFiles(run.label = run.label,
 
 runShinyHaplot(path = "/Users/edc5240/Datasets/Ptuberculosa/shiny_dir/microhaplot")
 ```
+
+Working with the data in microhaplot was OK, but I kept getting unexplained N's in the output, and it was going to take some coding effort to translate the output into migrate format. Moreover, microhaplot only kept the variable sites, which isn't ideal for migrate's mutation model. So I am giving up on this front, and am going to try to generate haplotypes with Stacks.
+
+# Generating Haplotypes with Stacks
+
+## Setup
+
+Need first to copy all the fastq files over from Google Drive, where 'Ale'a put them. I split them into 4 tranches to keep the number of files under 50 as required by gdown. Note that the folder protocol won't take urls, but just the ID.
+
+```{bash}
+gdown --id 1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
+gdown --id 1Ofta4RLcf6vddIiAA6dLCkdrYngADW1d --folder --remaining-ok --output secondbatch
+gdown --id 1Og6JQNlhgprYvLTxJtMBlCCj72qRxLOw --folder --remaining-ok --output thirdbatch
+gdown --id 1Ojnlj3L_8UFoPUVxaqvLKTLs8qq_S9ml --folder --remaining-ok --output fourthbatch
+
+```
+
+
+Need to rename the files into Illumina format in order for Stacks to recognize the paired reads
+
+```{bash}
+cd raw
+
+for f in *.F.fq.gz
+do
+mv $f ${f/_1.F.fq.gz/_R1_001.fastq.gz}
+done
+
+for f in *.R.fq.gz
+do
+mv $f ${f/_1.R.fq.gz/_R2_001.fastq.gz}
+done
+
+cd ..
+```
+
+## Process RadTags
+
+'Ale'a said:
+
+>It was an ezRAD protocol developed by the Tobo lab. The restriction enzymes used were both MboI and Sau3AI. The sequences have indexes removed but still need to be trimmed/ends cleaned.
+
+So I will process the radtags to remove adapters and the sau3AI cut site (GATC, which is the same as MboI).
+This command cleans data removing reads with uncalled bases, low phred scores, rescue barcodes and rad-tags.
+
+```{bash}
+
+process_radtags -p ./raw/ -o ./cleaned/ --rescue --clean --quality --paired --filter_illumina --renz-1 sau3AI \
+--adapter-1 AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+--adapter-2 AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+
+```
+
+
+

@@ -572,10 +572,77 @@ done
 ```
 
 
-I'm going to use the denovo_map.pl. This command will take data from `./cleaned` and the popmap I created for dDocent and -m 3 reads per stack, -n 4 distance between stacks, -M 4 distance between catalog loci. Running on 12 -T threads and only keeping loci that appear in 75% of individuals in all 10 populations
+I'm going to use the denovo_map.pl pipeline. This command will take data from `./cleaned` and the popmap I created for dDocent and -m 3 reads per stack, -n 4 distance between stacks, -M 4 distance between catalog loci. Running on 12 -T threads and only keeping loci that appear in 75% of individuals in all 10 populations
 
 ```{bash}
 denovo_map.pl --samples ./cleaned/ --popmap ../popmap --out-path ./pipeline --paired \
--m 3 -n 4 -M 4 -T 12 -r 75 -p 10 -X "populations: --fasta-samples"
+-m 3 -n 4 -M 4 -T 12 -r 75 -p 10 -X "populations: --fasta-samples" -X "populations: --filter-haplotype-wise"
 ```
 
+Copy it down
+
+```{bash}
+scp -r  ecrandall@128.118.123.64:eric_data/ptuberculosa/stacks/pipeline/output1 ./stacks_output              
+```
+
+## Populations
+
+Now I need to re-run `populations` to get more statistics. Original populations output is in output1, this will be in output2.
+
+```{bash}
+populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats --p-value-cutoff 0.99 --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw 
+```
+
+
+
+
+
+# Fasta2Genotype
+
+Paul Maier created [this script](http://www.mountainmanmaier.com/software/) to convert Stacks haplotypes to migrate format. I had to remove all the [individualName] tokens from the populations.samples.fa to get it to work.
+
+```{bash}
+python2 /Applications/migrate/migrate-4.4.4/fasta2genotype/fasta2genotype.py populations.samples2.fa NA ../popmap.tsv  populations.snps.vcf ptuberculosa.mig
+
+```
+
+###################################################################
+###                                                             ###
+###       Fasta2Genotype | Data Conversion | Version 1.10       ###
+###                                                             ###
+###                        Cite as follows:                     ###
+###                                                             ###
+###   Maier P.A., Vandergast A.G., Ostoja S.M., Aguilar A.,     ###
+###   Bohonak A.J. (2019). Pleistocene glacial cycles drove     ###
+###   lineage diversification and fusion in the Yosemite toad   ###
+###   (Anaxyrus canorus). Evolution, in press.                  ###
+###   https://www.doi.org/10.1111/evo.13868                     ###
+###                                                             ###
+###################################################################
+
+Output type? [1] Migrate [2] Arlequin [3] DIYABC [4] LFMM [5] Phylip [6] G-Phocs [7] Treemix [8] Haplotype: 1
+Remove restriction enzyme or adapter sequences? These may bias data. [1] Yes [2] No: 2
+Coverage Cutoff (number reads for locus)? Use '0' to ignore coverage: 0
+Remove monomorphic loci? [1] Yes [2] No: 2
+Remove loci with excess heterozygosity? This can remove paralogs. [1] Yes [2] No: 1
+Maximum heterozygosity cutoff for removing loci out of Hardy-Weinberg? 0.5
+Filter for allele frequency? False alleles might bias data. [1] Yes [2] No: 2
+Filter for missing genotypes? These might bias data. [1] Yes [2] No: 2
+ 
+**************************************************************************************************************
+***                                       ... BEGINNING CONVERSION ...                                     ***
+**************************************************************************************************************
+ 
+Cataloging loci...
+Counting locus lengths...
+Cataloging populations...
+Counting gene copies...
+Counting alleles for each locus...
+Identifying loci with excess heterozygosity...
+     Calculating observed heterozygosity and homozygosity...
+     Calculating expected heterozygosity and homozygosity...
+     Flagging loci with excess heterozygosity for removal...
+     Removing loci...
+     Removed 2 overly heterozygous loci.
+Outputting migrate-n file...
+*** DONE! ***

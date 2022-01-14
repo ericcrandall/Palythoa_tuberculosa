@@ -1,0 +1,150 @@
+populations v2.60, executed 2022-01-14 15:26:32 (zlib-1.2.11)
+populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats --p-value-cutoff 0.99 --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw
+Locus/sample distributions will be written to './populations.log.distribs'.
+populations parameters selected:
+  Percent samples limit per population: 0.75
+  Locus Population limit: 10
+  Percent samples overall: 0
+  Minor allele frequency cutoff: 0
+  Maximum observed heterozygosity cutoff: 1
+  Applying Fst correction: none.
+  Pi/Fis kernel smoothing: off
+  F-stats kernel smoothing: off
+  Bootstrap resampling: off
+
+Parsing population map...
+The population map contained 93 samples, 10 population(s), 1 group(s).
+Working on 93 samples.
+Working on 10 population(s):
+    Oahu: 113OAPtu, 117OAPtu, 123OAPtu, 127OAPtu, 129OAPtu, 132OAPtu, 133OAPtu, 137OAPtu, 92OAPtu, 93OAPtu
+    FrenchFrigateShoals: 149FFSPtu, 150FFSPtu, 151FFSPtu, 152FFSPtu, 153FFSPtu, 158FFSPtu, 159FFSPtu, 160FFSPtu, 161FFSPtu
+    MaroReef: 164MRPtu, 165MRPtu, 169MRPtu, 172MRPtu, 175MRPtu
+    Pearl_Hermes: 178PHPtu, 179PHPtu, 180PHPtu, 181PHPtu
+    Kure: 187KURPtu, 188KURPtu, 190KURPtu, 191KURPtu, 192KURPtu, 193KURPtu, 197KURPtu, 198KURPtu, 202KURPtu, 204KURPtu
+    PioneerBanks: 210PBPtu, 211PBPtu, 214PBPtu
+    Maui: 220MAPtu, 222MAPtu, 228MAPtu, 233MAPtu, 238MAPtu, 246MAPtu, 78MAPtu, 79MAPtu, 80MAPtu, 85MAPtu
+    Molokai: 314MOPtu, 317MOPtu, 319MOPtu, 322MOPtu, 326MOPtu, 330MOPtu, 332MOPtu, 348MOPtu, 350MOPtu, 352MOPtu
+    BigIsland: 393BIPtu, 397BIPtu, 398BIPtu, 399BIPtu, 405BIPtu, 408BIPtu, 412BIPtu, 413BIPtu, 414BIPtu, 415BIPtu, 420BIPtu, 421BIPtu, 422BIPtu, 
+               423BIPtu, 424BIPtu, 428BIPtu, 429BIPtu
+    Kauai: 445KAPtu, 451KAPtu, 458KAPtu, 460KAPtu, 461KAPtu, 469KAPtu, 471KAPtu, 478KAPtu, 480KAPtu, 481KAPtu, 482KAPtu, 483KAPtu, 485KAPtu, 
+           486KAPtu, 491KAPtu
+Working on 1 group(s) of populations:
+    defaultgrp: Oahu, FrenchFrigateShoals, MaroReef, Pearl_Hermes, Kure, PioneerBanks, Maui, Molokai, BigIsland, Kauai
+
+FASTA consensus sequences for each locus in the metapopulation  will be written to './populations.loci.fa'
+FASTA consensus sequences for each sample will be written to './populations.samples.fa'
+SNPs and calls will be written in VCF format to './populations.snps.vcf'
+Haplotypes will be written in VCF format to './populations.haps.vcf'
+Polymorphic sites in GenePop format will be written to './populations.snps.genepop'
+Warning: Genepop: The order in which samples appear was modified (as the input population map is not sorted).Polymorphic loci in GenePop format will be written to './populations.haps.genepop'
+Polymorphic sites in Structure format will be written to './populations.structure'
+Per-population SNP allele counts will be written to './populations.treemix'
+Raw FASTA consensus sequences for each sample will be written to './populations.samples-raw.fa'
+Raw haplotypes will be written to './populations.haplotypes.tsv'
+Population-level summary statistics will be written to './populations.sumstats.tsv'
+Population-level haplotype summary statistics will be written to './populations.hapstats.tsv'
+
+Processing data in batches:
+  * load a batch of catalog loci and apply filters
+  * compute SNP- and haplotype-wise per-population statistics
+  * compute SNP- and haplotype-wise deviation from HWE
+  * compute F-statistics
+  * write the above statistics in the output files
+  * export the genotypes/haplotypes in specified format(s)
+More details in './populations.log.distribs'.
+
+Now processing...
+Batch 1 
+
+Removed 2472544 loci that did not pass sample/population constraints from 2472655 loci.
+Kept 111 loci, composed of 49262 sites; 452 of those sites were filtered, 299 variant sites remained.
+Number of loci with PE contig: 111.00 (100.0%);
+  Mean length of loci: 433.80bp (stderr 11.96);
+Number of loci with SE/PE overlap: 111.00 (100.0%);
+  Mean length of overlapping loci: 443.80bp (stderr 11.96); mean overlap: 31.00bp (stderr 0.00);
+Mean genotyped sites per locus: 443.80bp (stderr 11.96).
+
+Population summary statistics (more detail in populations.sumstats_summary.tsv):
+  Oahu: 9.1338 samples per locus; pi: 0.021559; all/variant/polymorphic sites: 49262/299/46; private alleles: 23
+  FrenchFrigateShoals: 7.8294 samples per locus; pi: 0.026958; all/variant/polymorphic sites: 49262/299/45; private alleles: 27
+  MaroReef: 4.7592 samples per locus; pi: 0.022594; all/variant/polymorphic sites: 49262/299/24; private alleles: 8
+  Pearl_Hermes: 3.3043 samples per locus; pi: 0.02631; all/variant/polymorphic sites: 49262/299/25; private alleles: 14
+  Kure: 9.7793 samples per locus; pi: 0.019496; all/variant/polymorphic sites: 49262/299/43; private alleles: 28
+  PioneerBanks: 3 samples per locus; pi: 0.014047; all/variant/polymorphic sites: 49262/299/11; private alleles: 4
+  Maui: 8.3612 samples per locus; pi: 0.023782; all/variant/polymorphic sites: 49262/299/48; private alleles: 25
+  Molokai: 9.291 samples per locus; pi: 0.029272; all/variant/polymorphic sites: 49262/299/52; private alleles: 24
+  BigIsland: 16.09 samples per locus; pi: 0.026645; all/variant/polymorphic sites: 49262/299/83; private alleles: 42
+  Kauai: 13.893 samples per locus; pi: 0.020928; all/variant/polymorphic sites: 49262/299/64; private alleles: 31
+
+Number of variable sites found to be significantly out of Hardy-Weinberg equilibrium (<0.99):
+  Oahu: 5
+  FrenchFrigateShoals: 4
+  MaroReef: 5
+  Pearl_Hermes: 2
+  Kure: 2
+  PioneerBanks: 2
+  Maui: 4
+  Molokai: 6
+  BigIsland: 7
+  Kauai: 4
+Number of loci found to be significantly out of Hardy-Weinberg equilibrium (<0.99):
+  Oahu: 80
+  FrenchFrigateShoals: 83
+  MaroReef: 93
+  Pearl_Hermes: 91
+  Kure: 81
+  PioneerBanks: 102
+  Maui: 75
+  Molokai: 78
+  BigIsland: 66
+  Kauai: 74
+(more detail in populations.sumstats.tsv and populations.hapstats.tsv)
+
+Population pair divergence statistics (more in populations.fst_summary.tsv and populations.phistats_summary.tsv):
+  Oahu-FrenchFrigateShoals: mean Fst: 0.032727; mean Phi_st: 0.0025445; mean Fst': 0.0023277; mean Dxy: 0.00045634
+  Oahu-MaroReef: mean Fst: 0.04041; mean Phi_st: 0.0010051; mean Fst': 0.003069; mean Dxy: 0.00051022
+  Oahu-Pearl_Hermes: mean Fst: 0.042583; mean Phi_st: -0.0067757; mean Fst': -0.0092971; mean Dxy: 0.00047299
+  Oahu-Kure: mean Fst: 0.02896; mean Phi_st: 0.002967; mean Fst': -0.0018077; mean Dxy: 0.0003494
+  Oahu-PioneerBanks: mean Fst: 0.027228; mean Phi_st: -0.050997; mean Fst': -0.011428; mean Dxy: 0.00038708
+  Oahu-Maui: mean Fst: 0.028009; mean Phi_st: -0.0026534; mean Fst': -0.0034065; mean Dxy: 0.00037075
+  Oahu-Molokai: mean Fst: 0.032852; mean Phi_st: 0.0071306; mean Fst': 0.0054022; mean Dxy: 0.00045618
+  Oahu-BigIsland: mean Fst: 0.021907; mean Phi_st: 0.0022781; mean Fst': 0.0013209; mean Dxy: 0.00038052
+  Oahu-Kauai: mean Fst: 0.023253; mean Phi_st: -0.00068313; mean Fst': -0.0015336; mean Dxy: 0.00034687
+  FrenchFrigateShoals-MaroReef: mean Fst: 0.045845; mean Phi_st: 0.010686; mean Fst': 0.0044345; mean Dxy: 0.00051832
+  FrenchFrigateShoals-Pearl_Hermes: mean Fst: 0.051087; mean Phi_st: 0.0050968; mean Fst': -0.0023243; mean Dxy: 0.00054741
+  FrenchFrigateShoals-Kure: mean Fst: 0.037582; mean Phi_st: 0.014205; mean Fst': 0.007129; mean Dxy: 0.00045712
+  FrenchFrigateShoals-PioneerBanks: mean Fst: 0.039453; mean Phi_st: -0.029434; mean Fst': -0.0025841; mean Dxy: 0.00052501
+  FrenchFrigateShoals-Maui: mean Fst: 0.030833; mean Phi_st: -0.0011513; mean Fst': 0.0015423; mean Dxy: 0.00041973
+  FrenchFrigateShoals-Molokai: mean Fst: 0.028292; mean Phi_st: -0.0059603; mean Fst': -0.0042217; mean Dxy: 0.00052948
+  FrenchFrigateShoals-BigIsland: mean Fst: 0.022673; mean Phi_st: 0.0001178; mean Fst': 0.00038301; mean Dxy: 0.00043425
+  FrenchFrigateShoals-Kauai: mean Fst: 0.030301; mean Phi_st: 0.0096093; mean Fst': 0.0051743; mean Dxy: 0.00043157
+  MaroReef-Pearl_Hermes: mean Fst: 0.068774; mean Phi_st: -0.0041391; mean Fst': -0.0088892; mean Dxy: 0.00065711
+  MaroReef-Kure: mean Fst: 0.042144; mean Phi_st: 0.015947; mean Fst': 0.0041423; mean Dxy: 0.0004818
+  MaroReef-PioneerBanks: mean Fst: 0.06699; mean Phi_st: -0.014414; mean Fst': -0.0098497; mean Dxy: 0.00069792
+  MaroReef-Maui: mean Fst: 0.038347; mean Phi_st: -0.0056957; mean Fst': 9.3738e-05; mean Dxy: 0.00041554
+  MaroReef-Molokai: mean Fst: 0.04032; mean Phi_st: 0.0087894; mean Fst': 0.002883; mean Dxy: 0.00056744
+  MaroReef-BigIsland: mean Fst: 0.02064; mean Phi_st: -0.013395; mean Fst': -0.0042612; mean Dxy: 0.00047903
+  MaroReef-Kauai: mean Fst: 0.0291; mean Phi_st: -0.00055113; mean Fst': 0.0027731; mean Dxy: 0.00044839
+  Pearl_Hermes-Kure: mean Fst: 0.046734; mean Phi_st: 0.0035125; mean Fst': -0.0069208; mean Dxy: 0.00048094
+  Pearl_Hermes-PioneerBanks: mean Fst: 0.070919; mean Phi_st: -0.033406; mean Fst': -0.026119; mean Dxy: 0.00064215
+  Pearl_Hermes-Maui: mean Fst: 0.044556; mean Phi_st: -0.010308; mean Fst': -0.0071316; mean Dxy: 0.00045168
+  Pearl_Hermes-Molokai: mean Fst: 0.051408; mean Phi_st: 0.0093718; mean Fst': 0.0035036; mean Dxy: 0.00055951
+  Pearl_Hermes-BigIsland: mean Fst: 0.031231; mean Phi_st: -0.00090341; mean Fst': -0.00087423; mean Dxy: 0.0004395
+  Pearl_Hermes-Kauai: mean Fst: 0.033098; mean Phi_st: -0.013063; mean Fst': -0.0047936; mean Dxy: 0.00041031
+  Kure-PioneerBanks: mean Fst: 0.03239; mean Phi_st: -0.039979; mean Fst': -0.011455; mean Dxy: 0.0004116
+  Kure-Maui: mean Fst: 0.031661; mean Phi_st: 0.0070075; mean Fst': -0.0013907; mean Dxy: 0.00035609
+  Kure-Molokai: mean Fst: 0.039478; mean Phi_st: 0.024559; mean Fst': 0.011092; mean Dxy: 0.00046044
+  Kure-BigIsland: mean Fst: 0.024287; mean Phi_st: 0.010095; mean Fst': 0.0040028; mean Dxy: 0.00038744
+  Kure-Kauai: mean Fst: 0.023568; mean Phi_st: 0.0020446; mean Fst': -0.00090278; mean Dxy: 0.00033421
+  PioneerBanks-Maui: mean Fst: 0.033278; mean Phi_st: -0.045699; mean Fst': -0.011517; mean Dxy: 0.00035459
+  PioneerBanks-Molokai: mean Fst: 0.037157; mean Phi_st: -0.024723; mean Fst': 0.0023784; mean Dxy: 0.0004949
+  PioneerBanks-BigIsland: mean Fst: 0.018462; mean Phi_st: -0.045454; mean Fst': -0.0035431; mean Dxy: 0.0003657
+  PioneerBanks-Kauai: mean Fst: 0.020744; mean Phi_st: -0.055918; mean Fst': -0.0092145; mean Dxy: 0.00033416
+  Maui-Molokai: mean Fst: 0.032429; mean Phi_st: 0.0072915; mean Fst': 0.0036667; mean Dxy: 0.00045052
+  Maui-BigIsland: mean Fst: 0.020345; mean Phi_st: 0.00051729; mean Fst': -0.000176; mean Dxy: 0.00035881
+  Maui-Kauai: mean Fst: 0.02319; mean Phi_st: -0.0016792; mean Fst': -0.0022883; mean Dxy: 0.00035592
+  Molokai-BigIsland: mean Fst: 0.022187; mean Phi_st: 0.0052886; mean Fst': 0.00021167; mean Dxy: 0.00045363
+  Molokai-Kauai: mean Fst: 0.03146; mean Phi_st: 0.017292; mean Fst': 0.0069967; mean Dxy: 0.00045366
+  BigIsland-Kauai: mean Fst: 0.018625; mean Phi_st: 0.0032595; mean Fst': 0.0013679; mean Dxy: 0.00038236
+
+Populations is done.

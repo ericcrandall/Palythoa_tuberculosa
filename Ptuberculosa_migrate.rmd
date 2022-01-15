@@ -606,6 +606,7 @@ python2 /Applications/migrate/migrate-4.4.4/fasta2genotype/fasta2genotype.py pop
 
 ```
 
+```{bash, eval = F}
 ###################################################################
 ###                                                             ###
 ###       Fasta2Genotype | Data Conversion | Version 1.10       ###
@@ -646,3 +647,6 @@ Identifying loci with excess heterozygosity...
      Removed 2 overly heterozygous loci.
 Outputting migrate-n file...
 *** DONE! ***
+```
+
+Then I manually re-ordered the populations to run from north to south in the output file, and moved it into the migrate folder.

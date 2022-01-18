@@ -99,7 +99,7 @@ Of particular interest is the matrix of 0 and \*: this is what lets us specify a
 
 This matrix denotes the following metapopulation model, where population 1 is a source and 3 and 4 are sinks.
 
-![Migrate figure 2](../images/migrate-figure2.jpg)
+![Migrate figure 2](../figures/migrate-figure2.jpg)
 
 ## Setting up Migrate-n
 So now we will go about setting up for a migrate run.
@@ -389,4 +389,4 @@ data.list.plot<-lapply(data.list.2,subset,select=c(which(grepl("Theta_",names(da
 
 Here's what those plots look like:
 
-![GGMCMC Plots for P. coelestis](../images/pcoelestis_ggmcmc.pdf)
+![GGMCMC Plots for P. coelestis](../figures/pcoelestis_ggmcmc.pdf)

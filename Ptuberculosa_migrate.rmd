@@ -71,21 +71,23 @@ Run this error checking script to see the potential impact of shallow-sequenced 
 
 ```{bash, eval = F}
 ErrorCount.sh rawg.1mac1dp3.recode.vcf
+
+<!-- This script counts the number of potential genotyping errors due to low read depth -->
+<!-- It report a low range, based on a 50% binomial probability of observing the second allele in a heterozygote and a high range based on a 25% probability. -->
+<!-- Potential genotyping errors from genotypes from only 1 read range from 0.0 to 0.0 -->
+<!-- Potential genotyping errors from genotypes from only 2 reads range from 0.0 to 0.0 -->
+<!-- Potential genotyping errors from genotypes from only 3 reads range from 3808.875 to 12797.82 -->
+<!-- Potential genotyping errors from genotypes from only 4 reads range from 3860.25 to 19517.424 -->
+<!-- Potential genotyping errors from genotypes from only 5 reads range from 913.78125 to 6930 -->
+<!-- 93 number of individuals and 28128 equals 2615904 total genotypes -->
+<!-- Total genotypes not counting missing data 2508832 -->
+<!-- Total potential error rate is between 0.0034210765208670807 and 0.015642834593946504 -->
+<!-- SCORCHED EARTH SCENARIO -->
+<!-- WHAT IF ALL LOW DEPTH HOMOZYGOTE GENOTYPES ARE ERRORS????? -->
+<!-- The total SCORCHED EARTH error rate is 0.04841934414101861. -->
 ```
 
->This script counts the number of potential genotyping errors due to low read depth
-It report a low range, based on a 50% binomial probability of observing the second allele in a heterozygote and a high range based on a 25% probability.
-Potential genotyping errors from genotypes from only 1 read range from 0.0 to 0.0
-Potential genotyping errors from genotypes from only 2 reads range from 0.0 to 0.0
-Potential genotyping errors from genotypes from only 3 reads range from 3808.875 to 12797.82
-Potential genotyping errors from genotypes from only 4 reads range from 3860.25 to 19517.424
-Potential genotyping errors from genotypes from only 5 reads range from 913.78125 to 6930
-93 number of individuals and 28128 equals 2615904 total genotypes
-Total genotypes not counting missing data 2508832
-Total potential error rate is between 0.0034210765208670807 and 0.015642834593946504
-SCORCHED EARTH SCENARIO
-WHAT IF ALL LOW DEPTH HOMOZYGOTE GENOTYPES ARE ERRORS?????
-The total SCORCHED EARTH error rate is 0.04841934414101861.
+
 
 Look at missing data per individual
 
@@ -148,6 +150,7 @@ pop_missing_filter.sh ../rawg.1mac1dp3.recode.vcf ../../popmap 0.1 10 rawg1mac1d
 ```
 
 This filter keeps loci with Allele Balance  between 0.25 and 0.75. From Jon:
+
 >Allele balance is: a number between 0 and 1 representing the ratio of reads showing the reference allele to all reads, considering only reads from individuals called as heterozygous Because RADseq targets specific locations of the genome, we expect that the allele balance in our data (for real loci) should be close to 0.5
 
 So this will keep only really high quality SNPs
@@ -366,20 +369,20 @@ Now apply the HWE filter, in filterhwe folder
 
 ```{bash, eval = F}
 filter_hwe_by_pop.pl -v ../SNP.rawg.1mac1dp3allpop.1.dDfil.recode.vcf -p ../../popmap -o SNP.rawg.1mac1dp3allpop.1.dDfil.HWE -h 0.01 -c 0.1
-```
 
->Processing population: BigIsland (17 inds)
-Processing population: FrenchFrigateShoals (9 inds)
-Processing population: Kauai (15 inds)
-Processing population: Kure (10 inds)
-Processing population: MaroReef (5 inds)
-Processing population: Maui (10 inds)
-Processing population: Molokai (10 inds)
-Processing population: Oahu (10 inds)
-Processing population: Pearl_Hermes (4 inds)
-Processing population: PioneerBanks (3 inds)
-Outputting results of HWE test for filtered loci to 'filtered.hwe'
-Kept 997 of a possible 1096 loci (filtered 99 loci)
+<!-- Processing population: BigIsland (17 inds) -->
+<!-- Processing population: FrenchFrigateShoals (9 inds) -->
+<!-- Processing population: Kauai (15 inds) -->
+<!-- Processing population: Kure (10 inds) -->
+<!-- Processing population: MaroReef (5 inds) -->
+<!-- Processing population: Maui (10 inds) -->
+<!-- Processing population: Molokai (10 inds) -->
+<!-- Processing population: Oahu (10 inds) -->
+<!-- Processing population: Pearl_Hermes (4 inds) -->
+<!-- Processing population: PioneerBanks (3 inds) -->
+<!-- Outputting results of HWE test for filtered loci to 'filtered.hwe' -->
+<!-- Kept 997 of a possible 1096 loci (filtered 99 loci) -->
+```
 
 
 Hmm... the HWE filter is not working great, likely because of low sample sizes. It's leaving me with mostly loci without individuals with alternate homozygotes 
@@ -593,11 +596,7 @@ Now I need to re-run `populations` to get more statistics. Original populations 
 populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats --p-value-cutoff 0.99 --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw 
 ```
 
-
-
-
-
-# Fasta2Genotype
+## Fasta2Genotype
 
 Paul Maier created [this script](http://www.mountainmanmaier.com/software/) to convert Stacks haplotypes to migrate format. I had to remove all the [individualName] tokens from the populations.samples.fa to get it to work.
 
@@ -650,3 +649,19 @@ Outputting migrate-n file...
 ```
 
 Then I manually re-ordered the populations to run from north to south in the output file, and moved it into the migrate folder.
+
+# Migrate
+
+## Install Migrate
+
+Install the parallel version of Migrate on Nautilus server. I hade to remove `-fvectorize` from line 100 of the makefile to get this to work.
+
+```{bash}
+curl https://peterbeerli.com/migrate-html5/download_version4/migrate-newest-src.tar.gz > migrate.tar.gz
+tar -fvxz migrate.tar.gz
+cd migrate-4.4.4/
+cd src
+./configure
+make mpis (for parallel running)
+sudo cp migrate-n-mpi /usr/local/bin/migrate-n-mpi
+```

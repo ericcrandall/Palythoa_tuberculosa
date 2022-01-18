@@ -1,11 +1,10 @@
-
 plugins:
   - jekyll-relative-links
 relative_links:
   enabled: true
-collections: true
+  collections: true
 include:
-  - CONTRIBUTING.md
+- CONTRIBUTING.md
 - README.md
 - LICENSE.md
 - COPYING.md

@@ -11,9 +11,11 @@ This is an ongoing analysis of gene flow and metapopulation structure in the zoa
 Analysis and tutorial by [Eric Crandall](https://science.psu.edu/bio/people/edc5240), Assistant Research Professor, Pennsylvania State University
 
 ![Limu-Make-O-Hana](https://upload.wikimedia.org/wikipedia/commons/3/37/Palythoa_tuberculosa-2.jpg)
+Limu-Make-O-Hana - a handsome beast of a zoanthid
 
-![Sampling Map](figures/Ptuberculosa_Samples.jpg)
 
+![Map of Where 'Ale'alani sampled](figures/Ptuberculosa_Samples.jpg)
+Map of 'Ale'alani's samples
 
 
 

@@ -33,7 +33,7 @@ Welcome to this migrate-n tutorial, by Dr. Eric Crandall of Pennsylvania State U
 
 This tutorial will focus on analysis of haploid mitochondrial COI sequence data from *Panulirus pencillatus* provided by Dr. Matt Iacchei's dissertation and Iacchei et al. 2016. Such a beautiful critter.
 
-![Panulirus pencillatus](https://upload.wikimedia.org/wikipedia/commons/9/99/Panulirus_penicillatus_%28MNHN-IU-2010-5073%29.jpeg)
+![Panulirus pencillatus](../figures/Panulirus_penicillatus.jpeg)
 
 Photo by: Muséum national d'histoire naturelle
 

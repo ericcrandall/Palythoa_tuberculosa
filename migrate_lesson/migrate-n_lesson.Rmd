@@ -62,8 +62,8 @@ title=panpen_CI_Iacchei
 progress=YES
 logfile=NO
 print-data=NO
-outfile=panpen_CI_Iacchei_outfile.txt
-pdf-outfile=panpen_CI_Iacchei_outfile.pdf
+outfile=outfile.txt
+pdf-outfile=outfile.pdf
 #whether to use m or Nm in the model. I always use m.
 use-M=YES
 plot=NO
@@ -107,6 +107,9 @@ long-chains=1
 long-inc=100
 long-sample=50000
 burn-in=20000
+# This is the heating scheme Peter recommends for calculating marginal likelihood
+# of models via thermodynamic integration. The super-hot chain is essentially exploring
+# all corners of parameter space.
 heating=YES:1:{1,1.5,3,100000}
 heated-swap=YES
 moving-steps=NO
@@ -212,7 +215,7 @@ $ Type Control-a and then Control-d to detach yourself from this screen
 
 ## Interpreting results
 
-12. When all runs are complete, download the entire folder thusly:
+12. When all runs are complete (could be weeks... :-/ ), download the entire folder thusly:
 
 ```{bash, eval=F}
 
@@ -220,47 +223,59 @@ $ scp -r userid@server.address.edu:./migrate_directory ./migrate_directory
 
 ```
 
+### Harvesting marginal likelihoods
 
-13. Now we will rank the models based on their marginal likelihood scores. This script will rip through all of the output files, and harvest the marginal likelihood scores
-
+13. Now we will rank the models based on their marginal likelihood scores. This script will rip through all of the output files, and harvest the marginal likelihood scores. 
 
 ```{r}
-setwd("~/Desktop/pcoelestis_migrate")
-marglike<-data.frame(model=character(0),thermodynamic=numeric(0),bezier.corrected=numeric(0),harmonic=numeric(0),stringsAsFactors=F) #initialize a data frame to take the values
+workingDir <- "./PanPen_example/panpen_CI_Iacchei"
+marglike <- data.frame(model=character(0),thermodynamic=numeric(0),bezier.corrected=numeric(0),harmonic=numeric(0),stringsAsFactors=F) #initialize a data frame to take the values
     l=1 #initialize l
-    for(i in list.files()){ #i<-"stepping_stone"
-      wd3<-file.path("~/Desktop/pcoelestis_migrate",i)
-      print(wd3)
-      if(!file.exists(wd3)){next}
-      setwd(wd3)
-      outfile<-scan(file="outfile.txt",what="character",sep="\n") #scan in the outfile, separating at each newline
+    for(i in list.files(workingDir)){ #i<-"stepping.stone"
+      modelDir<-file.path(workingDir,i)
+      print(modelDir)
       
-      #get the result from thermodynamic integration
-      thermoline<-grep("(1a)",outfile,value=T) #find the line with the thermodynamic likelihood on it
+      outfile<-scan(file=file.path(modelDir,"outfile.txt"),what="character",sep="\n") #scan in the outfile, separating at each newline
+      
+      #now some crazy parsing to get the result from thermodynamic integration
+      thermoline <- grep("(1a)",outfile,value=T) #find the line with the thermodynamic likelihood on it
       if(length(thermoline)==0){next}
-      thermoline<-strsplit(thermoline,split="=",fixed=T) #split it up
-      thermo<-as.numeric(substr(thermoline[[1]][2],start=1,stop=12)) #grab the thermodynamic likelihood
-      bezistart<-grep("\\(",strsplit(thermoline[[1]][2],split="")[[1]])+1
-      bezier<-as.numeric(substr(thermoline[[1]][2],start=bezistart,stop=bezistart+11)) #and the bezier-corrected value
+      thermoline <- strsplit(thermoline, split="=", fixed=T) #split it up
+      thermo <- as.numeric(substr(thermoline[[1]][2], start=1, stop=12)) #grab the thermodynamic likelihood
+      bezistart <- grep("\\(",strsplit(thermoline[[1]][2], split="")[[1]])+1
+      bezier <- as.numeric(substr(thermoline[[1]][2], start=bezistart, stop=bezistart+11)) #and the bezier-corrected value
       #get the harmonic mean
-      harmoline<-grep("\\(2\\) H",outfile,value=T) #find the line with harmonic mean likelihood on it
-      harmoline<-strsplit(harmoline,split="=",fixed=T) #grab the harmonic mean
-      harmo<-as.numeric(substr(harmoline[[1]][2],start=1,stop=12))
-      marglike[l,]<-c(i,thermo,bezier,harmo) #add this as a row to the data frame
+      harmoline <- grep("\\(2\\) H",outfile,value=T) #find the line with harmonic mean likelihood on it
+      harmoline <- strsplit(harmoline,split="=",fixed=T) #grab the harmonic mean
+      harmo <- as.numeric(substr(harmoline[[1]][2],start=1,stop=12))
+      marglike[l,] <- c(i,thermo,bezier,harmo) #add this as a row to the data frame
       l=l+1
     }
 
+kable(marglike)
+    
+```
+
+We get 3 likelihood scores for each model. The first is the thermodynamic integration likelihood (which I explained in my lecture). The second is the Bezier corrected thermodynamic integration marginal likelihood (say that 5 times fast). What is a Bezier correction? 
+
+~[Figure 1. Beerli and Palczewski 2010](../figures/B&P_Bezier_2010.jpg)
+
+Beerli & Palczewski (2010) showed that, while it would ordinarily take 16 or 32 MCMC chains to explore enough parameter space for thermodynamic integration, one could do the search with just 4 chains (one super-heated) and apply a Bezier spline (the dashed line in the figure), to get comparable results at a fraction of the computation.
+
+
+
+```{r}
 # Here is a function for calculating log bayes factors 
 bfcalcs<-function(df,ml="bezier.corrected"){
-  df$thermodynamic<-as.numeric(df$thermodynamic)
-  df$bezier.corrected<-as.numeric(df$bezier.corrected)
-  df$harmonic<-as.numeric(df$harmonic)
-    mlcol<-df[,ml] 
-	bmvalue<-mlcol[which.max(mlcol)]
-	lbf<-2*(mlcol-bmvalue)
-	choice<-rank(-mlcol)
-	modelprob<-exp(lbf/2)/sum(exp(lbf/2))
-	dfall<-cbind(df,lbf,choice,modelprob)
+  df$thermodynamic <- as.numeric(df$thermodynamic)
+  df$bezier.corrected <- as.numeric(df$bezier.corrected)
+  df$harmonic <- as.numeric(df$harmonic)
+    mlcol <- df[,ml] 
+	bmvalue <- mlcol[which.max(mlcol)]
+	lbf <- 2*(mlcol-bmvalue)
+	choice <- rank(-mlcol)
+	modelprob <- exp(lbf/2)/sum(exp(lbf/2))
+	dfall <- cbind(df,lbf,choice,modelprob)
 	return(dfall)
 }	
 

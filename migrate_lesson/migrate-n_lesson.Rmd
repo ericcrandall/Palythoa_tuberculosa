@@ -1,5 +1,6 @@
 ---
 title: "Introduction to Migrate-n"
+author: "Eric D. Crandall"
 output:
   html_document: default
   html_notebook:
@@ -23,9 +24,19 @@ library(gridExtra)
 library(reshape2)
 ```
 
-# Migrate-n Introduction
+# Migrate-n Tutorial
 
-[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson. Similarly, this tutorial will focus on analysis of haploid mitochondrial sequence data.
+Welcome to this migrate-n tutorial, by Dr. Eric Crandall of Pennsylvania State University. If you have questions or find errors, please let me know at ecrandall[!@AT^&]psu.edu
+
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson. 
+
+
+This tutorial will focus on analysis of haploid mitochondrial COI sequence data from *Panulirus pencillatus* provided by Dr. Matt Iacchei's dissertation and Iacchei et al. 2016. Such a beautiful critter.
+
+![Panulirus pencillatus](https://upload.wikimedia.org/wikipedia/commons/9/99/Panulirus_penicillatus_%28MNHN-IU-2010-5073%29.jpeg)
+
+Photo by: Muséum national d'histoire naturelle
+
 
 ![Migrate-figure](../figures/migrate-figure.jpg)
 ## The Parmfile
@@ -391,6 +402,8 @@ Beerli, P., Ashki, H., Mashayekhi, S., & Palczewski, M. (2019). Population diver
 Crandall, E. D., Toonen, R. J., ToBo Laboratory, & Selkoe, K. A. (2019). A coalescent sampler successfully detects biologically meaningful population structure overlooked by F-statistics. Evolutionary Applications, 12(2), 255–265. doi: 10.1111/eva.12712
 
 Hey, J., & Machado, C. A. (2003). The study of structured populations—New hope for a difficult and divided science. Nature Reviews Genetics, 4(7), 535–543.
+
+Iacchei, M., Gaither, M. R., Bowen, B. W., & Toonen, R. J. (2016). Testing dispersal limits in the sea: Range-wide phylogeography of the pronghorn spiny lobster Panulirus penicillatus. Journal Of Biogeography, 43(5), 1032–1044. doi: 10.1111/jbi.12689
 
 Johnson, J. B., & Omland, K. S. (2004). Model selection in ecology and evolution. Trends in Ecology & Evolution, 19(2), 101–108. doi: 10.1016/j.tree.2003.10.013
 

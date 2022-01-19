@@ -225,7 +225,7 @@ $ scp -r userid@server.address.edu:./migrate_directory ./migrate_directory
 
 ### Harvesting marginal likelihoods
 
-13. Now we will rank the models based on their marginal likelihood scores. This script will rip through all of the output files, and harvest the marginal likelihood scores. 
+13. Now we will rank the models based on their marginal likelihood scores. This script will rip through all of the output files, and harvest the marginal likelihood scores. Warning, this R code is pre-Tidyverse, yikes!
 
 ```{r}
 workingDir <- "./PanPen_example/panpen_CI_Iacchei"
@@ -262,7 +262,9 @@ We get 3 likelihood scores for each model. The first is the thermodynamic integr
 
 Beerli & Palczewski (2010) showed that, while it would ordinarily take 16 or 32 MCMC chains to explore enough parameter space for thermodynamic integration, one could do the search with just 4 chains (one super-heated) and apply a Bezier spline (the dashed line in the figure), to get comparable results at a fraction of the computation.
 
+### Calculating Relative Model Probabilities
 
+14. Now we need to convert these marginal likelihoods into Bayes factors and thence to relative model probabilities. For this I followed Johnson and Omland (2004).
 
 ```{r}
 # Here is a function for calculating log bayes factors 
@@ -282,17 +284,21 @@ bfcalcs<-function(df,ml="bezier.corrected"){
 # and this function should give us our "answer" as to which model is best supported by the data
 bftable<-bfcalcs(marglike)
 kable(bftable)
-write.csv(bftable,"model_selection_table.csv")
+#write.csv(bftable,"model_selection_table.csv")
 ```
 
-17. Supposing that the best model is not "panmixia", you can figure out the highest posterior densities for the parameters in your model.
+Ta Da! Now, the problem is that there is no error estimate for the mode marginal likelihoods, and yes Migrate will arrive at differing marginal likelihoods with each run, due to the nature of MCMCMC. So now you need to re-run these models a minimum of 3 times, and take a low-sample size corrected average. See Crandall et al. 2019 for more information. Yay! 
+
+### Model Parameter Estimates
+
+#### Statistics
+
+15. Supposing that the best model is not "panmixia", you can figure out the highest posterior densities for the parameters in your model. **Warning** For single-locus data, I have found that these values are not at all precise or accurate. Also, all of this code could be upgraded to dplyr.
+
+
 
 ```{r, warning=F,message=F}
-
-
-setwd("~/Desktop/pcoelestis_migrate/dongsha_source")
-
-
+winningModelDir <- file.path(workingDir, "stepping.stone")
 #a function for creating Nm vectors out of m and Theta vectors.
 migrants.per.gen<-function(x){
   #x<-x[[1]]
@@ -300,60 +306,77 @@ migrants.per.gen<-function(x){
   #theta<-names(x)[which(grepl("Theta_",names(x)))] #names of theta columns
   for(n in m){
     t<-paste("Theta",strsplit(n,split="_")[[1]][3],sep="_")
-    x[,paste("Nm",strsplit(n,split="_")[[1]][2],strsplit(n,split="_")[[1]][3],sep="_")]<-  	x[,which(names(x)==n)]*x[,which(names(x)==t)] #this hairy little statement makes a new column named "Nm_X_Y" and then fills it by multiplying the M_X_Y column by the Theta_Y column	
+    x[,paste("Nm",strsplit(n,split="_")[[1]][2],strsplit(n,split="_")[[1]][3],sep="_")]<- x[,which(names(x)==n)]*x[,which(names(x)==t)] 
+    #this hairy little statement makes a new column named "Nm_X_Y" and then fills it by multiplying the M_X_Y column by the Theta_Y column	
   }
   return(x)
 }
 
-    data<-read.table("bayesallfile", header=T) #this may take a minute or two
-  
-    # Split the whole list into the individual replicates, so that you will
-    # have a list of data frames
-    data.list.1<-split(data,data$Replicate)
+#this may take a minute or two
+data <- read.table(file.path(winningModelDir,"bayesallfile"), header=T) 
+
+#calculate migrants per generation
+data.nm <- migrants.per.gen(data)  
+# Split the whole list into the individual replicates, so that you will
+# have a list of data frames
+data.list.1 <- split(data.nm,data$Replicate)
     
-    # Subset the parameters of interest, either by rows or by columns to remove burnin and uninteresting columns
-    burnin<-0
-    data.list.1<-lapply(data.list.1,subset,subset=Steps>(burnin*max(data.list.1[[1]]$Steps)))# by rows. Removing burnin if it wasn't removed in the run. e.g. First 40% First 20,000 samples out of 50,000 or 10 million steps out of 25 million
-    #data.list.1<-lapply(data.list.1,subset,select=c(4:(length(data.list.1[[1]])-6))) #by columns.
+# Remove burnin if it wasn't removed in the run, where burnin is a proportion of the total.
+# e.g. First 40% First 20,000 samples out of 50,000 or 10 million steps out of 25 million
+#burnin <- 0.2
+#data.list.1<-lapply(data.list.1,subset,subset=Steps>(burnin*max(data.list.1[[1]]$Steps)))
+
+# calculate Nm for each row
+data.list.2 <- lapply(data.list.1,migrants.per.gen)
     
-    # calculate Nm for each row
-    data.list.2<-lapply(data.list.1,migrants.per.gen)
+#convert each dataframe to an mcmc object and then convert the whole thing to an mcmc list
+data.list.mcmc <- mcmc.list(lapply(data.list.2,mcmc))
+#collapse all replicates to one for purposes of highest posterior density
+data.list.allinone <- mcmc(data=do.call("rbind",data.list.2)) 
     
-    #convert each dataframe to an mcmc object and then convert the whole thing to an mcmc list
-  data.list.mcmc<-mcmc.list(lapply(data.list.2,mcmc))
-    #collapse all replicates to one for purposes of highest posterior density
-  data.list.allinone<-mcmc(data=do.call("rbind",data.list.2)) 
+print("calculating statistics")
+summ <- summary(data.list.mcmc)
+ess <- effectiveSize(data.list.mcmc)
+gelman <- gelman.diag(data.list.mcmc,multivariate=F)
+HPD <- HPDinterval(data.list.allinone)
     
-     print("calculating statistics")
-  summ<-summary(data.list.mcmc)
-  ess<-effectiveSize(data.list.mcmc)
-  gelman<-gelman.diag(data.list.mcmc,multivariate=F)
-  HPD<-HPDinterval(data.list.allinone)
-    
-    #concatenate the stats
-    allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
-  write.csv(allstats,file="codastats.csv")
-  
-  allstats
+#concatenate the stats
+allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
+#write.csv(allstats,file="codastats.csv")
+
+kable(allstats)
   
 ```
+And we see some potentially interesting differences in gene flow. Do they mean anything? Probably not. I have found that single-locus estimates 1) consistently under-estimate gene flow from simulated data and 2) inference of directionality is biased by sample size.
 
-And create some plots
+
+
+![Migrate Simulated Parameter Inference](../figures/migrate_parameters_from_sims.jpg)
+Check out Supplemental Figure 2 from Crandall et al. (2019). The dots are the simulated values of $N_em$ (in white) and Ne (in black). The violin plots are migrate-n's inference for a single mtDNA like simulated locus.
+
+
+#### Figures
+
+16. Nevertheless, let's create some plots with the ggmcmc package.
+
 ```{r, eval=F}
 data.list.plot<-lapply(data.list.2,subset,select=c(which(grepl("Theta_",names(data.list.2[[1]])) | grepl("M_",names(data.list.2[[1]])) | grepl("Nm_",names(data.list.2[[1]])) |grepl("lnPost",names(data.list.2[[1]])))))
   #log transform them, since they come from an exponential prior
-  #data.list.plot<-lapply(data.list.plot,log)
+  data.list.plot<-lapply(data.list.plot,log)
   data.list.plot<-mcmc.list(lapply(data.list.plot,mcmc))
 
-  data.list.gg<-ggs(data.list.plot,burnin=F,description="P. coelestis Dongsha Sink Model")
-  ggmcmc(data.list.gg,plot=c("ggs_traceplot","ggs_density","ggs_Rhat"),simplify_traceplot=0.25,file="~/Desktop/pcoelestis_migrate/pcoelestis_ggmcmc.pdf")
+  data.list.gg<-ggs(data.list.plot,burnin=F,description="Panulirus pencillatus Stepping Stone Model")
+  #ggmcmc(data.list.gg,plot=c("ggs_traceplot","ggs_density","ggs_Rhat"),simplify_traceplot=0.25,file="PanPen_Stepping.Stone_plots.pdf")
 ```
 
 Here's what those plots look like:
 
-![GGMCMC Plots for P. coelestis](../figures/pcoelestis_ggmcmc.pdf)
+![GGMCMC Plots for PanPen](../figures/PanPen_Stepping.Stone_Nm.jpg)
 
+Yeah, they're not pretty and convergence looks pretty iffy. That's why migrate-n is not good for parameter estimation with a single locus.
 
+![GGMCMC Gelman Scale Reduction](../figures/PanPen_Stepping.Stone_Gelman.jpg)
+Here are the Gelman & Rubin (1992) scale reduction factors for each parameter, where a value > 1.2 indicates poor convergence. So yeah. Not great. But also not horrible, if you remember that we are getting this information from a single 658bp locus. 
 
 # Reading List
 

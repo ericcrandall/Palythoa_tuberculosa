@@ -1,0 +1,215 @@
+  =============================================
+   panpen_CI                                   
+  =============================================
+  MIGRATION RATE AND POPULATION SIZE ESTIMATION
+  using Markov Chain Monte Carlo simulation
+  =============================================
+  Version 3.6.11
+
+  Program started at Sat Dec 26 07:09:58 2015
+         finished at Sun Dec 27 11:05:57 2015
+     
+
+
+Options in use:
+---------------
+
+Analysis strategy is BAYESIAN INFERENCE
+
+Proposal distribution:
+Parameter group          Proposal type
+-----------------------  -------------------
+Population size (Theta)  Metropolis sampling
+Migration rate      (M)       Slice sampling
+
+
+Prior distribution (Proposal-delta will be tuned to acceptance frequence 0.440000):
+Parameter group          Prior type   Minimum    Mean(*)    Maximum    Delta
+-----------------------  ------------ ---------- ---------- ---------- ----------
+Population size (Theta)   Exp window  0.000000   0.010000   0.100000   0.010000 
+Migration rate      (M)   Exp window  0.000100  100000.000 1000000.00 100000.000
+
+
+
+Datatype: DNA sequence data
+
+Inheritance scalers in use for Thetas (specified scalars=1)
+1.00 
+[Each Theta uses the (true) ineritance scalar of the first locus as a reference]
+
+
+Pseudo-random number generator: Mersenne-Twister                                
+Random number seed (with internal timer)            722248259
+
+Start parameters:
+   First genealogy was started using a random tree
+   Theta values were generated  from guessed values
+   Theta = 0.01000
+   M values were generated from guessed values
+   M-matrix: 1000.00 [all are the same]
+
+Migration model: Arbitrary migration matrix model            
+[Legend: m = average (average over a group of Thetas or M]
+[s = symmetric M, S = symmetric 4Nm,
+ 0 = zero, and not estimated,   ]
+[* = free to vary, Thetas are on diagonal]
+      Hawa     * * 0 0 0 0 0 0 
+   Mauinui     * * * 0 0 0 0 0 
+      Kaua     0 * * * * 0 0 0 
+      Neck     0 0 * * * * * 0 
+      Fren     0 0 * * * * * 0 
+      Maro     0 0 0 * * * * * 
+      Lisi     0 0 0 * * * * * 
+      Pear     0 0 0 0 0 * * * 
+
+
+
+Mutation rate is constant 
+
+Markov chain settings:
+   Long chains (long-chains):                              1
+      Steps sampled (inc*samples*rep):              15000000
+      Steps recorded (sample*rep):                    150000
+   Combining over replicates:                              3
+   Static heating scheme
+      4 chains with  temperatures
+       1.00, 1.50, 3.00,100000.00
+      Swapping interval is 1
+   Burn-in per replicate (samples*inc):              2000000
+
+Print options:
+   Data file: ../../../Migrate_datafiles_noghost/panpen_CI_I
+   Output file (ASCII text):   panpen_CI_Iacchei_outfile.txt
+   Output file (PDF):          panpen_CI_Iacchei_outfile.pdf
+   Posterior distribution:                         bayesfile
+   All values of Post.Dist:                     bayesallfile
+   Print data:                                            No
+   Print genealogies:                                     No
+   Plot data: No                                            
+
+Summary of data:
+Title:                                             panpen_CI
+Data file:  ../../../Migrate_datafiles_noghost/panpen_CI_Iac
+Datatype:                                      Sequence data
+Number of loci:                                            1
+
+Population                   Locus   Gene copies    
+----------------------------------------------------
+  1 Hawa                         1        47
+  2 Mauinui                      1        69
+  3 Kaua                         1        52
+  4 Neck                         1         5
+  4 Fren                         1        42
+  5 Maro                         1         5
+  5 Lisi                         1        18
+  6 Pear                         1        30
+    Total of all populations     1       268
+
+Base Frequencies
+------------------------------------------------------------
+Locus     Nucleotide                        Transition/
+          ------------------------------  Transversion ratio
+          A       C       G       T(U)
+------------------------------------------------------------
+   1      0.2345  0.2619  0.2023  0.3013       5.53120
+
+Region type     Rate of change    Probability
+---------------------------------------------
+        1           0.331            0.573
+        2           1.630            0.382
+        3           4.122            0.044
+        4           8.423            0.001
+
+
+
+
+
+
+Bayesian estimates
+==================
+
+Locus Parameter        2.5%      25.0%    mode     75.0%   97.5%     median   mean
+-----------------------------------------------------------------------------------
+    1  Theta_1         0.00300  0.00860  0.01670  0.02360  0.04680  0.02030  0.02242
+    1  Theta_2         0.00220  0.00700  0.01270  0.02060  0.04120  0.01790  0.01966
+    1  Theta_3         0.00980  0.01760  0.02190  0.02700  0.03600  0.02310  0.02328
+    1  Theta_4         0.00000  0.01480  0.02770  0.03900  0.06280  0.02870  0.03021
+    1  Theta_5         0.00000  0.00380  0.00830  0.01600  0.03940  0.01390  0.01652
+    1  Theta_6         0.00160  0.00980  0.01730  0.02900  0.05900  0.02450  0.02732
+    1  M_2->1             0.00  2000.00 11000.00 18000.00 34000.00 15000.00 11248.47
+    1  M_1->2             0.00     0.00  1000.00  6000.00 18000.00  7000.00  3514.91
+    1  M_3->2             0.00     0.00  7000.00 12000.00 26000.00 13000.00  7639.25
+    1  M_2->3             0.00     0.00  1000.00  6000.00 16000.00  7000.00   250.26
+    1  M_4->3             0.00     0.00  1000.00  6000.00 16000.00  7000.00   843.07
+    1  M_3->4             0.00     0.00  9000.00 18000.00 80000.00 17000.00 20974.58
+    1  M_5->4             0.00     0.00  1000.00  8000.00 48000.00  9000.00 12175.70
+    1  M_4->5             0.00  8000.00 21000.00 32000.00 268000.00 27000.00 53265.93
+    1  M_6->5             0.00     0.00 15000.00 30000.00 72000.00 29000.00 32054.98
+    1  M_5->6             0.00     0.00  7000.00 14000.00 26000.00 13000.00  8581.63
+-----------------------------------------------------------------------------------
+
+
+
+Log-Probability of the data given the model (marginal likelihood = log(P(D|thisModel))
+--------------------------------------------------------------------
+[Use this value for Bayes factor calculations:
+BF = Exp[log(P(D|thisModel) - log(P(D|otherModel)]
+shows the support for thisModel]
+
+
+
+(1a) Thermodynamic integration: log(Prob(D|Model))=-2224.176200 (-2001.967311 with Bezier-approximation[1b]) 
+(2) Harmonic mean:             log(Prob(D|Model))=-1504.027321
+(1) and (2) should give a similar result, in principle.
+But (2) is overestimating the likelihood, it and is presented for historical reasons and should not be used. But (1) needs heating with chains that span a temperature range of 1.0 to at least 100,000.
+
+MCMC run characteristics
+========================
+
+
+
+
+Acceptance ratios for all parameters and the genealogies
+---------------------------------------------------------------------
+
+Parameter           Accepted changes               Ratio
+Theta_1                 110499/468603            0.23581
+Theta_2                  75707/468932            0.16145
+Theta_3                  24190/468824            0.05160
+Theta_4                  87391/468618            0.18649
+Theta_5                 223495/467807            0.47775
+Theta_6                  87351/467575            0.18682
+M_2->1                  469210/469210            1.00000
+M_1->2                  468092/468092            1.00000
+M_3->2                  468241/468241            1.00000
+M_2->3                  469677/469677            1.00000
+M_4->3                  468365/468365            1.00000
+M_3->4                  468361/468361            1.00000
+M_5->4                  468963/468963            1.00000
+M_4->5                  468869/468869            1.00000
+M_6->5                  469292/469292            1.00000
+M_5->6                  468923/468923            1.00000
+Genealogies            1196156/7501648           0.15945
+Autocorrelation and Effective sample size
+-------------------------------------------------------------------
+
+  Parameter         Autocorrelation      Effective Sample size
+  ---------         ---------------      ---------------------
+  Theta_1                0.81695             15396.97
+  Theta_2                0.92244              6114.68
+  Theta_3                0.98436              1182.56
+  Theta_4                0.87535             10418.31
+  Theta_5                0.53897             46386.60
+  Theta_6                0.87684              9985.92
+  M_2->1                 0.85445             11852.88
+  M_1->2                 0.90666              7426.52
+  M_3->2                 0.95699              3299.18
+  M_2->3                 0.93147              5349.56
+  M_4->3                 0.97148              2178.30
+  M_3->4                 0.90168              8029.62
+  M_5->4                 0.92642              5817.39
+  M_4->5                 0.94675              4135.31
+  M_6->5                 0.96354              2792.00
+  M_5->6                 0.91371              6785.92
+  Ln[Prob(D|P)]          0.98961               783.65
+

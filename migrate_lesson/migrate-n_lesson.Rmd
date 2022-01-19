@@ -2,44 +2,69 @@
 title: "Introduction to Migrate-n"
 output:
   html_document: default
-  html_notebook: default
+  html_notebook:
+      toc: true
+      toc_float: true
 ---
 
-## Migrate Introduction
+### Setup
 
-[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the program is that all populations have been "infinitely" separated - it does not handle models of divergence...yet (there is a beta version that includes divergence, and possibly also population size change).
+You'll need the following packages installed for this tutorial.
+
+```{r, warnings=F, messages=F}
+library(phyclust)
+library(phangorn)
+library(strataG)
+library(knitr)
+library(coda)
+library(ggplot2)
+library(ggmcmc)
+library(gridExtra)
+library(reshape2)
+```
+
+# Migrate-n Introduction
+
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson. Similarly, this tutorial will focus on analysis of haploid mitochondrial sequence data.
 
 ![Migrate-figure](../figures/migrate-figure.jpg)
+## The Parmfile
 
-Migrate is controlled by a "parameter file" that controls all of the myriad settings that one can use for one's data. We will walk through the example below:
+Migrate has myriad settings that are recorded by a "parameter file" or `parmfile`. You can use the migrate-n interface to write you a blank parmfile that will have a lot of (sometimes helpful, sometimes confusing) notes and information in it. I have stripped those notes out of the one below, just keeping the actual parameter settings, and adding some quick comments of my own. We will walk through the example below:
 
 ```{bash, eval=F}
 ################################################################################
 # Parmfile for Migrate 3.6.4 [do not remove these first TWO lines]
+# informal notes added by Eric Crandall
 menu=NO
 nmlength=10
 datatype=SequenceData
-ttratio= 4.18
-freqs-from-data=YES
+# add your transition:transversion ratio here
+ttratio= 5.6174
+freqs-from-data=NO:0.2345,0.2619,0.2023,0.3013
 seqerror-rate=0.0
 categories=1
-rates=4:1.611612e-06 1.884553e-03 1.181330e-01 3.879981e+00
-prob-rates=4:0.598 0.362 0.04 0.001
+#add your discretized gamma rates here
+rates=4:0.331 1.63 4.122 8.423
+#assuming that you discretize into 4 rate bins, these probabilities can stay the same.
+prob-rates=4:2.044104e-08 2.127821e-04 4.782987e-02 3.951957e+00
 autocorrelation=NO
 weights=NO
 interleaved=NO
 fast-likelihood=NO
 inheritance-scalars={1}
-population-relabel={1 2 3 4}
+# this nifty setting lets you lump populations easily to reduce model complexity
+population-relabel={1 2 3 4 5 6 7 8}
 usertree=RANDOMTREE
-infile=../abuabd_CB_coleman_newH.mig
+infile=../panpen_CI_Iacchei.txt
 random-seed=AUTO
-title=abuabd_CB_coleman_newH
-progress=VERBOSE
+title=panpen_CI_Iacchei
+progress=YES
 logfile=NO
 print-data=NO
-outfile=outfile.txt
-pdf-outfile=abuabd_CB_coleman_newH_outfile.pdf
+outfile=panpen_CI_Iacchei_outfile.txt
+pdf-outfile=panpen_CI_Iacchei_outfile.pdf
+#whether to use m or Nm in the model. I always use m.
 use-M=YES
 plot=NO
 mathfile=mathfile
@@ -49,17 +74,23 @@ write-summary=NO
 aic-modeltest=NO
 mig-histogram=NO
 skyline=NO
+#starting values
 theta=own:{0.01}
-migration=own:{100000}
+migration=own:{1000}
 mutation=CONSTANT
 fst-type=THETA
+# the metapopulation model. The most important part!
 custom-migration={
-*000
-**00
-0**0
-*00*
-}
+**000000
+***00000
+0***0000
+00***000
+000***00
+0000***0
+00000***
+000000**}
 geo=NO
+#these settings generally don't need much tweaking
 bayes-update=YES
 bayes-updatefreq=0.500000
 bayes-posteriorbins=500 500
@@ -68,12 +99,14 @@ bayes-file=YES:bayesfile
 bayes-allfile=YES:1:bayesallfile
 bayes-proposals= THETA METROPOLIS Sampler
 bayes-proposals= MIG SLICE Sampler
-bayes-priors= THETA WEXPPRIOR: 0.000010 0.010000 10.000000 1.00000 
+# Priors - very important! But I have found these to be pretty good for most marine species.
+bayes-priors= THETA WEXPPRIOR: 0.0 0.01 0.1000000 0.01000 
 bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000.000000 100000.000000 
+# Parameters of the MCMCMC chains
 long-chains=1
-long-inc=500
-long-sample=100000
-burn-in=10000
+long-inc=100
+long-sample=50000
+burn-in=20000
 heating=YES:1:{1,1.5,3,100000}
 heated-swap=YES
 moving-steps=NO
@@ -84,11 +117,13 @@ resistance=0.000100
 end
 ```
 
-At the top are parameters having to do with the model of molecular evolution that we are using. Migrate can use microsatellites, Sanger DNA, and SNP data. The inheritance scalar is set to 1, rather than 4 (as in 4Nem) because we are using mitochondrial DNA. mtDNA has 1/4 of as many copies as nuclear DNA because it is 1) haploid and 2) passed only through females (so male copies don't really count).
+At the top are parameters having to do with the model of molecular evolution that we are using. Migrate can use microsatellites, short reads sequenced by any generation of sequencer, SNP data. The inheritance scalar is set to 1, rather than 4 (as in 4Nem) because we are using mitochondrial DNA. mtDNA has 1/4 of as many copies as nuclear DNA because it is 1) haploid and 2) passed only through females (so male copies don't really count).
 
-Towards the end are parameters that have to do with the MCMC search, including the number of samples of the posterior to take and the increment at which to take each sample. If you multiply these two items together, you get the total length of the MCMC "chain" that you will be running. There is the burnin which is the number of samples to discard because they are before the chain reaches an equilibrium. Also, importantly, there are the priors for $\theta = N_e\mu$ and $M = \frac{m}/{\mu}$.
+Towards the end are parameters that have to do with the Metropolis Coupled Markov Chain Monte Carlo (MCMCMC; $MC^3$) search, including the number of samples to take from the posterior to take (`long-sample`)  and the increment at which to take each sample (`long-inc`). If you multiply these two items together, you get the total length of the MCMC "chain" that you will be running. There is the burnin which is the number of samples to discard because they are before the chain reaches an equilibrium and would lead to incorrect parameter estimates (`burn-in`). Also, importantly, there are the priors for $\theta = N_e\mu$ and $M = \frac{m}/{\mu}$.
 
-Of particular interest is the matrix of 0 and \*: this is what lets us specify a hypothesis about gene flow in our metapopulation. We can use migrate-n to calculate the likelihood of several alternative hypotheses, thus allowing us to use strong inference to understand migration in our species. The columns denote the departure population and the rows denote the arrival population. The diagonals contain the theta parameter for each population.  \* means we are inserting this parameter into the model to be estimated. 0 means no estimated parameter. We could also conceivably use S for symmetric migration, or m for mean migration (all m's have the same mean)
+## The metapopulation model
+
+Of particular interest is the matrix of 0 and \*: this is what lets us specify a model or hypothesis about gene flow in our metapopulation. We can use migrate-n to calculate the likelihood of several alternative hypotheses, thus allowing us to use strong inference to understand migration in our species. **The columns denote the departure population and the rows denote the arrival population**. The diagonals contain the theta parameter for each population.  \* means we are inserting this parameter into the model to be estimated. 0 means no estimated parameter. We could also conceivably use S for symmetric migration, or m for mean migration (all m's have the same mean).
 
 |   | 1 | 2 | 3 | 4 |
 |---|---|---|---|---|
@@ -102,128 +137,55 @@ This matrix denotes the following metapopulation model, where population 1 is a 
 ![Migrate figure 2](../figures/migrate-figure2.jpg)
 
 ## Setting up Migrate-n
+
 So now we will go about setting up for a migrate run.
 
-1. First, find the closest 3-4 populations to Dongsha and create a new FASTA file containing only these sequences. For *P. coelestis* I have chosen populations in Okinawa, Hainan and Taiwan.
-2. Stop and think about some hypotheses that you'd like to test with these populations.
-3. Make a copy of the parmfile that I posted above. Open it in a text editor.
+1. Stop and think about some hypotheses that you'd like to test with these populations. No, like really think. Go read some papers. Draw your ideas out like the figure above. 
 
-4. Determine the optimal model of molecular evolution for your dataset. We will use `modeltest` in the phangorn package. We need to determine the gamma shape parameter that governs the rates at which bases change in the model.
+2. Then build matrices like the one above in a spreadsheet. If you have n populations then the matrix will be n x n. Remember if you are using `population-relabel`, to lump populations, then your matrix should be correspondingly smaller. Double check your models. Get a friend to check them. Check them again. If you f this up, you will get spurious results! You can paste your spreadsheet models directly into the parmfiles you'll be making!
 
-```{r}
-library(TeachingPopGen)
-library(phyclust)
-library(phangorn)
-library(strataG)
-library(knitr)
+3. You'll need to format your data for Migrate. I recommend [PGDSpider](http://www.cmpg.unibe.ch/software/PGDSpider/). If you have RAD data, see my [Palythoa tuberculosa analysis](../Ptuberculosa_migrate.nb.html) for an example how to use Stacks to get haplotypes.
 
-pcoel<-read.FASTA(file="../data/pcoelestis_migrate.fasta")
+4. For mtDNA data you'll want to use ModelTest to determine the `transition:transversion ratio` and `gamma shape` parameters of an **HKY+G** model. This is the only model of molecular evolution that is implemented in migrate-n, so even if modeltest finds a better one, you should use the HKY+G parameters. For RAD data it is probably less important to fit these parameters for each locus, as the reads are shorter and have fewer mutations. You can use `modeltest` in the phangorn R package.
 
-pcoel<-as.matrix(pcoel)
-pcoel_phy<-phyDat(pcoel)
-pcoel_modeltest<-modelTest(pcoel_phy,G=T, I=F)
-
-pcoel_modeltest<-pcoel_modeltest[order(pcoel_modeltest$BIC),]
-
-head(pcoel_modeltest)
-```
-
-For P. coelestis, HKY+G is the best model of molecular evolution
-
-```{r}
-# some funky code to get the gamma shape parameter
-env<-attr(pcoel_modeltest, "env")
-HKY<-get("HKY+G", env)
-eval(HKY, env=env)
-
-# 
+5. Make a copy of the parmfile that I posted above. Open it in a text editor.
 
 
-```
-the shape parameter for P.coelestis  is 0.10879
+According to modeltest, the `gamma shape` parameter for *P. pencillatus*  is 0.081, and the `transition:transversion ratio` is 5.6174 for an HKY+G model. 
 
 So our gamma distribution looks like this:
+
 ```{r}
-plot(density(rgamma(1000,shape=0.10879)), xlim=c(0,1))
+plot(density(rgamma(1000,shape=0.081)), xlim=c(0,1))
 ```
 
-And now to discretize it into 4 rate categories.
+Which means that a few sites are changing quickly and most sites are changing slowly. And now to discretize it into 4 rate categories.
+
 ```{r}
-phangorn:::discrete.gamma(0.10879,4)
+phangorn:::discrete.gamma(0.081,4)
 ```
 
-Enter these values in the rates line of your parmfile, after the "4:".
+Enter these values in the `rates` line of your parmfile, after the "4:". You can add 5.6174 into the `ttratio` parameter setting of your parmfile (it has already been done for you actually).
 
-Now to figure out the Transition to Transversion ratio
-```{r}
-TiTvRatio(pcoel)
-```
+6. Change all the output filenames in the parmfile to your liking. Sometimes using generic filenames can be helpful if you will be reading them in via script later. Your folder names can store the important information about models etc. Save the parmfile in a directory that will be devoted to migrate-n analysis.
 
-Enter this value (for your data) in the ttratio line of the parmfile. 
+6. Now you'll want to run several test-runs on this parmfile. You will be tempted to skip this step, but DON'T. Put it in a folder called "Test" with the migrate-formatted data file one directory above it. You can test it locally on your computer or on the server where you will be doing the main analysis. Use one of your more complex models in `custom-migration`. You need to make sure that the parmfile 1) works 2) gets reasonable results. One thing to pay attention to is whether most of the posterior density seems to fall within the prior bounds. If you see, like, half a posterior distribution that is truncated by the prior, you will need to widen your priors. On the other hand if the posterior is nicely formed with lots of space around it, you might want to narrow your priors. Ultimately, your choice of prior should be based on your knowledge of the system.
 
-5. Change all the filenames in the parmfile to reflect the species and gene that you sequenced. Save the parmfile in a directory that will be devoted to migrate-n analysis.
+7. Now make several directories with names (no spaces!) that reflect your hypotheses/models. Place a copy of your finalized parmfile in each one and change `custom-migration` and `population-relabel` to fit each hypothesis. Remember, you can paste your gene flow models directly from the spreadsheet!
 
-6. Now write your data into nexus format, so that you can easily create a datafile that is formatted appropriately for migrate-n.
+8. Place your formatted data file into the directory above these hypotheses, making sure that each parmfile is pointing to the directory above it (`infile=../panpen_CI_Iacchei.txt`).
 
-```{r, eval=F}
-write.nexus.data(pcoel,"./lessons/data/pcoelestis_migrate.nex", interleaved=F,missing="N")
-```
-
-7. In a text editor, edit your files so that they look like this (except that the lines shouldn't wrap):
+9. Copy the whole folder (containing all of the model folders and the data file) up to the server, and then login.
 
 ```{bash, eval=F}
-4 1 Control Region Data from Pomacentrus coelestis
-337
-10 Hainan
-Luhuito   ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattccc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_10ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaacttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaataggactggcgaaatttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_11ccacattaaatttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_12ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcatgataagaccttt-gtac-aaaattgaaatggggctggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_13ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_2 ccacattaaacttatattaaccaaatcaggggctattaagactatgtatggttattcaacattacttgtatttacactattttgtttaattacttatttcagtttaattacattaagcataataagagcttt-gtacaaaaattgaaatgggactggcgaaatttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_3 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggtcattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataacaagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagcacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_4 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_5 ccacattaaatttatattaaccaaatcaagggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataacaagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagcacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcatacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_6 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_7 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattattaatttcagtttaattacattaagcataataagaccttt-gtacaagaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtcagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_8 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagacctct-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Luhuito_9 ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcacacaactgaattattcctgg
-21 Dongsha
-Dongsha   ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcaatttaattacattaagcataataagaccttt-gtacaaaaattgaaataggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Dongsha_10ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Dongsha_11ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacacctctgaactctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-Dongsha_12ccacattaaacttatattaaccaaatcaggggctattaagactatatatggttattcaacattacttgtatttacactattttgtttaattactaatttcagtttaattacattaagcataataagaccttt-gtacaaaaattgaaatgggactggcgaaacttaagttct-agaagattatccattgtcaaagatataccaagtacccaacatctctgaattctc-aaatatttaatgtagtaagaaccgaccatcagttgatttcttaatgcacacggttattgatggtgagggacaagtattagtgggggtcgcacaactgaattattcctgg
-
+$ scp -r ./migrate_directory userid@server.address.edu:./migrate_directory
+$ ssh userid@server.address.edu
 ```
 
-You'll likely need to remove spaces before and after the sample names. 
-
-The first number on the first line is the number of populations. The second number is the number of loci (1). Then you can add any sort of descriptor for the data on that line.
-
-The second line has the number of basepairs in the dataset.
-
-The third line describes the first population, giving the number of sequences from that population and a population name.
-
-The fourth line is the first data line. The first ten characters are reserved for the name of the sequence. All following characters are the sequence.
-
-8. Now make several directories with names (no spaces!) that reflect your hypotheses. You'll probably have at least "panmixia", "n-island", "dongsha_source","dongsha_sink". Copy the parmfile into each of these directories. Then edit these duplicated parmfiles to reflect the hypothesis. You may want to use Excel to sketch out your migration models.
-
-9. Place your formatted data file into the directory above these hypotheses, making sure that each parmfile is pointing to the directory above it (infile=../abuabd_CB_coleman_newH.mig).
-
-10. Copy the whole folder (containing all of the model folders and the data folder) up to Treebeard (from your location on your computer)
-```{bash, eval=F}
-$ scp -r ./migrate_directory OTTERID@Treebeard:./migrate_directory
-```
-
-11. SSH to Treebeard
-```{bash, eval=F}
-$ ssh ./migrate_directory OTTERID@Treebeard
-password:
-```
-
-12. Set up a virtual terminal window (so that closing the terminal won't kill migrate) and start migrate.
+10. Set up a virtual terminal window (so that closing the terminal won't kill migrate) and start migrate.
 
 ```{bash, eval=F}
+
 $ cd migrate_directory/yourmodel
 
 $ screen -S yourname_yourmodel
@@ -246,33 +208,22 @@ Reading parmfile "parmfile"....
 $ Type Control-a and then Control-d to detach yourself from this screen
 ```
 
-13. Repeat this process for all of your models. Keep track of what you named each terminal window (the entry after -S). You can re-attach to any screen by typing `screen -r yourname_yourmodel` to check on progress.
+11. Repeat this process for all of your models. Keep track of what you named each terminal window (the entry after -S). You can re-attach to any screen by typing `screen -r yourname_yourmodel` to check on progress. If you are unix-inclined, you might want to write a script to do all of this for you. If you are using SLURM or another software queue then you'll pretty much have to write a script to do this.
 
-14. After 1 week, download the entire folder (probably to your Desktop, or to the folder where you are storing all of your BIO444 analyses) thusly:
+## Interpreting results
+
+12. When all runs are complete, download the entire folder thusly:
 
 ```{bash, eval=F}
 
-$ scp -r cran5048@treebeard:./pcoelestis_migrate ./
-
-cran5048@treebeard's password: 
-pcoelestis_CR_migrate.mig                     100%   36KB  20.1MB/s   00:00    
-bayesallfile                                  100%   31MB  75.5MB/s   00:00    
-pcoelestis_CR_migrate.txt                     100% 7566     7.9MB/s   00:00    
-pcoelestis_CR_migrate.pdf                     100%  772KB 100.5MB/s   00:00    
-.
-.
-.
+$ scp -r userid@server.address.edu:./migrate_directory ./migrate_directory
 
 ```
 
 
-15. Now we will rank the models based on their marginal likelihood scores. First, remove the .mig datafile and any parmfiles from the top directory of your migrate output (so there are only directories remaining), then set it as your working directory
+13. Now we will rank the models based on their marginal likelihood scores. This script will rip through all of the output files, and harvest the marginal likelihood scores
 
-```{r}
-setwd("~/Desktop/pcoelestis_migrate")
-```
 
-16. This script will rip through all of the output files, and harvest the marginal likelihood scores
 ```{r}
 setwd("~/Desktop/pcoelestis_migrate")
 marglike<-data.frame(model=character(0),thermodynamic=numeric(0),bezier.corrected=numeric(0),harmonic=numeric(0),stringsAsFactors=F) #initialize a data frame to take the values
@@ -322,11 +273,7 @@ write.csv(bftable,"model_selection_table.csv")
 17. Supposing that the best model is not "panmixia", you can figure out the highest posterior densities for the parameters in your model.
 
 ```{r, warning=F,message=F}
-library(coda)
-library(ggplot2)
-library(ggmcmc)
-library(gridExtra)
-library(reshape2)
+
 
 setwd("~/Desktop/pcoelestis_migrate/dongsha_source")
 
@@ -390,3 +337,26 @@ data.list.plot<-lapply(data.list.2,subset,select=c(which(grepl("Theta_",names(da
 Here's what those plots look like:
 
 ![GGMCMC Plots for P. coelestis](../figures/pcoelestis_ggmcmc.pdf)
+
+
+
+# Reading List
+
+Beerli, P. (2009). How to use MIGRATE or why are Markov chain Monte Carlo programs difficult to use? (G. Bertorelle, M. W. Bruford, H. C. Hauffe, A. Rizzoli, & C. Vernesi, Eds.). Cambridge University Press. [Link](./Beerli_2009.pdf)
+
+Beerli, P., & Felsenstein, J. (2001). Maximum likelihood estimation of a migration matrix and effective population sizes in n subpopulations by using a coalescent approach. Proceedings Of The National Academy Of Sciences Of The United States Of America-Biological Sciences, 98(8), 4563–4568.
+
+Beerli, P., & Palczewski, M. (2010). Unified Framework to Evaluate Panmixia and Migration Direction Among Multiple Sampling Locations. Genetics, 185(1), 313–326. doi: 10.1534/genetics.109.112532
+
+Beerli, P., Ashki, H., Mashayekhi, S., & Palczewski, M. (2019). Population divergence time estimation using individual lineage label switching. BioRxiv, 152, 763–28. doi: 10.1101/587832
+
+Crandall, E. D., Toonen, R. J., ToBo Laboratory, & Selkoe, K. A. (2019). A coalescent sampler successfully detects biologically meaningful population structure overlooked by F-statistics. Evolutionary Applications, 12(2), 255–265. doi: 10.1111/eva.12712
+
+Hey, J., & Machado, C. A. (2003). The study of structured populations—New hope for a difficult and divided science. Nature Reviews Genetics, 4(7), 535–543.
+
+Johnson, J. B., & Omland, K. S. (2004). Model selection in ecology and evolution. Trends in Ecology & Evolution, 19(2), 101–108. doi: 10.1016/j.tree.2003.10.013
+
+Liu, S. Y. V., Green, J., Briggs, D., Hastings, R., Jondelius, Y., Kensinger, S., … Crandall, E. D. (2021). Dongsha Atoll is an important stepping-stone that promotes regional genetic connectivity in the South China Sea. PeerJ, 9, e12063. doi: 10/gmnqhs
+
+
+

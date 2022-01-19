@@ -2,7 +2,9 @@
 title: "Introduction to Migrate-n"
 author: "Eric D. Crandall"
 output:
-  html_document: default
+  html_document:
+      toc: true
+      toc_float: true
   html_notebook:
       toc: true
       toc_float: true
@@ -12,7 +14,7 @@ output:
 
 You'll need the following packages installed for this tutorial.
 
-```{r, warnings=F, messages=F}
+```{r, warning=F, message=F}
 library(phyclust)
 library(phangorn)
 library(strataG)
@@ -268,7 +270,7 @@ marglike <- data.frame(model=character(0),thermodynamic=numeric(0),bezier.correc
     }
 
 
-kable(marglike)
+kable(marglike, format.args = list(digits = 3))
 ```
 
 We get 3 likelihood scores for each model. The first is the thermodynamic integration likelihood (which I explained in my lecture). The second is the Bezier corrected thermodynamic integration marginal likelihood (say that 5 times fast). What is a Bezier correction? 
@@ -277,7 +279,7 @@ We get 3 likelihood scores for each model. The first is the thermodynamic integr
 
 Beerli & Palczewski (2010) showed that, while it would ordinarily take 16 or 32 MCMC chains to explore enough parameter space for thermodynamic integration, one could do the search with just 4 chains (one super-heated) and apply a Bezier spline (the dashed line in the figure), to get comparable results at a fraction of the computation.
 
-### Calculating Relative Model Probabilities
+### Relative Model Probabilities
 
 14. Now we need to convert these marginal likelihoods into Bayes factors and thence to relative model probabilities. For this I followed Johnson and Omland (2004).
 
@@ -298,7 +300,8 @@ bfcalcs<-function(df,ml="bezier.corrected"){
 
 # and this function should give us our "answer" as to which model is best supported by the data
 bftable<-bfcalcs(marglike)
-kable(bftable)
+
+kable(bftable, format.args = list(digits = 5))
 #write.csv(bftable,"model_selection_table.csv")
 ```
 
@@ -361,9 +364,11 @@ HPD <- HPDinterval(data.list.allinone)
 allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
 #write.csv(allstats,file="codastats.csv")
 
-kable(allstats, format = "html")
+kable(allstats, format = "html", format.args = list(digits = 3))
   
 ```
+
+
 And we see some potentially interesting differences in gene flow. Do they mean anything? Probably not. I have found that single-locus estimates 1) consistently under-estimate gene flow from simulated data and 2) inference of directionality is biased by sample size.
 
 

@@ -6,7 +6,7 @@ This is an ongoing analysis of gene flow and metapopulation structure in the zoa
 
 [Click here to view the ongoing analysis](Ptuberculosa_migrate.nb.html)
 
-[Click here to see a migrate-n tutorial](migrate_lesson/migrate-n_lesson.nb.html)
+[Click here to see a migrate-n tutorial](migrate_lesson/migrate-n_lesson.html)
 
 Analysis and tutorial by [Eric Crandall](https://science.psu.edu/bio/people/edc5240), Assistant Research Professor, Pennsylvania State University
 

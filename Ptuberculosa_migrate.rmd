@@ -38,7 +38,7 @@ gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output 
 gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 ```
 
-# dDocent Approach
+# Haplotypes from dDocent
 
 ## Filter SNPs
 
@@ -395,7 +395,7 @@ conda deactivate
 
 ### rad_haplotyper.pl
 
-First, gotta remove the -RG from the .bam and .bai files.
+Chris Hollenbeck has created a script that can get haplotypes from dDocent output. First, gotta remove the -RG from the .bam and .bai files.
 
 ```{bash}
 for f in *.bam; do mv "$f" "${f%-RG.bam}.bam" ; done
@@ -404,10 +404,9 @@ for f in *.bam.bai; do  mv "$f" "${f%-RG.bam.bai}.bam.bai" ; done
 
 Now, to install the rad_haplotyper environment following [these](https://github.com/chollenbeck/rad_haplotyper) instructions
 
-... rad_haplotyper isn't working because the Vcf Perl module changed its name to VCF... breaking the script.
+hmmm ... rad_haplotyper isn't working because the Vcf Perl module changed its name to VCF... breaking the script. I tried a few minor modifications but couldn't fix it. Created an issue in the github site.
 
 Remember to remove the environment: $ conda remove rad_haplotyper_env
-
 
 
 
@@ -450,7 +449,7 @@ samtools view -h -o /Users/edc5240/Datasets/Ptuberculosa/sam_files/${bam%.bam}.s
 done
 ```
 
-### Tutorial
+#### Tutorial
 
 Do the [tutorial](https://ngthomas.github.io/microhaplot/articles/microhaplot-walkthrough.html)
 
@@ -498,7 +497,7 @@ runShinyHaplot(path = "/Users/edc5240/Datasets/Ptuberculosa/shiny_dir/microhaplo
 
 Working with the data in microhaplot was OK, but I kept getting unexplained N's in the output, and it was going to take some coding effort to translate the output into migrate format. Moreover, microhaplot only kept the variable sites, which isn't ideal for migrate's mutation model. So I am giving up on this front, and am going to try to generate haplotypes with Stacks.
 
-# Generating Haplotypes with Stacks
+# Haplotypes from Stacks
 
 ## Setup
 

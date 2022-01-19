@@ -56,7 +56,7 @@ inheritance-scalars={1}
 # this nifty setting lets you lump populations easily to reduce model complexity
 population-relabel={1 2 3 4 5 6 7 8}
 usertree=RANDOMTREE
-infile=../panpen_CI_Iacchei.txt
+infile=../panpen_CI_Iacchei.mig
 random-seed=AUTO
 title=panpen_CI_Iacchei
 progress=YES

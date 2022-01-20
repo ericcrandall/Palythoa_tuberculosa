@@ -28,7 +28,9 @@ library(reshape2)
 
 # Migrate-n Tutorial
 
-Welcome to this migrate-n tutorial, by Dr. Eric Crandall of Pennsylvania State University. If you have questions or find errors, please let me know at ecrandall[!@AT^&]psu.edu
+Welcome to this migrate-n tutorial, by Dr. Eric Crandall of Pennsylvania State University. If you have questions or find errors, please ask on [this discussion thread](https://github.com/ericcrandall/Palythoa_tuberculosa/discussions), or let me know at ecrandall[!@AT^&]psu.edu
+
+You may download the data for this tutorial [here](https://downgit.github.io/#/home?url=https://github.com/ericcrandall/Palythoa_tuberculosa/tree/main/migrate_lesson/PanPen_example).
 
 [Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson. 
 
@@ -273,6 +275,9 @@ marglike <- data.frame(model=character(0),thermodynamic=numeric(0),bezier.correc
 kable(marglike, format.args = list(digits = 3))
 ```
 
+
+
+
 We get 3 likelihood scores for each model. The first is the thermodynamic integration likelihood (which I explained in my lecture). The second is the Bezier corrected thermodynamic integration marginal likelihood (say that 5 times fast). What is a Bezier correction? 
 
 ![Figure 1. Beerli and Palczewski 2010](../figures/B&P_Bezier_2010.jpg)
@@ -304,6 +309,9 @@ bftable<-bfcalcs(marglike)
 kable(bftable, format.args = list(digits = 5))
 #write.csv(bftable,"model_selection_table.csv")
 ```
+
+
+
 
 Ta Da! Sit back and reflect on the fact that Matt found 1/24 significant $F_{ST}$ values and 4/24 significant $\Phi_{ST}$ values. Here, we have a result that not only finds metapopulation structure, but actually supports a stepping-stone model of (most) gene flow going between neighboring islands.
 
@@ -367,6 +375,9 @@ allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
 kable(allstats, format = "html", format.args = list(digits = 3))
   
 ```
+
+
+
 
 
 And we see some potentially interesting differences in gene flow. Do they mean anything? Probably not. I have found that single-locus estimates 1) consistently under-estimate gene flow from simulated data and 2) inference of directionality is biased by sample size.

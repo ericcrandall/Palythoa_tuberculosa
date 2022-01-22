@@ -1,11 +1,24 @@
 ---
 title: "Gene Flow Models for *Palythoa tuberculosa*"
 output: 
-  html_notebook:
+html_document:
+    toc: true
+    toc_float: true 
+html_notebook:
     toc: true
     toc_float: true
 ---
 
+# Setup
+```{r setup, warning = F, message = F}
+library(tidyverse)
+library(ape)
+library(phangorn)
+library(pegas)
+library(strataG)
+library(knitr)
+
+```
 Rob Toonen asked me to take a look at this dataset sequenced and analyzed by 'Ale'alani Dudoit. From
 Rob:  
 
@@ -91,7 +104,7 @@ ErrorCount.sh rawg.1mac1dp3.recode.vcf
 
 Look at missing data per individual
 
-```{bash}
+```{bash, eval = F}
 vcftools --vcf rawg.1mac1dp3.recode.vcf --missing-indv
 
 mawk '!/IN/' out.imiss | cut -f5 > totalmissing
@@ -110,7 +123,7 @@ pause -1
 
 ```
 
-```{bash}
+```{bash, eval = F}
                                                                                                                         
                                          Histogram of % missing data per individual                                     
      20 +-----------------------------------------------------------------------------------------------------------+   
@@ -397,7 +410,7 @@ conda deactivate
 
 Chris Hollenbeck has created a script that can get haplotypes from dDocent output. First, gotta remove the -RG from the .bam and .bai files.
 
-```{bash}
+```{bash, eval = F}
 for f in *.bam; do mv "$f" "${f%-RG.bam}.bam" ; done
 for f in *.bam.bai; do  mv "$f" "${f%-RG.bam.bai}.bam.bai" ; done
 ```
@@ -453,7 +466,7 @@ done
 
 Do the [tutorial](https://ngthomas.github.io/microhaplot/articles/microhaplot-walkthrough.html)
 
-```{r}
+```{r, eval = F}
 library(microhaplot)
 shiny_dir <- "/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/Ptuberculosa_data/shiny_dir"
 microhaplot::mvShinyHaplot(shiny_dir)
@@ -466,7 +479,7 @@ microhaplot::runShinyHaplot(app.path)
 #### Load Data
 Then follow along [here](https://ngthomas.github.io/microhaplot/articles/microhaplot-data-prep.html) to get data into microhaplot. 
 
-```{r}
+```{r, eval = F}
 library(microhaplot)
 
 run.label <- "Ptuberculosa"
@@ -503,7 +516,7 @@ Working with the data in microhaplot was OK, but I kept getting unexplained N's 
 
 Need first to copy all the fastq files over from Google Drive, where 'Ale'a put them. I split them into 4 tranches to keep the number of files under 50 as required by gdown. Note that the folder protocol won't take urls, but just the ID.
 
-```{bash}
+```{bash eval = F}
 gdown --id 1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 gdown --id 1Ofta4RLcf6vddIiAA6dLCkdrYngADW1d --folder --remaining-ok --output secondbatch
 gdown --id 1Og6JQNlhgprYvLTxJtMBlCCj72qRxLOw --folder --remaining-ok --output thirdbatch
@@ -514,7 +527,7 @@ gdown --id 1Ojnlj3L_8UFoPUVxaqvLKTLs8qq_S9ml --folder --remaining-ok --output fo
 
 Need to rename the files into Illumina format in order for Stacks to recognize the paired reads
 
-```{bash}
+```{bash eval = F}
 cd raw
 
 for f in *.F.fq.gz
@@ -539,7 +552,7 @@ cd ..
 So I will process the radtags to remove adapters and the sau3AI cut site (GATC, which is the same as MboI).
 This command cleans data removing reads with uncalled bases, low phred scores, rescue barcodes and rad-tags.
 
-```{bash}
+```{bash eval = F}
 
 process_radtags -p ./raw/ -o ./cleaned/ --rescue --clean --quality --paired --filter_illumina --renz-1 sau3AI \
 --adapter-1 AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
@@ -576,14 +589,14 @@ done
 
 I'm going to use the denovo_map.pl pipeline. This command will take data from `./cleaned` and the popmap I created for dDocent and -m 3 reads per stack, -n 4 distance between stacks, -M 4 distance between catalog loci. Running on 12 -T threads and only keeping loci that appear in 75% of individuals in all 10 populations
 
-```{bash}
+```{bash eval = F}
 denovo_map.pl --samples ./cleaned/ --popmap ../popmap --out-path ./pipeline --paired \
 -m 3 -n 4 -M 4 -T 12 -r 75 -p 10 -X "populations: --fasta-samples" -X "populations: --filter-haplotype-wise"
 ```
 
 Copy it down
 
-```{bash}
+```{bash eval = F}
 scp -r  ecrandall@128.118.123.64:eric_data/ptuberculosa/stacks/pipeline/output1 ./stacks_output              
 ```
 
@@ -591,7 +604,7 @@ scp -r  ecrandall@128.118.123.64:eric_data/ptuberculosa/stacks/pipeline/output1 
 
 Now I need to re-run `populations` to get more statistics. Original populations output is in output1, this will be in output2.
 
-```{bash}
+```{bash eval = F}
 populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats --p-value-cutoff 0.99 --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw 
 ```
 
@@ -599,7 +612,7 @@ populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats 
 
 Paul Maier created [this script](http://www.mountainmanmaier.com/software/) to convert Stacks haplotypes to migrate format. I had to remove all the [individualName] tokens from the populations.samples.fa to get it to work.
 
-```{bash}
+```{bash eval = F}
 python2 /Applications/migrate/migrate-4.4.4/fasta2genotype/fasta2genotype.py populations.samples2.fa NA ../popmap.tsv  populations.snps.vcf ptuberculosa.mig
 
 ```
@@ -655,7 +668,7 @@ Then I manually re-ordered the populations to run from north to south in the out
 
 Install the parallel version of Migrate on Nautilus server. I hade to remove `-fvectorize` from line 100 of the makefile to get this to work.
 
-```{bash}
+```{bash eval = F}
 curl https://peterbeerli.com/migrate-html5/download_version4/migrate-newest-src.tar.gz > migrate.tar.gz
 tar -fvxz migrate.tar.gz
 cd migrate-4.4.4/
@@ -664,3 +677,74 @@ cd src
 make mpis (for parallel running)
 sudo cp migrate-n-mpi /usr/local/bin/migrate-n-mpi
 ```
+
+##  Locus Statistics & Mutation Model
+
+These RAD loci are much less variable than COI that I'm used to using. I need to figure out an overall mutation model to use with RAD loci. I can't find any [discussion of this issue on the Migrate Google Group](https://groups.google.com/g/migrate-support/search?q=%22mutation%20model%22). I guess I'll use modeltest to see where that gets me.
+
+I renamed the FASTA headers in `populations.samples.fa` with BBEdit:
+
+```{bash eval = F}
+Find: >CLocus_\d+_Sample_\d+_Locus_(\d+)_Allele_([01]) \[(.+)\]
+Replace: >\3_L\1_A\2
+
+```
+
+Lets load in the data and calculate some statistics for each locus
+
+```{r stats, message = F, warning = F}
+
+fastadata <- read.FASTA("/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
+
+# Get locus names
+locus_names <- str_extract(names(fastadata),"L\\d+") %>% unique()
+
+stats <- tibble(locus = character(), 
+                length = numeric(),
+                segSites = numeric(),
+                nHaps = numeric(),
+                nucDiv = numeric(),
+                ttRatio = numeric(),
+                gammaShape = numeric(), 
+                rate1 = numeric(), 
+                rate2 = numeric(), 
+                rate3 = numeric(),
+                rate4 = numeric())
+                
+for(l in locus_names){
+  print(l)
+  locus_dnabin <- fastadata[str_which(names(fastadata),pattern = l)]
+  # convert to package formats
+  locus_dnabin <- as.matrix(locus_dnabin)
+  locus_gtypes <- sequence2gtypes(locus_dnabin)
+  locus_phy <- phyDat(locus_dnabin)
+  #create a haplotype network .. to be continued
+  haps <- haplotype(locus_dnabin)
+  nhaps <- length(dimnames(haps)[[1]])
+  #tcs <- haploNet(haps)
+  #find parameters of HKY (F84) model
+  HKY <- modelTest(locus_phy, model = c("HKY"), G = T, I = F, k = 4)
+  env <- attr(HKY, "env")
+  HKYG <- get("HKY+G", env)
+  model <- eval(HKYG, env=env)
+  # calculate TiTv Ratio
+  ttratio <- TiTvRatio(locus_gtypes)
+  
+  stats <- bind_rows(stats, tibble(locus=l, 
+                          length = length(locus_dnabin[1,]),
+                          segSites = length(seg.sites(locus_dnabin)),
+                          nHaps = length(dimnames(haps)[[1]]),
+                          nucDiv = nuc.div(locus_dnabin),
+                          ttRatio =  ttratio[3],
+                          gammaShape = model$shape,
+                          rate1 = model$g[1],
+                          rate2 = model$g[2],
+                          rate3 = model$g[3],
+                          rate4 = model$g[4] ))
+                        
+}
+
+kable(stats)
+```
+
+So we have a `r length(which(stats$segSites == 0))` invariant loci, and the mean overall transition:transversion ratio is `r mean(!is.infinite(stats$ttRatio),na.rm = T)`. Mean gamma shape parameter is `r mean(stats$gammaShape)`, which argues for only one rate.

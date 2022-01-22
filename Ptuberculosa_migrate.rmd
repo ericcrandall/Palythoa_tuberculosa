@@ -692,7 +692,7 @@ Replace: >\3_L\1_A\2
 
 Lets load in the data and calculate some statistics for each locus
 
-```{r stats, message = F, warning = F}
+```{r stats, warning = F}
 
 fastadata <- read.FASTA("/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
 

@@ -6,8 +6,8 @@ output:
     toc: yes
     toc_float: yes
   html_notebook:
-      toc: true
-      toc_float: true
+    toc: true
+    toc_float: true
 bibliography: "../Ptuberculosa.bib"
 ---
 

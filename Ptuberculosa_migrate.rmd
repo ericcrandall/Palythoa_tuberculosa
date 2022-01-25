@@ -1,10 +1,10 @@
 ---
 title: "Gene Flow Models for *Palythoa tuberculosa*"
 output: 
-html_document:
+  html_document:
     toc: true
     toc_float: true 
-html_notebook:
+  html_notebook:
     toc: true
     toc_float: true
 bibliography: "./Ptuberculosa.bib"
@@ -997,7 +997,7 @@ mmmmmmmmmm
 }
 ```
 
-Minor github issue. Got a little hung up at this point because I accidentally committed some bayesallfiles that were hundreds of Mb, and of course github wouldn't let me upload those. Fixed it with [these instructions](https://stackoverflow.com/questions/12481639/remove-files-from-git-commit).
+Minor github issue. Got a little hung up at this point because I accidentally committed some bayesallfiles that were hundreds of Mb, and of course github wouldn't let me upload those. Thought I fixed it with [these instructions](https://stackoverflow.com/questions/12481639/remove-files-from-git-commit). Then ended up trying [git-filter-repo](https://htmlpreview.github.io/?https://github.com/newren/git-filter-repo/blob/docs/html/git-filter-repo.html) (installed via homebrew), then ended up restoring the whole thing from the github repository. Ouch. Then it wouldn't push until I ran `git prune`
 
 ### Results
 

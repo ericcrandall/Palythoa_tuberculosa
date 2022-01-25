@@ -2,12 +2,13 @@
 title: "Introduction to Migrate-n"
 author: "Eric D. Crandall"
 output:
-  html_document:
-      toc: true
-      toc_float: true
+  html_document: 
+    toc: yes
+    toc_float: yes
   html_notebook:
       toc: true
       toc_float: true
+bibliography: "../Ptuberculosa.bib"
 ---
 
 ### Setup
@@ -32,10 +33,12 @@ Welcome to this migrate-n tutorial, by Dr. Eric Crandall of Pennsylvania State U
 
 You may download the data for this tutorial [here](https://downgit.github.io/#/home?url=https://github.com/ericcrandall/Palythoa_tuberculosa/tree/main/migrate_lesson/PanPen_example).
 
-[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson. 
+[Migrate-n](http://popgen.sc.fsu.edu/Migrate/Info.html) is a program for inferring effective population sizes and gene flow rates and direction within a metapopulation using a Markov Chain Monte Carlo search of parameter space with coalescent simulations. It was written by Dr. Peter Beerli at Florida State University. The program is famously difficult to use, and the [documentation](http://popgen.sc.fsu.edu/migratedoc.pdf) is lengthy and abstruse. The program estimates two parameters for each population that you give it: $\theta = 4N_e\mu$ and $M = \frac{m}{\mu}$. One main assumption of the v3 version of the program is that all populations have been "infinitely" separated. The v4 version handles population divergence, but that will be covered in a future lesson.
+
+For more help, please see the the Migrate Manual, or [Peter's chapter](./Beerli_2009.pdf) on how to use Migrate [@beerliHowUseMIGRATE2009; @beerliMigrateManual2016]
 
 
-This tutorial will focus on analysis of haploid mitochondrial COI sequence data from *Panulirus pencillatus* provided by Dr. Matt Iacchei's dissertation and Iacchei et al. 2016. Such a beautiful critter.
+This tutorial will focus on analysis of haploid mitochondrial COI sequence data from *Panulirus pencillatus* provided by Dr. Matt Iacchei's dissertation and [@iaccheiGoldRushPopulation2014]. Such a beautiful critter.
 
 ![Panulirus pencillatus](../figures/Panulirus_penicillatus.jpeg)
 
@@ -117,7 +120,8 @@ bayes-file=YES:bayesfile
 bayes-allfile=YES:1:bayesallfile
 bayes-proposals= THETA METROPOLIS Sampler
 bayes-proposals= MIG SLICE Sampler
-# Priors - very important! But I have found these to be pretty good for most marine species.
+# Priors - very important! But I have found these to be pretty good for
+# single-locus analysis from most marine species.
 bayes-priors= THETA WEXPPRIOR: 0.0 0.01 0.1000000 0.01000 
 bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000.000000 100000.000000 
 # Parameters of the MCMCMC chains
@@ -156,6 +160,10 @@ Of particular interest is the matrix of 0 and \*: this is what lets us specify a
 This matrix denotes the following metapopulation model, where population 1 is a source and 3 and 4 are sinks.
 
 ![Migrate figure 2](../figures/migrate-figure2.jpg)
+### The Priors
+
+These are also important! In a Bayesian mindset, we can convert model or parameter likelihood (P(Data|Model)) to a true relative probability (P(Model|Data)) if we are willing to put our prior expectations into the analysis. Parameter estimation with a single locus is a very imprecise business, and even our best estimates are going to have errors that cross several orders of magnitude. Thus, I usually sample from a windowed exponential prior, meaning that the next value in the MCMC chain is picked from an exponential distribution, and can only be so far from the current value (within a window). The order of the numbers describing each prior is minimum, mean, maximum and window size.  The default values that I use for marine species (given in the parmfile above), reflect my experience in analyzing single-locus data in the Waples zone. Thus the maximum value that I use for Theta (0.1) reflects an effective deme size of 5 million, assuming a mutation/substitution rate of 2% / million years. The maximum value that I use for m suggests gene flow is no more than 1 million times stronger than mutation. I have found that using smaller priors often winds up with truncated posterior distributions. However, for multilocus data you may be able to tighten these priors, especially if you have, for example, population size estimates or mutation rate estimates.
+
 
 ### Set up the migrate-n run
 
@@ -167,7 +175,7 @@ So now we will go about setting up for a migrate run.
 
 3. You'll need to format your data for Migrate. I recommend [PGDSpider](http://www.cmpg.unibe.ch/software/PGDSpider/). If you have RAD data, see my [Palythoa tuberculosa analysis](../Ptuberculosa_migrate.nb.html) for an example how to use Stacks to get haplotypes.
 
-4. For mtDNA data you'll want to use ModelTest to determine the `transition:transversion ratio` and `gamma shape` parameters of an **HKY+G** model. This is the only model of molecular evolution that is implemented in migrate-n, so even if modeltest finds a better one, you should use the HKY+G parameters. For RAD data it is probably less important to fit these parameters for each locus, as the reads are shorter and have fewer mutations. You can use `modeltest` in the phangorn R package.
+4. For mtDNA data you'll want to use ModelTest to determine the `transition:transversion ratio` and `gamma shape` parameters of an **F84+G** (similar to HKY+G) model. This is the only model of molecular evolution that is implemented in migrate-n (v3), so even if ModelTest finds a better one, you should use the F84 + G or HKY+G parameters. For RAD data it is probably less important to fit these parameters for each locus, as the reads are shorter and have fewer mutations. You can use `modeltest` in the phangorn R package.
 
 5. Make a copy of the parmfile that I posted above. Open it in a text editor.
 
@@ -190,7 +198,12 @@ Enter these values in the `rates` line of your parmfile, after the "4:". You can
 
 6. Change all the output filenames in the parmfile to your liking. Sometimes using generic filenames can be helpful if you will be reading them in via script later. Your folder names can store the important information about models etc. Save the parmfile in a directory that will be devoted to migrate-n analysis.
 
-6. Now you'll want to run several test-runs on this parmfile. You will be tempted to skip this step, but DON'T. Put it in a folder called "Test" with the migrate-formatted data file one directory above it. You can test it locally on your computer or on the server where you will be doing the main analysis. Use one of your more complex models in `custom-migration`. You need to make sure that the parmfile 1) works 2) gets reasonable results. One thing to pay attention to is whether most of the posterior density seems to fall within the prior bounds. If you see, like, half a posterior distribution that is truncated by the prior, you will need to widen your priors. On the other hand if the posterior is nicely formed with lots of space around it, you might want to narrow your priors. Ultimately, your choice of prior should be based on your knowledge of the system.
+6. Now you'll want to run several test-runs on this parmfile. You will be tempted to skip this step, but **DON'T SKIP IT**. Put it in a folder called "Test" with the migrate-formatted data file one directory above it. You can test it locally on your computer or on the server where you will be doing the main analysis. Use one of your more complex models in `custom-migration`. You need to make sure that the parmfile 1) works 2) gets reasonable results. One thing to pay attention to is whether most of the posterior density seems to fall within the prior bounds. If you see, like, half a posterior distribution that is truncated by the prior, you will need to widen your priors. On the other hand if the posterior distribution looks really blocky, or with lots of space around it, you might want to narrow your priors. Ultimately though, your choice of prior should be based on your ahem... prior knowledge of the system.
+
+
+![Beerli 2009 on the effect of priors](../figures/beerli_2009_priors.jpg)
+
+
 
 7. Now make several directories with names (no spaces!) that reflect your hypotheses/models. Place a copy of your finalized parmfile in each one and change `custom-migration` and `population-relabel` to fit each hypothesis. Remember, you can paste your gene flow models directly from the spreadsheet!
 
@@ -282,11 +295,11 @@ We get 3 likelihood scores for each model. The first is the thermodynamic integr
 
 ![Figure 1. Beerli and Palczewski 2010](../figures/B&P_Bezier_2010.jpg)
 
-Beerli & Palczewski (2010) showed that, while it would ordinarily take 16 or 32 MCMC chains to explore enough parameter space for thermodynamic integration, one could do the search with just 4 chains (one super-heated) and apply a Bezier spline (the dashed line in the figure), to get comparable results at a fraction of the computation.
+@beerliUnifiedFrameworkEvaluate2010 showed that, while it would ordinarily take 16 or 32 MCMC chains to explore enough parameter space for thermodynamic integration, one could do the search with just 4 chains (one super-heated) and apply a Bezier spline (the dashed line in the figure), to get comparable results at a fraction of the computation.
 
 ### Relative Model Probabilities
 
-14. Now we need to convert these marginal likelihoods into Bayes factors and thence to relative model probabilities. For this I followed Johnson and Omland (2004).
+14. Now we need to convert these marginal likelihoods into Bayes factors and thence to relative model probabilities. For this I followed  @johnsonModelSelectionEcology2004.
 
 ```{r}
 # Here is a function for calculating log bayes factors 
@@ -313,9 +326,9 @@ kable(bftable, format.args = list(digits = 5))
 
 
 
-Ta Da! Sit back and reflect on the fact that Matt found 1/24 significant $F_{ST}$ values and 4/24 significant $\Phi_{ST}$ values. Here, we have a result that not only finds metapopulation structure, but actually supports a stepping-stone model of (most) gene flow going between neighboring islands.
+Ta Da! Sit back and reflect on the fact that Matt found 1/24 significant $F_{ST}$ values and 4/24 significant $\Phi_{ST}$ values. Here, we have a result that not only finds metapopulation structure, but actually supports a stepping-stone model of (most) gene flow going between neighboring islands. 
 
-Now, the problem is that there is no error estimate for the mode marginal likelihoods, and yes Migrate will arrive at differing marginal likelihoods with each run, due to the nature of MCMCMC. So now you need to re-run these models a minimum of 3 times, and take a low-sample size corrected average. See Crandall et al. 2019 for more information. Yay! 
+Now, the problem is that there is no error estimate for the mode marginal likelihoods, and yes Migrate will arrive at differing marginal likelihoods with each run, due to the nature of MCMCMC. So now you need to re-run these models a minimum of 3 times, and take a low-sample size corrected average. See [@crandallCoalescentSamplerSuccessfully2019] for more information. Yay! 
 
 ### Model Parameter Estimates
 
@@ -384,7 +397,7 @@ And we see some potentially interesting differences in gene flow. Do they mean a
 
 
 
-![Migrate Simulated Parameter Inference](../figures/migrate_parameters_from_sims.jpg)
+![Crandall et al. 2019 Supp. Figure 2](../figures/migrate_parameters_from_sims.jpg)
 
 
 Check out Supplemental Figure 2 from Crandall et al. (2019). The dots are the simulated values of $N_em$ (in white) and Ne (in black). The violin plots are migrate-n's inference for a single mtDNA like simulated locus.
@@ -416,25 +429,11 @@ Yeah, they're not pretty and convergence looks pretty iffy. That's why migrate-n
 
 
 
-Here are the Gelman & Rubin (1992) scale reduction factors for each parameter, where a value > 1.2 indicates poor convergence. So yeah. Not great. But also not horrible, if you remember that we are getting this information from a single 658bp locus. 
+Here are the @gelmanInferenceIterativeSimulation1992 scale reduction factors for each parameter, where a value > 1.2 indicates poor convergence. So yeah. Not great. But also not horrible, if you remember that we are getting this information from a single 658bp locus. 
 
 # Reading List
 
-Beerli, P. (2009). How to use MIGRATE or why are Markov chain Monte Carlo programs difficult to use? (G. Bertorelle, M. W. Bruford, H. C. Hauffe, A. Rizzoli, & C. Vernesi, Eds.). Cambridge University Press. [Link](./Beerli_2009.pdf)
-
-Beerli, P., & Felsenstein, J. (2001). Maximum likelihood estimation of a migration matrix and effective population sizes in n subpopulations by using a coalescent approach. Proceedings Of The National Academy Of Sciences Of The United States Of America-Biological Sciences, 98(8), 4563–4568.
-
-Beerli, P., & Palczewski, M. (2010). Unified Framework to Evaluate Panmixia and Migration Direction Among Multiple Sampling Locations. Genetics, 185(1), 313–326. doi: 10.1534/genetics.109.112532
-
-Beerli, P., Ashki, H., Mashayekhi, S., & Palczewski, M. (2019). Population divergence time estimation using individual lineage label switching. BioRxiv, 152, 763–28. doi: 10.1101/587832
-
-Crandall, E. D., Toonen, R. J., ToBo Laboratory, & Selkoe, K. A. (2019). A coalescent sampler successfully detects biologically meaningful population structure overlooked by F-statistics. Evolutionary Applications, 12(2), 255–265. doi: 10.1111/eva.12712
-
 Hey, J., & Machado, C. A. (2003). The study of structured populations—New hope for a difficult and divided science. Nature Reviews Genetics, 4(7), 535–543.
-
-Iacchei, M., Gaither, M. R., Bowen, B. W., & Toonen, R. J. (2016). Testing dispersal limits in the sea: Range-wide phylogeography of the pronghorn spiny lobster Panulirus penicillatus. Journal Of Biogeography, 43(5), 1032–1044. doi: 10.1111/jbi.12689
-
-Johnson, J. B., & Omland, K. S. (2004). Model selection in ecology and evolution. Trends in Ecology & Evolution, 19(2), 101–108. doi: 10.1016/j.tree.2003.10.013
 
 Liu, S. Y. V., Green, J., Briggs, D., Hastings, R., Jondelius, Y., Kensinger, S., … Crandall, E. D. (2021). Dongsha Atoll is an important stepping-stone that promotes regional genetic connectivity in the South China Sea. PeerJ, 9, e12063. doi: 10/gmnqhs
 

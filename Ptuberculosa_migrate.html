@@ -1517,6 +1517,7 @@ library(phangorn)
 library(pegas)
 library(strataG)
 library(knitr)
+library(emo)
 
 # Function library
 harvest.model.likelihoods &lt;- function(workingDir = workingDir,
@@ -2114,7 +2115,7 @@ Replace: &gt;\3_L\1_A\2
 </code></pre>
 <p>Lets load in the data and calculate some statistics for each locus. Previously Migrate-n only implemented the F84 (=HKY) model, with two rates (Transistions and Transversions) and gamma distributed rate variability. The new v4 has a <code>datamodel</code> parameter that suggests it might take other models of molecular evolution, but the possible models are not listed in the documentation! So I will just fit an HKY model.</p>
 <p>(note the interface lists these possible models: 1 Jukes-Cantor model 2 Kimura 2-parameter model 3 Felsenstein 1981 (F81) model 4 Felsenstein 1984 (F84) model 5 Hasegawa-Kishino-Yano model 6 Tamura-Nei model ) - I may try to code up tests for these down the line.</p>
-<pre class="r"><code>fastadata &lt;- read.FASTA(&quot;/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta&quot;)
+<pre class="r"><code>fastadata &lt;- read.FASTA(&quot;/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta&quot;)
 
 # Get locus names
 locus_names &lt;- str_extract(names(fastadata),&quot;L\\d+&quot;) %&gt;% unique()
@@ -2165,309 +2166,25 @@ for(l in locus_names){
                           rate3 = model$g[3],
                           rate4 = model$g[4] ))
                         
-}</code></pre>
-<pre><code>## [1] &quot;L327&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L878&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L905&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L1180&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L1201&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L1257&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L1334&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L1558&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L1875&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L2388&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L2583&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L2717&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L3586&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L3961&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L4304&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L4434&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L4438&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L4442&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L4950&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L5059&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L8862&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L9578&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L9984&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L10061&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L11008&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L11074&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L11315&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L11796&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L12220&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L12728&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L13246&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L13955&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L14063&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L14455&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L14518&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L14522&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L14706&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L14759&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L14943&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L15879&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L16369&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L17180&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L18283&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L18719&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L19311&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L19853&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L19963&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L21436&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L21548&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L23288&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L24817&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L25264&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L25318&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L25398&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L25605&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L25623&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L26422&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L26429&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L26556&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L26579&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L26712&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L26969&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L27012&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L27287&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L27423&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L27522&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L30368&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L31865&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L32562&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L33047&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L33831&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L34090&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L34388&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L34881&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L35043&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L35059&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L35068&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L35167&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L35665&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L35833&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L37981&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L38520&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L38950&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L39704&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L40411&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L40464&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L41423&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L41848&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L43331&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L43460&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L44102&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L44615&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L44617&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L44756&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L44796&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L45231&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L45477&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L45671&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L45707&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L46674&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L47664&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L49386&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L50690&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L60865&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L754773&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L1096075&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L1747065&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L2058296&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L2158295&quot;
-## [1] &quot;HKY+G&quot;
-## [1] &quot;L2530346&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;
-## [1] &quot;L2555271&quot;</code></pre>
-<pre><code>## negative edges length changed to 0!</code></pre>
-<pre><code>## [1] &quot;HKY+G&quot;</code></pre>
+}
+# write_csv(stats, &quot;./migrate/run2_locus_statistics.csv&quot;)</code></pre>
+<p>Read them back in so we don’t have to recalculate them every time I knit.</p>
+<pre class="r"><code>stats &lt;- read_csv(&quot;./migrate/run2_locus_statistics.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   locus = col_character(),
+##   length = col_double(),
+##   segSites = col_double(),
+##   nHaps = col_double(),
+##   nucDiv = col_double(),
+##   ttRatio = col_double(),
+##   gammaShape = col_double(),
+##   rate1 = col_double(),
+##   rate2 = col_double(),
+##   rate3 = col_double(),
+##   rate4 = col_double()
+## )</code></pre>
 <pre class="r"><code>kable(stats)</code></pre>
 <table>
 <colgroup>
@@ -2531,7 +2248,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -2674,7 +2391,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -2739,7 +2456,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -2921,7 +2638,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -2986,7 +2703,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -3103,7 +2820,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3298,7 +3015,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3454,7 +3171,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -3480,7 +3197,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -3493,7 +3210,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3675,7 +3392,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3727,7 +3444,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -3753,7 +3470,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">0.1059603</td>
 <td align="right">0.0000011</td>
 <td align="right">0.0015905</td>
@@ -3857,7 +3574,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3883,7 +3600,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -3909,7 +3626,7 @@ for(l in locus_names){
 <td align="right">0</td>
 <td align="right">1</td>
 <td align="right">0.0000000</td>
-<td align="right">NaN</td>
+<td align="right">NA</td>
 <td align="right">1.0000000</td>
 <td align="right">0.1369538</td>
 <td align="right">0.4767519</td>
@@ -4104,7 +3821,7 @@ mmmmmmmmmm
 </div>
 <div id="results" class="section level3">
 <h3>Results</h3>
-<p>Going to need to modify my code to read multilocus output from migrate-n.</p>
+<p>Very nice! <code>r</code>ji(“smiley”)` Going to need to modify my code to read multilocus output from migrate-n.</p>
 <pre class="r"><code>workingDir &lt;- &quot;./migrate/run2&quot;
 
 modelMarglikes &lt;- harvest.model.likelihoods(workingDir = workingDir)</code></pre>
@@ -4124,21 +3841,21 @@ modelMarglikes &lt;- harvest.model.likelihoods(workingDir = workingDir)</code></
 <tbody>
 <tr class="odd">
 <td align="left">island</td>
-<td align="left">-71962.63</td>
-<td align="left">-71106.18</td>
-<td align="left">-71777.12</td>
+<td align="left">-71971.81</td>
+<td align="left">-71120.19</td>
+<td align="left">-71812.53</td>
 </tr>
 <tr class="even">
 <td align="left">panmixia</td>
-<td align="left">-70394.23</td>
-<td align="left">-69481.85</td>
-<td align="left">-69667.50</td>
+<td align="left">-70400.30</td>
+<td align="left">-69492.18</td>
+<td align="left">-69654.60</td>
 </tr>
 <tr class="odd">
 <td align="left">stepping.stone</td>
-<td align="left">-65831.15</td>
-<td align="left">-64972.23</td>
-<td align="left">-65660.69</td>
+<td align="left">-65995.43</td>
+<td align="left">-65136.28</td>
+<td align="left">-65789.54</td>
 </tr>
 </tbody>
 </table>
@@ -4160,27 +3877,27 @@ kable(results)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">island</td>
-<td align="right">-71962.63</td>
-<td align="right">-71106.18</td>
-<td align="right">-71777.12</td>
-<td align="right">-12267.90</td>
+<td align="right">-71971.81</td>
+<td align="right">-71120.19</td>
+<td align="right">-71812.53</td>
+<td align="right">-11967.82</td>
 <td align="right">3</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">panmixia</td>
-<td align="right">-70394.23</td>
-<td align="right">-69481.85</td>
-<td align="right">-69667.50</td>
-<td align="right">-9019.24</td>
+<td align="right">-70400.30</td>
+<td align="right">-69492.18</td>
+<td align="right">-69654.60</td>
+<td align="right">-8711.80</td>
 <td align="right">2</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">stepping.stone</td>
-<td align="right">-65831.15</td>
-<td align="right">-64972.23</td>
-<td align="right">-65660.69</td>
+<td align="right">-65995.43</td>
+<td align="right">-65136.28</td>
+<td align="right">-65789.54</td>
 <td align="right">0.00</td>
 <td align="right">1</td>
 <td align="right">1</td>

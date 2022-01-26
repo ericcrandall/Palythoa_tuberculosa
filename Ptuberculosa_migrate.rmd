@@ -19,6 +19,7 @@ library(phangorn)
 library(pegas)
 library(strataG)
 library(knitr)
+library(emo)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -759,9 +760,9 @@ Lets load in the data and calculate some statistics for each locus. Previously M
  6  Tamura-Nei model
 ) - I may try to code up tests for these down the line.
 
-```{r stats, warning = F}
+```{r stats, warning = F, eval=F}
 
-fastadata <- read.FASTA("/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
+fastadata <- read.FASTA("/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
 
 # Get locus names
 locus_names <- str_extract(names(fastadata),"L\\d+") %>% unique()
@@ -813,7 +814,12 @@ for(l in locus_names){
                           rate4 = model$g[4] ))
                         
 }
+# write_csv(stats, "./migrate/run2_locus_statistics.csv")
+```
+Read them back in so we don't have to recalculate them every time I knit.
 
+```{r}
+stats <- read_csv("./migrate/run2_locus_statistics.csv")
 kable(stats)
 ```
 
@@ -1001,7 +1007,7 @@ Minor github issue. Got a little hung up at this point because I accidentally co
 
 ### Results
 
-Going to need to modify my code to read multilocus output from migrate-n.
+Very nice! `r `ji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
 
 ```{r run1_results}
 workingDir <- "./migrate/run2"

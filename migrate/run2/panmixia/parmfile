@@ -203,7 +203,7 @@ progress=YES
 #   [this is usually a bad choice! Because in batch jobs]
 #    the system logs the screen, on macs you can copy the screen,
 #    only on windows you may need this; this slows down the run a little
-logfile=NO
+logfile=YES:logfile.txt
 #
 #-------------------------------------------------------------------------------
 #
@@ -227,7 +227,7 @@ pdf-outfile=outfile.pdf
 #
 # Reduce size of PDF -- print/plot only summaries [default is NO]
 #   Syntax pdf-terse=<NO|YES>
-pdf-terse=NO
+pdf-terse=YES
 #
 #-------------------------------------------------------------------------------
 #

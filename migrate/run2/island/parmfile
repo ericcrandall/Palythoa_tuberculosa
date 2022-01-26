@@ -203,7 +203,7 @@ progress=YES
 #   [this is usually a bad choice! Because in batch jobs]
 #    the system logs the screen, on macs you can copy the screen,
 #    only on windows you may need this; this slows down the run a little
-logfile=NO
+logfile=YES:logfile.txt
 #
 #-------------------------------------------------------------------------------
 #
@@ -227,7 +227,7 @@ pdf-outfile=outfile.pdf
 #
 # Reduce size of PDF -- print/plot only summaries [default is NO]
 #   Syntax pdf-terse=<NO|YES>
-pdf-terse=NO
+pdf-terse=YES
 #
 #-------------------------------------------------------------------------------
 #
@@ -261,7 +261,7 @@ print-tree=NONE
 #         YES           calculate parameters through time
 #         binsize has to be in mutation units, with an average Theta=0.01 try 0.001
 #         If the interval is too fine the output will be very noisy
-mig-histogram=NO
+mig-histogram=MIGRATIONEVENTSONLY
 skyline=NO #needs mig-histogram=ALL:...
 #
 #

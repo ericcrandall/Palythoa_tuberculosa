@@ -1007,7 +1007,7 @@ Minor github issue. Got a little hung up at this point because I accidentally co
 
 ### Results
 
-Very nice! `r `ji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
+Very nice! `r ji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
 
 ```{r run1_results}
 workingDir <- "./migrate/run2"

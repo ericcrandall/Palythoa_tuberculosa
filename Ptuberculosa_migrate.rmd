@@ -20,6 +20,8 @@ library(pegas)
 library(strataG)
 library(knitr)
 library(emo)
+library(coda)
+library(ggmcmc)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -72,6 +74,18 @@ bfcalcs<-function(df,ml="bezier.corrected"){
 	return(dfall)
 }	
 
+migrants.per.gen<-function(x){
+  #a function for creating Nm vectors out of m and Theta vectors.
+  #x<-x[[1]]
+  m<-names(x)[which(grepl("M_",names(x)))] #names of m columns
+  #theta<-names(x)[which(grepl("Theta_",names(x)))] #names of theta columns
+  for(n in m){
+    t<-paste("Theta",strsplit(n,split="_")[[1]][3],sep="_")
+    x[,paste("Nm",strsplit(n,split="_")[[1]][2],strsplit(n,split="_")[[1]][3],sep="_")]<- x[,which(names(x)==n)]*x[,which(names(x)==t)] 
+    #this hairy little statement makes a new column named "Nm_X_Y" and then fills it by multiplying the M_X_Y column by the Theta_Y column	
+  }
+  return(x)
+}
 
 ```
 
@@ -1007,6 +1021,8 @@ Minor github issue. Got a little hung up at this point because I accidentally co
 
 ### Results
 
+#### Model Selection
+
 Very nice! `r ji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
 
 ```{r run1_results}
@@ -1021,3 +1037,49 @@ results <- bfcalcs(modelMarglikes)
 
 kable(results)
 ```
+
+#### Parameters
+
+```{r}
+workingDir2 <- "/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/migrate/testrun/run2/"
+
+winningModelDir <- file.path(workingDir2, "stepping.stone")
+
+#this may take a minute or two
+data <- read.table(file.path(winningModelDir,"bayesallfile"), header=T) 
+
+#calculate migrants per generation
+data.nm <- migrants.per.gen(data)
+
+data %>% group_by(locus) %>% summarize()
+# Split the whole list into the individual replicates, so that you will
+# have a list of data frames
+#data.list.1 <- split(data.nm,data$Replicate)
+
+#split the data on locus
+data.list.1 <- split(data.nm,data$Locus)
+data.list.mcmc <- mcmc.list(lapply(data.list.1,mcmc))   
+# Remove burnin if it wasn't removed in the run, where burnin is a proportion of the total.
+# e.g. First 40% First 20,000 samples out of 50,000 or 10 million steps out of 25 million
+#burnin <- 0.2
+#data.list.1<-lapply(data.list.1,subset,subset=Steps>(burnin*max(data.list.1[[1]]$Steps)))
+
+data.list.mcmc <- mcmc.list(data.list.1)
+    
+#convert each dataframe to an mcmc object and then convert the whole thing to an mcmc list
+
+#collapse all replicates to one for purposes of highest posterior density
+data.list.allinone <- mcmc(data=do.call("rbind",data.list.2)) 
+    
+
+summ <- summary(data.list.mcmc)
+ess <- effectiveSize(data.list.mcmc)
+gelman <- gelman.diag(data.list.mcmc,multivariate=F)
+HPD <- HPDinterval(data.list.allinone)
+    
+#concatenate the stats
+allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
+#write.csv(allstats,file="codastats.csv")
+
+```
+

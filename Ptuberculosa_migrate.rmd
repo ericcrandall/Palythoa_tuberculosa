@@ -833,7 +833,7 @@ for(l in locus_names){
 Read them back in so we don't have to recalculate them every time I knit.
 
 ```{r}
-stats <- read_csv("./migrate/run2_locus_statistics.csv")
+stats <- read_csv("./migrate/run2/run2_locus_statistics.csv")
 kable(stats)
 ```
 
@@ -959,7 +959,7 @@ end
 
 ```
 
-## Test Run
+## Test Run 1
 
 Let's see what happens! Started this run on Jan 22, at 10pm.
 
@@ -973,8 +973,12 @@ mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
 And it was finished the next morning!
 Prior on m was too wide, giving results like this:
 
+### Results
+
 ![Wide Priors on m](./figures/wide_priors.jpg)
 No bueno.
+
+## Test Run 2
 
 ### Revise m prior
 
@@ -1040,8 +1044,8 @@ kable(results)
 
 #### Parameters
 
-```{r}
-workingDir2 <- "/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/migrate/testrun/run2/"
+```{r, eval = F}
+workingDir2 <- "/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/migrate/testrun/run2"
 
 winningModelDir <- file.path(workingDir2, "stepping.stone")
 
@@ -1080,6 +1084,122 @@ HPD <- HPDinterval(data.list.allinone)
 #concatenate the stats
 allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
 #write.csv(allstats,file="codastats.csv")
+
+```
+
+## First Analysis Run
+
+'Ale'a and I settled on the following models
+
+### Models
+
+```{r eval = F}
+
+panmixia								
+population-relabel={1 1 1 1 1 1 1 1 1 1}								
+custom-migration=	*							
+								
+								
+								
+								
+								
+n-Island (all populations same size, all exchange migrants)								
+population-relabel={1 2 3 4 5 6 7 8 9}								
+custom-migration=	Pop_Kure 	m	m	m	m	m	m	m
+	Pop_P&H	                  m	m	m	m	m	m	m
+	Pop_MaroReef	            m	m	m	m	m	m	m
+	Pop_FFS	                  m	m	m	m	m	m	m
+	Pop_Kauai	                m	m	m	m	m	m	m
+	Pop_Oahu	                m	m	m	m	m	m	m
+	Pop_Molokai	              m	m	m	m	m	m	m
+	Pop_Maui	                m	m	m	m	m	m	m
+	Pop_BigIsland	            m	m	m	m	m	m	m
+								
+								
+								
+								
+								
+								
+Stepping-Stone								
+population-relabel={1 2 3 4 5 6 7 8 9}								
+custom-migration=	Pop_Kure 	*	*	0	0	0	0	0
+	Pop_P&H	                  *	*	*	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0
+	Pop_Oahu	                0	0	0	0	*	*	*
+	Pop_Molokai	              0	0	0	0	0	*	*
+	Pop_Maui	                0	0	0	0	0	0	*
+	Pop_BigIsland	            0	0	0	0	0	0	0
+								
+								
+								
+								
+								
+Kure_Oahu vs Stepping-Stone 								
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	Pop_Kure	*	*	0	0	0	*	0
+	Pop_P&H	                  *	*	*	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0
+	Pop_Oahu	                *	0	0	0	*	*	*
+	Pop_Molokai	              0	0	0	0	0	*	*
+	Pop_Maui	                0	0	0	0	0	0	*
+	Pop_BigIsland	            0	0	0	0	0	0	0
+								
+								
+								
+								
+NWHI vs MHI								
+population-relabel={1 1 1 1 2 2 2 2 2}								
+custom-migration=	Pop_NWHI 	*	*					
+	Pop_MHI	                  *	*					
+								
+								
+								
+								
+Breaks (Kure_PH vs MR_FFS vs MHI as individual populations)								
+population-relabel={1 1 2 2 3 4 5 6 7}								
+custom-migration=	Pop_Kure_PH 	*	*	0	0	0	0	0
+	Pop_MaroReef_FFS	            *	*	*	0	0	0	0
+	Pop_Kauai	                    0	*	*	*	0	0	0
+	Pop_Oahu	                    0	0	*	*	*	0	0
+	Pop_Molokai	                  0	0	0	*	*	*	0
+	Pop_Maui	                    0	0	0	0	*	*	*
+	Pop_BigIsland	                0	0	0	0	0	*	*
+								
+								
+								
+Kure_OA vs Breaks (PH vs MR_FFS vs MHI as individual populations) 								
+population-relabel={1 1 2 2 3 4 5 6 7}								
+custom-migration=	Pop_Kure_PH 	*	*	0	*	0	0	0
+	Pop_MaroReef_FFS	            *	*	*	0	0	0	0
+	Pop_Kauai	                    0	*	*	*	0	0	0
+	Pop_Oahu	                    *	0	*	*	*	0	0
+	Pop_Molokai	                  0	0	0	*	*	*	0
+	Pop_Maui	                    0	0	0	0	*	*	*
+	Pop_BigIsland	                0	0	0	0	0	*	*
+	  
+```
+
+I also turned menu = NO, and replicate=YES:3.
+
+
+### Bash Script
+
+ So eventually we will do 10 replicates of 3 replicates. I think I was able to set it up to run one whole replicate thusly. This will finish one whole model before moving on to the next one (since all threads are being used for different loci)
+
+```{unix eval = F}
+for m in */
+  do
+    cd $m
+      echo $m
+        screen -S $m
+        exec mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+        sleep 1
+        cd ..
+  done
 
 ```
 

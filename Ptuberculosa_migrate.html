@@ -2123,17 +2123,22 @@ sudo cp migrate-n-mpi /usr/local/bin/migrate-n-mpi</code></pre>
 </div>
 <div id="locus-statistics-mutation-model" class="section level2">
 <h2>Locus Statistics &amp; Mutation Model</h2>
-<p>These RAD loci are much less variable than COI that I’m used to using. I need to figure out an overall mutation model to use with RAD loci. I can’t find any <a href="https://groups.google.com/g/migrate-support/search?q=%22mutation%20model%22">discussion of this issue on the Migrate Google Group</a>. I guess I’ll use <code>modelTest</code> in the phangorn package to see where that gets me.</p>
+<p>These RAD loci are much less variable than COI that I’m used to using. I need to figure out an overall mutation model to use with RAD loci. I can’t find any <a href="https://groups.google.com/g/migrate-support/search?q=%22mutation%20model%22">discussion of this issue on the Migrate Google Group</a>, so <a href="https://groups.google.com/g/migrate-support/c/XjV_4jZW4RI/m/HbRWoGY6AwAJ">I created one</a>. I guess I’ll use <code>modelTest</code> in the phangorn package to see where that gets me.</p>
 <p>I renamed the FASTA headers in <code>populations.samples.fa</code> with BBEdit:</p>
 <pre class="bash"><code>Find: &gt;CLocus_\d+_Sample_\d+_Locus_(\d+)_Allele_([01]) \[(.+)\]
 Replace: &gt;\3_L\1_A\2
 </code></pre>
 <p>Lets load in the data and calculate some statistics for each locus. Previously Migrate-n only implemented the F84 (=HKY) model, with two rates (Transistions and Transversions) and gamma distributed rate variability. The new v4 has a <code>datamodel</code> parameter that suggests it might take other models of molecular evolution, but the possible models are not listed in the documentation! So I will just fit an HKY model.</p>
-<p>(note the interface lists these possible models: 1 Jukes-Cantor model 2 Kimura 2-parameter model 3 Felsenstein 1981 (F81) model 4 Felsenstein 1984 (F84) model 5 Hasegawa-Kishino-Yano model 6 Tamura-Nei model ) - I may try to code up tests for these down the line.</p>
-<pre class="r"><code>fastadata &lt;- read.FASTA(&quot;/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta&quot;)
+<p>note the interface lists these possible models: 1 Jukes-Cantor model 2 Kimura 2-parameter model 3 Felsenstein 1981 (F81) model 4 Felsenstein 1984 (F84) model 5 Hasegawa-Kishino-Yano model 6 Tamura-Nei model</p>
+<pre class="r"><code>fastadata &lt;- read.FASTA(&quot;/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta&quot;)
 
-# Get locus names
-locus_names &lt;- str_extract(names(fastadata),&quot;L\\d+&quot;) %&gt;% unique()
+# have to read in the locus lengths, because this is the only way to make sure the stats
+# and the migrate infile are ordered the same
+migrate_lengths &lt;- read_lines(&quot;/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/ptuberculosa.mig&quot;, skip = 1, n_max=1) %&gt;% 
+  str_split(&quot;\\t&quot;, simplify = T) %&gt;%  t(.) %&gt;% tibble(length=.)
+
+# Get locus names. fasta2genotype orders them alphabetically, so do this here too
+locus_names &lt;- str_extract(names(fastadata),&quot;L\\d+&quot;) %&gt;% unique() %&gt;% sort()
 
 stats &lt;- tibble(locus = character(), 
                 length = numeric(),
@@ -2141,14 +2146,19 @@ stats &lt;- tibble(locus = character(),
                 nHaps = numeric(),
                 nucDiv = numeric(),
                 ttRatio = numeric(),
-                gammaShape = numeric(), 
+                model = character(),
+                gammaShape = numeric(),
                 rate1 = numeric(), 
                 rate2 = numeric(), 
                 rate3 = numeric(),
-                rate4 = numeric())
+                rate4 = numeric(),
+                Q1= numeric(),
+                Q2 = numeric(),
+                Q3 = numeric(),
+                )
                 
 for(l in locus_names){
-  print(l)
+  print(paste(&quot;Now Doing Locus&quot;, l, match(l, locus_names), &quot;out of&quot;, length(locus_names)))
   locus_dnabin &lt;- fastadata[str_which(names(fastadata),pattern = l)]
   # convert to package formats
   locus_dnabin &lt;- as.matrix(locus_dnabin)
@@ -2159,13 +2169,20 @@ for(l in locus_names){
   nhaps &lt;- length(dimnames(haps)[[1]])
   #tcs &lt;- haploNet(haps)
   #find parameters of HKY (F84) model
- # modeltest &lt;- modelTest(locus_phy, model = c(&quot;JC&quot;,&quot;K80&quot;, &quot;F81&quot;, &quot;HKY&quot;), 
+  modeltest &lt;- modelTest(locus_phy, model = c(&quot;JC&quot;,&quot;K80&quot;, &quot;F81&quot;, &quot;HKY&quot;,&quot;TrN&quot;), 
+                         G = T, I = F, k = 4, mc.cores = 4)
+  # pick out the best model. If multiple models are tied for best, pick the simplest one
+  bestmodel &lt;- modeltest$Model[which(modeltest$BIC == min(modeltest$BIC))][1]
+  #open the object environment
+  env &lt;- attr(modeltest,&quot;env&quot;)
+  bestparams &lt;- get(bestmodel, env)
+  bestparams &lt;- eval(bestparams, env=env)
+  # use this code for v3, which only has F84 (HKY)
+  #HKY &lt;- modelTest(locus_phy, model = c(&quot;HKY&quot;), 
   #                       G = T, I = F, k = 4)
-  HKY &lt;- modelTest(locus_phy, model = c(&quot;HKY&quot;), 
-                         G = T, I = F, k = 4)
-  env &lt;- attr(HKY, &quot;env&quot;)
-  HKYG &lt;- get(&quot;HKY+G&quot;, env)
-  model &lt;- eval(HKYG, env=env)
+  #env &lt;- attr(HKY, &quot;env&quot;)
+  #HKYG &lt;- get(&quot;HKY+G&quot;, env)
+  #model &lt;- eval(HKYG, env=env)
   # calculate TiTv Ratio
   ttratio &lt;- TiTvRatio(locus_gtypes)
   
@@ -2175,14 +2192,1952 @@ for(l in locus_names){
                           nHaps = length(dimnames(haps)[[1]]),
                           nucDiv = nuc.div(locus_dnabin),
                           ttRatio =  ttratio[3],
-                          gammaShape = model$shape,
-                          rate1 = model$g[1],
-                          rate2 = model$g[2],
-                          rate3 = model$g[3],
-                          rate4 = model$g[4] ))
+                          model = bestmodel,
+                          gammaShape = bestparams$shape,
+                          rate1 = bestparams$g[1],
+                          rate2 = bestparams$g[2],
+                          rate3 = bestparams$g[3],
+                          rate4 = bestparams$g[4],
+                          Q1 = sort(unique(bestparams$Q))[1],
+                          Q2 = sort(unique(bestparams$Q))[2],
+                          Q3 = sort(unique(bestparams$Q))[3]
+                          ))
+                         
                         
 }
-# write_csv(stats, &quot;./migrate/run2_locus_statistics.csv&quot;)</code></pre>
+
+stats &lt;- stats[which(stats$length %in% migrate_lengths$length),]
+#setdiff(stats$length, as.numeric(migrate_lengths$length))
+# write_csv(stats, &quot;./migrate/run4_locus_statistics.csv&quot;)</code></pre>
+</div>
+<div id="write-a-model-block" class="section level2">
+<h2>Write a model block</h2>
+<p>Write a space delimited textfile that can be added to the migrate data file in the format that Peter suggested.</p>
+<pre class="r"><code>stats &lt;- read_csv(&quot;./migrate/run4_locus_statistics.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   locus = col_character(),
+##   length = col_double(),
+##   segSites = col_double(),
+##   nHaps = col_double(),
+##   nucDiv = col_double(),
+##   ttRatio = col_double(),
+##   model = col_character(),
+##   gammaShape = col_double(),
+##   rate1 = col_double(),
+##   rate2 = col_logical(),
+##   rate3 = col_logical(),
+##   rate4 = col_logical(),
+##   Q1 = col_double(),
+##   Q2 = col_double(),
+##   Q3 = col_logical()
+## )</code></pre>
+<pre class="r"><code>kable(stats)</code></pre>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="6%" />
+<col width="8%" />
+<col width="5%" />
+<col width="9%" />
+<col width="9%" />
+<col width="5%" />
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="5%" />
+<col width="5%" />
+<col width="2%" />
+<col width="10%" />
+<col width="2%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">locus</th>
+<th align="right">length</th>
+<th align="right">segSites</th>
+<th align="right">nHaps</th>
+<th align="right">nucDiv</th>
+<th align="right">ttRatio</th>
+<th align="left">model</th>
+<th align="right">gammaShape</th>
+<th align="right">rate1</th>
+<th align="left">rate2</th>
+<th align="left">rate3</th>
+<th align="left">rate4</th>
+<th align="right">Q1</th>
+<th align="right">Q2</th>
+<th align="left">Q3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">L10061</td>
+<td align="right">411</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000280</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L1096075</td>
+<td align="right">388</td>
+<td align="right">7</td>
+<td align="right">8</td>
+<td align="right">0.0002340</td>
+<td align="right">6.0000000</td>
+<td align="left">K80</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">12.02642</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L11008</td>
+<td align="right">472</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L11074</td>
+<td align="right">468</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000491</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L11315</td>
+<td align="right">499</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0001620</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L11796</td>
+<td align="right">516</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000239</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L1180</td>
+<td align="right">496</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">0.0001581</td>
+<td align="right">1.5000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L12220</td>
+<td align="right">337</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000346</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L1257</td>
+<td align="right">512</td>
+<td align="right">3</td>
+<td align="right">9</td>
+<td align="right">0.0000000</td>
+<td align="right">0.5000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L12728</td>
+<td align="right">618</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000180</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L13246</td>
+<td align="right">387</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0001455</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L1334</td>
+<td align="right">394</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">0.0000287</td>
+<td align="right">2.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L13955</td>
+<td align="right">500</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0000460</td>
+<td align="right">0.3333333</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L14063</td>
+<td align="right">726</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L14455</td>
+<td align="right">479</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000491</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L14518</td>
+<td align="right">338</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0.0000688</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L14522</td>
+<td align="right">382</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000302</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L14706</td>
+<td align="right">316</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0001836</td>
+<td align="right">3.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L14759</td>
+<td align="right">659</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L14943</td>
+<td align="right">478</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000481</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L1558</td>
+<td align="right">446</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">0.0001437</td>
+<td align="right">1.5000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L15879</td>
+<td align="right">353</td>
+<td align="right">11</td>
+<td align="right">10</td>
+<td align="right">0.0003399</td>
+<td align="right">0.5714286</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L16369</td>
+<td align="right">397</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000303</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L17180</td>
+<td align="right">729</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">0.0000473</td>
+<td align="right">0.5000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L1747065</td>
+<td align="right">269</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L18283</td>
+<td align="right">413</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000279</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L18719</td>
+<td align="right">463</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">0.0001285</td>
+<td align="right">1.5000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L1875</td>
+<td align="right">741</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0.0000000</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L19311</td>
+<td align="right">701</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L19853</td>
+<td align="right">370</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L19963</td>
+<td align="right">725</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L2058296</td>
+<td align="right">470</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000253</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L21436</td>
+<td align="right">335</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">0.0001023</td>
+<td align="right">1.5000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L21548</td>
+<td align="right">261</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000435</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L2158295</td>
+<td align="right">433</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L23288</td>
+<td align="right">328</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0001452</td>
+<td align="right">3.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L2388</td>
+<td align="right">313</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000770</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L24817</td>
+<td align="right">314</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0001114</td>
+<td align="right">3.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L25264</td>
+<td align="right">678</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000335</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L2530346</td>
+<td align="right">455</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000250</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L25318</td>
+<td align="right">338</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0002392</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L25398</td>
+<td align="right">462</td>
+<td align="right">7</td>
+<td align="right">11</td>
+<td align="right">0.0000762</td>
+<td align="right">1.3333333</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L2555271</td>
+<td align="right">784</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0.0000304</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L25605</td>
+<td align="right">325</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000691</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L25623</td>
+<td align="right">489</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0002795</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L2583</td>
+<td align="right">370</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000307</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L26422</td>
+<td align="right">316</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000745</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L26429</td>
+<td align="right">505</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000236</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L26556</td>
+<td align="right">437</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000272</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L26579</td>
+<td align="right">264</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0001301</td>
+<td align="right">Inf</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L26712</td>
+<td align="right">340</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000346</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L26969</td>
+<td align="right">345</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L27012</td>
+<td align="right">369</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0003109</td>
+<td align="right">0.3333333</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L2717</td>
+<td align="right">433</td>
+<td align="right">8</td>
+<td align="right">9</td>
+<td align="right">0.0002359</td>
+<td align="right">0.6000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L27287</td>
+<td align="right">273</td>
+<td align="right">7</td>
+<td align="right">7</td>
+<td align="right">0.0002199</td>
+<td align="right">1.3333333</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L27423</td>
+<td align="right">469</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.0000000</td>
+<td align="right">0.5000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L27522</td>
+<td align="right">275</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000834</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L30368</td>
+<td align="right">409</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L31865</td>
+<td align="right">471</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0001252</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L32562</td>
+<td align="right">379</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000307</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L327</td>
+<td align="right">621</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">0.0000184</td>
+<td align="right">0.5000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L33047</td>
+<td align="right">473</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0000739</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L33831</td>
+<td align="right">579</td>
+<td align="right">8</td>
+<td align="right">15</td>
+<td align="right">0.0001168</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L34090</td>
+<td align="right">302</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0001541</td>
+<td align="right">3.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L34388</td>
+<td align="right">634</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">0.0001086</td>
+<td align="right">4.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L34881</td>
+<td align="right">782</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L35043</td>
+<td align="right">454</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000253</td>
+<td align="right">Inf</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L35059</td>
+<td align="right">541</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L35068</td>
+<td align="right">411</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L35167</td>
+<td align="right">534</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000208</td>
+<td align="right">1.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L35665</td>
+<td align="right">349</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0002433</td>
+<td align="right">3.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L35833</td>
+<td align="right">399</td>
+<td align="right">11</td>
+<td align="right">15</td>
+<td align="right">0.0002354</td>
+<td align="right">0.5714286</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L3586</td>
+<td align="right">242</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000461</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L37981</td>
+<td align="right">505</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000665</td>
+<td align="right">Inf</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L38520</td>
+<td align="right">398</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000306</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L38950</td>
+<td align="right">308</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0001428</td>
+<td align="right">Inf</td>
+<td align="left">K80</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">22026.46579</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L3961</td>
+<td align="right">469</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L39704</td>
+<td align="right">338</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000336</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L40411</td>
+<td align="right">429</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000274</td>
+<td align="right">Inf</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L40464</td>
+<td align="right">433</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0001038</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L41423</td>
+<td align="right">395</td>
+<td align="right">5</td>
+<td align="right">9</td>
+<td align="right">0.0002024</td>
+<td align="right">4.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L41848</td>
+<td align="right">376</td>
+<td align="right">7</td>
+<td align="right">8</td>
+<td align="right">0.0002529</td>
+<td align="right">6.0000000</td>
+<td align="left">K80</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">12.02727</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L4304</td>
+<td align="right">473</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0000516</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L43331</td>
+<td align="right">524</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">0.0000215</td>
+<td align="right">Inf</td>
+<td align="left">HKY</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">22026.46579</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L43460</td>
+<td align="right">427</td>
+<td align="right">10</td>
+<td align="right">9</td>
+<td align="right">0.0003668</td>
+<td align="right">1.5000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L44102</td>
+<td align="right">650</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L4434</td>
+<td align="right">428</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000285</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L4438</td>
+<td align="right">419</td>
+<td align="right">8</td>
+<td align="right">11</td>
+<td align="right">0.0002329</td>
+<td align="right">1.6666667</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L4442</td>
+<td align="right">194</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">0.0001213</td>
+<td align="right">0.0000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L44615</td>
+<td align="right">699</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000167</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L44617</td>
+<td align="right">621</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L44756</td>
+<td align="right">515</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000213</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L44796</td>
+<td align="right">494</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L45231</td>
+<td align="right">502</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000221</td>
+<td align="right">Inf</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L45477</td>
+<td align="right">305</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L45671</td>
+<td align="right">382</td>
+<td align="right">6</td>
+<td align="right">8</td>
+<td align="right">0.0001508</td>
+<td align="right">2.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L45707</td>
+<td align="right">338</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">0.0001345</td>
+<td align="right">1.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L46674</td>
+<td align="right">572</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">0.0000632</td>
+<td align="right">0.5000000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L47664</td>
+<td align="right">324</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.0000356</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L49386</td>
+<td align="right">439</td>
+<td align="right">6</td>
+<td align="right">7</td>
+<td align="right">0.0001830</td>
+<td align="right">5.0000000</td>
+<td align="left">K80</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">10.01885</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L4950</td>
+<td align="right">596</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L5059</td>
+<td align="right">337</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000341</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L50690</td>
+<td align="right">374</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000326</td>
+<td align="right">0.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L60865</td>
+<td align="right">487</td>
+<td align="right">11</td>
+<td align="right">13</td>
+<td align="right">0.0002451</td>
+<td align="right">1.7500000</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L754773</td>
+<td align="right">366</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L8862</td>
+<td align="right">317</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">0.0001534</td>
+<td align="right">Inf</td>
+<td align="left">K80</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">22026.46579</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L905</td>
+<td align="right">399</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">L9578</td>
+<td align="right">333</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.0000337</td>
+<td align="right">Inf</td>
+<td align="left">F81</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">L9984</td>
+<td align="right">347</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">0.0000961</td>
+<td align="right">2.0000000</td>
+<td align="left">JC</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># write a space delimited textfile that can be added to the migrate data file
+# following Peter&#39;s suggestion here:
+#https://groups.google.com/g/migrate-support/c/XjV_4jZW4RI/m/HbRWoGY6AwAJ
+migrate_mutation_models &lt;- tibble(prefix = &quot;#$&quot;,
+                                 locus=1:length(stats$locus),
+                                 type = &quot;s&quot;,
+                                 model = stats$model,
+                                 q1 = stats$Q2,
+                                 q2 = stats$Q3)
+
+#write_delim(migrate_mutation_models,&quot;./migrate/run4_modelblock.txt&quot;, na=&quot;&quot;, delim = &quot; &quot;)</code></pre>
 <p>Read them back in so we don’t have to recalculate them every time I knit.</p>
 <pre class="r"><code>stats &lt;- read_csv(&quot;./migrate/run2/run2_locus_statistics.csv&quot;)</code></pre>
 <pre><code>## 
@@ -4066,16 +6021,30 @@ custom-migration=   Pop_Kure_PH     *   *   0   *   0   0   0
 </div>
 <div id="bash-script" class="section level3">
 <h3>Bash Script</h3>
-<p>So eventually we will do 10 replicates of 3 replicates. I think I was able to set it up to run one whole replicate thusly. This will finish one whole model before moving on to the next one (since all threads are being used for different loci)</p>
-<pre class="unix"><code>for m in */
-  do
-    cd $m
-      echo $m
-        screen -S $m
-        exec mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
-        sleep 1
+<p>So we will do 10 replicates of 3 replicates. This will start at r1, and run all models for that before moving on. Pretty sure this will finish one whole model before moving on to the next one (since all threads are being used for different loci)</p>
+<pre class="bash"><code>#!
+for r in */
+    do
+        cd $r
+        echo $r
+        date
+        date &gt; date.txt
+            for m in */
+              do
+                cd $m
+                  echo $m
+                  date
+                  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+                  sleep 1
+                cd ..
+              done
         cd ..
-  done
+    done</code></pre>
+<p>Copy it up, and then make a total of 10 replicate copies of the folder.</p>
+<pre class="bash"><code>scp -r ./run4 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4/r1    
+
+#once on server, copy it 9 times
+for a in $(seq 2 10); do cp -r rep1 rep$a; done
 </code></pre>
 </div>
 </div>

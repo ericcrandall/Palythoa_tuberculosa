@@ -753,7 +753,7 @@ sudo cp migrate-n-mpi /usr/local/bin/migrate-n-mpi
 
 ##  Locus Statistics & Mutation Model
 
-These RAD loci are much less variable than COI that I'm used to using. I need to figure out an overall mutation model to use with RAD loci. I can't find any [discussion of this issue on the Migrate Google Group](https://groups.google.com/g/migrate-support/search?q=%22mutation%20model%22). I guess I'll use `modelTest` in the phangorn package to see where that gets me.
+These RAD loci are much less variable than COI that I'm used to using. I need to figure out an overall mutation model to use with RAD loci. I can't find any [discussion of this issue on the Migrate Google Group](https://groups.google.com/g/migrate-support/search?q=%22mutation%20model%22), so [I created one](https://groups.google.com/g/migrate-support/c/XjV_4jZW4RI/m/HbRWoGY6AwAJ). I guess I'll use `modelTest` in the phangorn package to see where that gets me.
 
 I renamed the FASTA headers in `populations.samples.fa` with BBEdit:
 
@@ -765,21 +765,26 @@ Replace: >\3_L\1_A\2
 
 Lets load in the data and calculate some statistics for each locus. Previously Migrate-n only implemented the F84 (=HKY) model, with two rates (Transistions and Transversions) and gamma distributed rate variability. The new v4 has a `datamodel` parameter that suggests it might take other models of molecular evolution, but the possible models are not listed in the documentation! So I will just fit an HKY model. 
 
-(note the interface lists these possible models: 
+note the interface lists these possible models: 
  1  Jukes-Cantor model
  2  Kimura 2-parameter model
  3  Felsenstein 1981 (F81) model
  4  Felsenstein 1984 (F84) model
  5  Hasegawa-Kishino-Yano model
  6  Tamura-Nei model
-) - I may try to code up tests for these down the line.
+
 
 ```{r stats, warning = F, eval=F}
 
-fastadata <- read.FASTA("/Volumes/GoogleDrive/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
+fastadata <- read.FASTA("/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/allpops75_hwe/populations.samples_rename.fasta")
 
-# Get locus names
-locus_names <- str_extract(names(fastadata),"L\\d+") %>% unique()
+# have to read in the locus lengths, because this is the only way to make sure the stats
+# and the migrate infile are ordered the same
+migrate_lengths <- read_lines("/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/stacks_output/ptuberculosa.mig", skip = 1, n_max=1) %>% 
+  str_split("\\t", simplify = T) %>%  t(.) %>% tibble(length=.)
+
+# Get locus names. fasta2genotype orders them alphabetically, so do this here too
+locus_names <- str_extract(names(fastadata),"L\\d+") %>% unique() %>% sort()
 
 stats <- tibble(locus = character(), 
                 length = numeric(),
@@ -787,14 +792,19 @@ stats <- tibble(locus = character(),
                 nHaps = numeric(),
                 nucDiv = numeric(),
                 ttRatio = numeric(),
-                gammaShape = numeric(), 
+                model = character(),
+                gammaShape = numeric(),
                 rate1 = numeric(), 
                 rate2 = numeric(), 
                 rate3 = numeric(),
-                rate4 = numeric())
+                rate4 = numeric(),
+                Q1= numeric(),
+                Q2 = numeric(),
+                Q3 = numeric(),
+                )
                 
 for(l in locus_names){
-  print(l)
+  print(paste("Now Doing Locus", l, match(l, locus_names), "out of", length(locus_names)))
   locus_dnabin <- fastadata[str_which(names(fastadata),pattern = l)]
   # convert to package formats
   locus_dnabin <- as.matrix(locus_dnabin)
@@ -805,13 +815,20 @@ for(l in locus_names){
   nhaps <- length(dimnames(haps)[[1]])
   #tcs <- haploNet(haps)
   #find parameters of HKY (F84) model
- # modeltest <- modelTest(locus_phy, model = c("JC","K80", "F81", "HKY"), 
+  modeltest <- modelTest(locus_phy, model = c("JC","K80", "F81", "HKY","TrN"), 
+                         G = T, I = F, k = 4, mc.cores = 4)
+  # pick out the best model. If multiple models are tied for best, pick the simplest one
+  bestmodel <- modeltest$Model[which(modeltest$BIC == min(modeltest$BIC))][1]
+  #open the object environment
+  env <- attr(modeltest,"env")
+  bestparams <- get(bestmodel, env)
+  bestparams <- eval(bestparams, env=env)
+  # use this code for v3, which only has F84 (HKY)
+  #HKY <- modelTest(locus_phy, model = c("HKY"), 
   #                       G = T, I = F, k = 4)
-  HKY <- modelTest(locus_phy, model = c("HKY"), 
-                         G = T, I = F, k = 4)
-  env <- attr(HKY, "env")
-  HKYG <- get("HKY+G", env)
-  model <- eval(HKYG, env=env)
+  #env <- attr(HKY, "env")
+  #HKYG <- get("HKY+G", env)
+  #model <- eval(HKYG, env=env)
   # calculate TiTv Ratio
   ttratio <- TiTvRatio(locus_gtypes)
   
@@ -821,14 +838,45 @@ for(l in locus_names){
                           nHaps = length(dimnames(haps)[[1]]),
                           nucDiv = nuc.div(locus_dnabin),
                           ttRatio =  ttratio[3],
-                          gammaShape = model$shape,
-                          rate1 = model$g[1],
-                          rate2 = model$g[2],
-                          rate3 = model$g[3],
-                          rate4 = model$g[4] ))
+                          model = bestmodel,
+                          gammaShape = bestparams$shape,
+                          rate1 = bestparams$g[1],
+                          rate2 = bestparams$g[2],
+                          rate3 = bestparams$g[3],
+                          rate4 = bestparams$g[4],
+                          Q1 = sort(unique(bestparams$Q))[1],
+                          Q2 = sort(unique(bestparams$Q))[2],
+                          Q3 = sort(unique(bestparams$Q))[3]
+                          ))
+                         
                         
 }
-# write_csv(stats, "./migrate/run2_locus_statistics.csv")
+
+stats <- stats[which(stats$length %in% migrate_lengths$length),]
+#setdiff(stats$length, as.numeric(migrate_lengths$length))
+# write_csv(stats, "./migrate/run4_locus_statistics.csv")
+```
+
+## Write a model block
+
+Write a space delimited textfile that can be added to the migrate data file in the format that Peter suggested.
+
+```{r}
+stats <- read_csv("./migrate/run4_locus_statistics.csv")
+kable(stats)
+
+
+# write a space delimited textfile that can be added to the migrate data file
+# following Peter's suggestion here:
+#https://groups.google.com/g/migrate-support/c/XjV_4jZW4RI/m/HbRWoGY6AwAJ
+migrate_mutation_models <- tibble(prefix = "#$",
+                                 locus=1:length(stats$locus),
+                                 type = "s",
+                                 model = stats$model,
+                                 q1 = stats$Q2,
+                                 q2 = stats$Q3)
+
+#write_delim(migrate_mutation_models,"./migrate/run4_modelblock.txt", na="", delim = " ")
 ```
 Read them back in so we don't have to recalculate them every time I knit.
 
@@ -1188,18 +1236,37 @@ I also turned menu = NO, and replicate=YES:3.
 
 ### Bash Script
 
- So eventually we will do 10 replicates of 3 replicates. I think I was able to set it up to run one whole replicate thusly. This will finish one whole model before moving on to the next one (since all threads are being used for different loci)
+So we will do 10 replicates of 3 replicates.  This will start at r1, and run all models for that before moving on. Pretty sure this will finish one whole model before moving on to the next one (since all threads are being used for different loci)
 
-```{unix eval = F}
-for m in */
-  do
-    cd $m
-      echo $m
-        screen -S $m
-        exec mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
-        sleep 1
-        cd ..
-  done
+
+```{bash eval = F}
+#!
+for r in */
+	do
+		cd $r
+		echo $r
+		date
+		date > date.txt
+			for m in */
+			  do
+				cd $m
+				  echo $m
+				  date
+				  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+				  sleep 1
+				cd ..
+			  done
+		cd ..
+	done
+```
+
+Copy it up, and then make a total of 10 replicate copies of the folder.
+
+```{bash eval = F}
+scp -r ./run4 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4/r1    
+
+#once on server, copy it 9 times
+for a in $(seq 2 10); do cp -r rep1 rep$a; done
 
 ```
 

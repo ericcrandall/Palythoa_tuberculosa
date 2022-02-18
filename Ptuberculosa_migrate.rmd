@@ -1279,6 +1279,8 @@ And ten replicates finished in about 10 days! Found [this guide](https://www.cyb
 ```{bash eval = F}
 rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4 ./
 
+rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4/rep1/stepping.stone.all ./stepping.stone.KO.all
+
 ```
 
 ### Model Marginal Likelihoods
@@ -1348,3 +1350,11 @@ likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
 likesPlot_zoom
 ```
 
+### Gene Flow between Oahu and Kure
+
+Even though this model doesn't technically "win", there is an intriguing result of nearly one-way gene flow from Oahu to Kure. This suggests that a divergence parameter for these two populations is in order.
+
+![Gene Flow from Oahu to Kure](figures/Ptuberculosa_Oahu_to_Kure.jpg)
+
+
+![Gene Flow from Kure to Oahu](figures/Ptuberculosa_Kure_to_Oahu.jpg)

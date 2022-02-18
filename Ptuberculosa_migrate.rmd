@@ -22,6 +22,7 @@ library(knitr)
 library(emo)
 library(coda)
 library(ggmcmc)
+library(perm)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -1313,6 +1314,8 @@ kable(final_model)
 ```
 
 ### T-Test
+
+Difference between stepping.stone and stepping.stone.KO is not significant. `r ji("sad")`
 
 ```{r}
 top.choice <- final_model$model[which(final_model$choice ==1)]

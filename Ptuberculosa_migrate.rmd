@@ -54,6 +54,7 @@ harvest.model.likelihoods <- function(workingDir = workingDir,
       modelMarglikes <- rbind(modelMarglikes,marglikes, deparse.level = 2)
   }
   names(modelMarglikes) <- c("model","thermodynamic","bezier.corrected","harmonic")
+  modelMarglikes[2:4] <- sapply(modelMarglikes[2:4], as.numeric)
   return(modelMarglikes)
 }
 
@@ -62,10 +63,10 @@ bfcalcs<-function(df,ml="bezier.corrected"){
   # harvest.model.likelihoods(), following Johnson and Omland (2004)
   # You may choose the likelihood flavor with
   # ml = "bezier.corrected", "thermodynamic" or "harmonic"
-  df$thermodynamic <- as.numeric(df$thermodynamic)
-  df$bezier.corrected <- as.numeric(df$bezier.corrected)
-  df$harmonic <- as.numeric(df$harmonic)
-    mlcol <- df[,ml] 
+  #df$thermodynamic <- as.numeric(df$thermodynamic)
+  #df$bezier.corrected <- as.numeric(df$bezier.corrected)
+  #df$harmonic <- as.numeric(df$harmonic)
+  mlcol <- df[[ml]] 
 	bmvalue <- mlcol[which.max(mlcol)]
 	lbf <- 2*(mlcol-bmvalue)
 	choice <- rank(-mlcol)
@@ -1260,6 +1261,7 @@ for r in */
 	done
 ```
 
+### Copy It Up
 Copy it up, and then make a total of 10 replicate copies of the folder.
 
 ```{bash eval = F}
@@ -1270,3 +1272,36 @@ for a in $(seq 2 10); do cp -r rep1 rep$a; done
 
 ```
 
+### And back down
+
+And ten replicates finished in about 10 days! Found [this guide](https://www.cyberciti.biz/faq/scp-exclude-files-when-using-command-recursively-on-unix-linux/) to download everything except the massive bayesallfiles and pdfs
+
+```{bash eval = F}
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4 ./
+
+```
+
+### Model Marginal Likelihoods
+
+```{r likelihoods}
+runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+  #"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+
+likelist <- list()
+for(r in 1:10){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist %>% map(bfcalcs)
+```
+
+
+```{r}
+means <- likelist %>% bind_rows() %>% group_by(model) %>% 
+  summarize(bezier.corrected = mean(bezier.corrected))
+
+bfcalcs(means)
+```

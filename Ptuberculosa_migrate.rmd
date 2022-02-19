@@ -1143,9 +1143,9 @@ allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
 
 ### Models
 
-```{r eval = F}
+```{bash eval = F}
 
-panmixia								
+#Panmixia (panmixia; 1 panmictic population)						
 population-relabel={1 1 1 1 1 1 1 1 1 1}								
 custom-migration=	*							
 								
@@ -1153,9 +1153,10 @@ custom-migration=	*
 								
 								
 								
-n-Island (all populations same size, all exchange migrants)								
+#n-Island (island; all populations same size, all exchange migrants)								
 population-relabel={1 2 3 4 5 6 7 8 9}								
-custom-migration=	Pop_Kure 	m	m	m	m	m	m	m
+custom-migration=	
+  Pop_Kure 	                m	m	m	m	m	m	m 
 	Pop_P&H	                  m	m	m	m	m	m	m
 	Pop_MaroReef	            m	m	m	m	m	m	m
 	Pop_FFS	                  m	m	m	m	m	m	m
@@ -1170,48 +1171,53 @@ custom-migration=	Pop_Kure 	m	m	m	m	m	m	m
 								
 								
 								
-Stepping-Stone								
+#Stepping-Stone	(stepping.stone)				
 population-relabel={1 2 3 4 5 6 7 8 9}								
-custom-migration=	Pop_Kure 	*	*	0	0	0	0	0
-	Pop_P&H	                  *	*	*	0	0	0	0
-	Pop_MaroReef	            0	*	*	*	0	0	0
-	Pop_FFS	                  0	0	*	*	*	0	0
-	Pop_Kauai	                0	0	0	*	*	*	0
-	Pop_Oahu	                0	0	0	0	*	*	*
-	Pop_Molokai	              0	0	0	0	0	*	*
-	Pop_Maui	                0	0	0	0	0	0	*
-	Pop_BigIsland	            0	0	0	0	0	0	0
+	Pop_Kure 	                *	*	0	0	0	0	0	0	0
+	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 								
 								
 								
 								
 								
-Kure_Oahu vs Stepping-Stone 								
+#Stepping-Stone with a Kure-Oahu connection (stepping.stone.KO)								
 population-relabel={1 2 3 4 5 1 7 8 9}								
-custom-migration=	Pop_Kure	*	*	0	0	0	*	0
-	Pop_P&H	                  *	*	*	0	0	0	0
-	Pop_MaroReef	            0	*	*	*	0	0	0
-	Pop_FFS	                  0	0	*	*	*	0	0
-	Pop_Kauai	                0	0	0	*	*	*	0
-	Pop_Oahu	                *	0	0	0	*	*	*
-	Pop_Molokai	              0	0	0	0	0	*	*
-	Pop_Maui	                0	0	0	0	0	0	*
-	Pop_BigIsland	            0	0	0	0	0	0	0
+custom-migration=	
+	Pop_Kure 	                *	*	0	0	0	0	*	0	0
+	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                *	0	0	0	*	*	*	0	0
+	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 								
 								
 								
 								
-NWHI vs MHI								
+#NWHI vs MHI	(NWHI_MHI; two panmictic regions)					
 population-relabel={1 1 1 1 2 2 2 2 2}								
-custom-migration=	Pop_NWHI 	*	*					
+custom-migration=	
+  Pop_NWHI 	                *	*					
 	Pop_MHI	                  *	*					
 								
 								
 								
 								
-Breaks (Kure_PH vs MR_FFS vs MHI as individual populations)								
+# Stepping Stone Breaks (stepping.stones.breaks; 
+#  regional groups of Kure_PH vs MR_FFS vs MHI as lumped populations 
+#  with stepping stone gene flow between them. )								
 population-relabel={1 1 2 2 3 4 5 6 7}								
-custom-migration=	Pop_Kure_PH 	*	*	0	0	0	0	0
+custom-migration=	
+  Pop_Kure_PH 	                *	*	0	0	0	0	0
 	Pop_MaroReef_FFS	            *	*	*	0	0	0	0
 	Pop_Kauai	                    0	*	*	*	0	0	0
 	Pop_Oahu	                    0	0	*	*	*	0	0
@@ -1221,9 +1227,12 @@ custom-migration=	Pop_Kure_PH 	*	*	0	0	0	0	0
 								
 								
 								
-Kure_OA vs Breaks (PH vs MR_FFS vs MHI as individual populations) 								
+# Stepping Stone Breaks (stepping.stones.breaks; 
+#  regional groups of Kure_PH vs MR_FFS vs MHI as lumped populations 
+#  with stepping stone gene flow between them, and a Kure-Oahu connection.)									
 population-relabel={1 1 2 2 3 4 5 6 7}								
-custom-migration=	Pop_Kure_PH 	*	*	0	*	0	0	0
+custom-migration=	
+  Pop_Kure_PH 	                *	*	0	*	0	0	0
 	Pop_MaroReef_FFS	            *	*	*	0	0	0	0
 	Pop_Kauai	                    0	*	*	*	0	0	0
 	Pop_Oahu	                    *	0	*	*	*	0	0
@@ -1286,7 +1295,7 @@ rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/r
 
 ### Model Marginal Likelihoods
 
-```{r likelihoods}
+```{r likelihoods, message=F}
 runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
   #"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
@@ -1355,9 +1364,74 @@ likesPlot_zoom
 
 ### Gene Flow between Oahu and Kure
 
-Even though this model doesn't technically "win", there is an intriguing result of nearly one-way gene flow from Oahu to Kure. This suggests that a divergence parameter for these two populations is in order.
+Even though this model doesn't technically "win", because it failed the t-test among 10 replicate estimates of marginal likelihood. there is an intriguing result of nearly one-way gene flow from Oahu to Kure. Also, the stepping.stone.breaks.KO is much better than just stepping.stone.breaks. This suggests that a divergence parameter for these two populations is in order.
 
 ![Gene Flow from Oahu to Kure](figures/Ptuberculosa_Oahu_to_Kure.jpg)
 
 
 ![Gene Flow from Kure to Oahu](figures/Ptuberculosa_Kure_to_Oahu.jpg)
+
+
+
+
+## Adding two more models
+
+Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, an another model of divergence plus migration from Oahu to Kure.
+
+### Models
+
+```{eval = F}
+
+#Stepping-Stone with a *one way* Kure-Oahu ongoing gene flow connection 
+# (stepping.stone.KO.oneway)								
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	
+	Pop_Kure 	                *	*	0	0	0	0	*	0	0
+	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
+	
+#Stepping-Stone with a *one way* Kure-Oahu divergence with gene flow 
+# (stepping.stone.KO.divmig)								
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	
+	Pop_Kure 	                *	*	0	0	0	0	D	0	0
+	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
+
+#Stepping-Stone with a *one way* Kure-Oahu divergence without gene flow 
+# (stepping.stone.KO.div)	
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	
+	Pop_Kure 	                *	*	0	0	0	0	d	0	0
+	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
+```
+
+### Copy It Up and Down
+
+Copy it up, and then make a total of 10 replicate copies of the folder.
+
+```{bash eval = F}
+scp -r ./run4.1 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4.1    
+
+#once on server, copy it 9 times
+for a in $(seq 2 10); do cp -r rep1 rep$a; done
+```

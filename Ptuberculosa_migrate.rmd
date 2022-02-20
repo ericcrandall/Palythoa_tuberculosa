@@ -1425,6 +1425,29 @@ custom-migration=
 	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 ```
 
+### Priors
+And we need to add reasonable priors on divergence time to match the foundation of [Naval Air Station Midway in 1941](https://en.wikipedia.org/wiki/Naval_Air_Facility_Midway_Island), with a standard deviation of say 20 years because it was placed under Navy control in 1903. Splitting times $\tau$ in Migrate are in units of $N_E$ x generations. I will assume a nuclear mutation rate of 1e-9 and a generation time of 1 year.
+
+```{r}
+#take the mean of the modes from one replicate of the stepping.stone.KO model
+meantheta <- mean(0.00570+0.00450+0.00450+0.00490+0.00630+0.00510+0.00570+0.00510+0.00590)
+mu <- 1e-9
+generation_time <- 1
+Ne_gen <- 4*meantheta*generation_time/mu
+mean_split <- 80*generation_time/Ne_gen
+std_split <- 20*generation_time/Ne_gen
+max_split <- 163 * generation_time/Ne_gen
+
+```
+
+So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of `r mean_split` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles.
+
+```{bash eval = F}
+bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 1.048218e-07 1.048218e-07 0
+```
+
+
 ### Copy It Up and Down
 
 Copy it up, and then make a total of 10 replicate copies of the folder.

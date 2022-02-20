@@ -6417,7 +6417,7 @@ kable(final_model)</code></pre>
 </div>
 <div id="t-test" class="section level3">
 <h3>T-Test</h3>
-<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😢</p>
+<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😭</p>
 <pre class="r"><code>top.choice &lt;- final_model$model[which(final_model$choice ==1)]
 second.choice &lt;- final_model$model[which(final_model$choice ==2)]
 
@@ -6515,6 +6515,21 @@ custom-migration=
     Pop_Molokai                 0   0   0   0   0   *   *   *   0
     Pop_Maui                    0   0   0   0   0   0   *   *   *
     Pop_BigIsland               0   0   0   0   0   0   0   *   *</code></pre>
+</div>
+<div id="priors" class="section level3">
+<h3>Priors</h3>
+<p>And we need to add reasonable priors on divergence time to match the foundation of <a href="https://en.wikipedia.org/wiki/Naval_Air_Facility_Midway_Island">Naval Air Station Midway in 1941</a>, with a standard deviation of say 20 years because it was placed under Navy control in 1903. Splitting times <span class="math inline">\(\tau\)</span> in Migrate are in units of <span class="math inline">\(N_E\)</span> x generations. I will assume a nuclear mutation rate of 1e-9 and a generation time of 1 year.</p>
+<pre class="r"><code>#take the mean of the modes from one replicate of the stepping.stone.KO model
+meantheta &lt;- mean(0.00570+0.00450+0.00450+0.00490+0.00630+0.00510+0.00570+0.00510+0.00590)
+mu &lt;- 1e-9
+generation_time &lt;- 1
+Ne_gen &lt;- 4*meantheta*generation_time/mu
+mean_split &lt;- 80*generation_time/Ne_gen
+std_split &lt;- 20*generation_time/Ne_gen
+max_split &lt;- 163 * generation_time/Ne_gen</code></pre>
+<p>So one unit of <span class="math inline">\(\tau\)</span> is 1.908^{8}. 80 years ago is 4.1928721^{-7}, with a standard deviation of 4.1928721^{-7} and a max of 163 years (Midway discovered in 1859) which is 8.5429769^{-7}. This results in adding the following two lines to the parmfiles.</p>
+<pre class="bash"><code>bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 1.048218e-07 1.048218e-07 0</code></pre>
 </div>
 <div id="copy-it-up-and-down" class="section level3">
 <h3>Copy It Up and Down</h3>

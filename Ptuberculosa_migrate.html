@@ -6527,9 +6527,9 @@ Ne_gen &lt;- 4*meantheta*generation_time/mu
 mean_split &lt;- 80*generation_time/Ne_gen
 std_split &lt;- 20*generation_time/Ne_gen
 max_split &lt;- 163 * generation_time/Ne_gen</code></pre>
-<p>So one unit of <span class="math inline">\(\tau\)</span> is 1.908^{8}. 80 years ago is 4.1928721^{-7}, with a standard deviation of 4.1928721^{-7} and a max of 163 years (Midway discovered in 1859) which is 8.5429769^{-7}. This results in adding the following two lines to the parmfiles.</p>
+<p>So one unit of <span class="math inline">\(\tau\)</span> is 1.908^{8}. 80 years ago is 4.1928721^{-7}, with a standard deviation of between 5.2410901^{-8} and 1.572327^{-7} and a max of 163 years (Midway discovered in 1859) which is 8.5429769^{-7}. This results in adding the following two lines to the parmfiles.</p>
 <pre class="bash"><code>bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 1.048218e-07 1.048218e-07 0</code></pre>
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.54e-08</code></pre>
 </div>
 <div id="copy-it-up-and-down" class="section level3">
 <h3>Copy It Up and Down</h3>

@@ -1440,11 +1440,11 @@ max_split <- 163 * generation_time/Ne_gen
 
 ```
 
-So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of `r mean_split` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles.
+So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of between `r 10*generation_time/Ne_gen` and `r 30*generation_time/Ne_gen` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles.
 
 ```{bash eval = F}
 bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 1.048218e-07 1.048218e-07 0
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.54e-08
 ```
 
 

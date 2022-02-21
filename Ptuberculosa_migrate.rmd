@@ -1440,13 +1440,21 @@ max_split <- 163 * generation_time/Ne_gen
 
 ```
 
-So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of between `r 10*generation_time/Ne_gen` and `r 30*generation_time/Ne_gen` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles.
+So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of between `r 10*generation_time/Ne_gen` and `r 30*generation_time/Ne_gen` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles. Turns out migrate doesn't take normal priors yet, so using uniform priors on both mean and stdev.
+
+
 
 ```{bash eval = F}
-bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.50e-08
+bayes-priors= SPLIT * * UNIFORMPRIOR: 0.0 0.0000008542977 0.0000001
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0.000000054109 0.0000001572327 0.000000025
 ```
 
+Also, these priors aren't working. I will try larger ones.
+
+```{bash eval = F}
+bayes-priors= SPLIT * * UNIFORMPRIOR: 0.0 0.0001  0.00001
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0.000001 0.00001 0.000001
+```
 
 ### Copy It Up and Down
 

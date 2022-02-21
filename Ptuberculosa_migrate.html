@@ -6417,7 +6417,7 @@ kable(final_model)</code></pre>
 </div>
 <div id="t-test" class="section level3">
 <h3>T-Test</h3>
-<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😭</p>
+<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😿</p>
 <pre class="r"><code>top.choice &lt;- final_model$model[which(final_model$choice ==1)]
 second.choice &lt;- final_model$model[which(final_model$choice ==2)]
 
@@ -6468,9 +6468,9 @@ likesPlot_zoom</code></pre>
 </div>
 </div>
 </div>
-<div id="adding-two-more-models" class="section level2">
-<h2>Adding two more models</h2>
-<p>Based on these results I’m going to add a model of one way ongoing migration from Oahu to Kure, an another model of divergence plus migration from Oahu to Kure.</p>
+<div id="adding-three-more-models" class="section level2">
+<h2>Adding three more models</h2>
+<p>Based on these results I’m going to add a model of one way ongoing migration from Oahu to Kure, and another model of divergence from Oahu to Kure about 80 years ago with no subsequent gene flow, and finally, divergence plus migration between Oahu to Kure.</p>
 <div id="models-1" class="section level3">
 <h3>Models</h3>
 <pre class="eval"><code>
@@ -6529,13 +6529,17 @@ std_split &lt;- 20*generation_time/Ne_gen
 max_split &lt;- 163 * generation_time/Ne_gen</code></pre>
 <p>So one unit of <span class="math inline">\(\tau\)</span> is 1.908^{8}. 80 years ago is 4.1928721^{-7}, with a standard deviation of between 5.2410901^{-8} and 1.572327^{-7} and a max of 163 years (Midway discovered in 1859) which is 8.5429769^{-7}. This results in adding the following two lines to the parmfiles.</p>
 <pre class="bash"><code>bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.54e-08</code></pre>
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.50e-08</code></pre>
 </div>
 <div id="copy-it-up-and-down" class="section level3">
 <h3>Copy It Up and Down</h3>
 <p>Copy it up, and then make a total of 10 replicate copies of the folder.</p>
 <pre class="bash"><code>scp -r ./run4.1 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4.1    
-
+mkdir rep1
+mv step* rep1
+cp ../run4/ptuberculosa.mig ./ptuberculosa.mig
+cp ../run4/mpi_run_migrate-n.sh ./mpi_run_migrate-n.sh
+cd rep1
 #once on server, copy it 9 times
 for a in $(seq 2 10); do cp -r rep1 rep$a; done</code></pre>
 </div>

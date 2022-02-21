@@ -1374,9 +1374,9 @@ Even though this model doesn't technically "win", because it failed the t-test a
 
 
 
-## Adding two more models
+## Adding three more models
 
-Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, an another model of divergence plus migration from Oahu to Kure.
+Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, and another model of divergence from Oahu to Kure about 80 years ago with no subsequent gene flow, and finally, divergence plus migration between Oahu to Kure.
 
 ### Models
 
@@ -1444,7 +1444,7 @@ So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a stan
 
 ```{bash eval = F}
 bayes-priors= SPLIT * * NORMALPRIOR: 0.0 4.19287e-7 8.542e-7 1.048218e-07
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.54e-08
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 5.24109e-08 1.572327e-07 2.50e-08
 ```
 
 
@@ -1454,7 +1454,11 @@ Copy it up, and then make a total of 10 replicate copies of the folder.
 
 ```{bash eval = F}
 scp -r ./run4.1 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4.1    
-
+mkdir rep1
+mv step* rep1
+cp ../run4/ptuberculosa.mig ./ptuberculosa.mig
+cp ../run4/mpi_run_migrate-n.sh ./mpi_run_migrate-n.sh
+cd rep1
 #once on server, copy it 9 times
 for a in $(seq 2 10); do cp -r rep1 rep$a; done
 ```

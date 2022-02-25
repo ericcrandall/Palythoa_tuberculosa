@@ -1456,7 +1456,7 @@ bayes-priors= SPLIT * * UNIFORMPRIOR: 0.0 0.0001  0.00001
 bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0.000001 0.00001 0.000001
 ```
 
-### Copy It Up and Down
+### Copy It Up
 
 Copy it up, and then make a total of 10 replicate copies of the folder.
 
@@ -1469,4 +1469,22 @@ cp ../run4/mpi_run_migrate-n.sh ./mpi_run_migrate-n.sh
 cd rep1
 #once on server, copy it 9 times
 for a in $(seq 2 10); do cp -r rep1 rep$a; done
+```
+
+
+### Issues!
+
+So I was getting lots of messages like this one with the divergence models
+
+```
+[ 13] 10:18:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.58,0.61,0.62,0.67) Swap(33239,43851,16)
+                Param={ 0.001639 7.873e-06 0.0005709 9.102e-05 0.0004791 0.0006152 8.942e-05 1.131e-05 0.00225 192.7 0 0 0 182 0 0 0 232.9 304.6 0 0 0 0 0 0 0 730.9 348.1 0 0 0 0 0 0 0 469.6 949.5 0 0 0 0 0 0 0 1101 851.1 0 0 0 0 0 0 0 1249 813.4 0 0 0 0 0 0 0 34.37 6
+```
+
+## More Replicates
+
+Also some missing header messages arising from the message passing interface that I neglected to document. I might have traced it to using the SLICE sampler for the migration proposals, but for now we just want to get more replicates for the top 3 models of stepping.stone, stepping.stone.KO and stepping.stone.KO.oneway. 
+
+```{bash eval =F}
+for a in $(seq 12 30); do cp -r rep11 rep$a; done
 ```

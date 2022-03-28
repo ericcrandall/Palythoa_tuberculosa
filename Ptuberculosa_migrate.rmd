@@ -1488,3 +1488,28 @@ Also some missing header messages arising from the message passing interface tha
 ```{bash eval =F}
 for a in $(seq 12 30); do cp -r rep11 rep$a; done
 ```
+
+### Copy It Down
+
+```{bash eval = F}
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4.2 ./   
+```
+
+### Results
+
+#### Model Marginal Likelihoods
+
+```{r likelihoods2, message=F}
+runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+  #"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+
+likelist <- list()
+for(r in 1:16){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist %>% map(bfcalcs)
+```

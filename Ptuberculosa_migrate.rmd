@@ -1500,8 +1500,8 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.ed
 #### Model Marginal Likelihoods
 
 ```{r likelihoods2, message=F}
-#"/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+#runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1528,10 +1528,11 @@ final_model <- bfcalcs(means)
 final_model
 
 ```
+This time stepping stone beats out stepping stone with the Kure-Oahu connection
 
 ### T-Test
 
-Difference between stepping.stone and stepping.stone.KO is not significant. `r ji("sad")`
+Difference between stepping.stone and stepping.stone.KO is (still) not significant. 
 
 ```{r}
 top.choice <- final_model$model[which(final_model$choice ==1)]

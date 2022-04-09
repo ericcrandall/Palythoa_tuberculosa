@@ -1296,8 +1296,8 @@ rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/r
 ### Model Marginal Likelihoods
 
 ```{r likelihoods, message=F}
-runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-  #"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+# "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:10){
@@ -1326,7 +1326,7 @@ final_model
 
 Difference between stepping.stone and stepping.stone.KO is not significant. `r ji("sad")`
 
-```{r}
+```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
 second.choice <- final_model$model[which(final_model$choice ==2)]
 
@@ -1500,8 +1500,8 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.ed
 #### Model Marginal Likelihoods
 
 ```{r likelihoods2, message=F}
-runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-#runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1574,4 +1574,64 @@ Zoom in on the top two models
 likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
 
 likesPlot_zoom
+```
+
+
+## Adding a divergence model
+
+I couldn't mix models with the gene-flow drift equilibrium parameter (*) and the divergence with (D) or without (d) gene flow parameters. So, given the history of the archipelago, I created three new models with only divergence parameters, with divergence occuring in a north to south order. Divergence with gene flow (D) is assumed by migrate to include bidirectional gene flow. All models had the following additional priors added:
+
+```{bash eval = F}
+
+bayes-priors= SPLIT * * UNIFORMPRIOR: 0 1000  10
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 100 10 
+
+```
+
+### North to South Divergence with migration
+
+Model name stepping.stone.splitsD
+
+```{bash eval = F}
+*	0	0	0	0	0	0	0	0
+D	*	0	0	0	0	0	0	0
+0	D	*	0	0	0	0	0	0
+0	0	D	*	0	0	0	0	0
+0	0	0	D	*	0	0	0	0
+0	0	0	0	D	*	0	0	0
+0	0	0	0	0	D	*	0	0
+0	0	0	0	0	0	D	*	0
+0	0	0	0	0	0	0	D	*
+```
+
+### North to South Divergence without migration
+
+Model name stepping.stone.splits.d
+
+```{bash eval = F}
+*	0	0	0	0	0	0	0	0
+d	*	0	0	0	0	0	0	0
+0	d	*	0	0	0	0	0	0
+0	0	d	*	0	0	0	0	0
+0	0	0	d	*	0	0	0	0
+0	0	0	0	d	*	0	0	0
+0	0	0	0	0	d	*	0	0
+0	0	0	0	0	0	d	*	0
+0	0	0	0	0	0	0	d	*
+```
+
+### North to South Divergence with migration and divergence from Oahu to Kure
+
+Model name stepping.stone.splitsD.KOsplitD
+
+```{bash eval = F}
+*	0	0	0	0	d	0	0	0
+D	*	0	0	0	0	0	0	0
+0	D	*	0	0	0	0	0	0
+0	0	D	*	0	0	0	0	0
+0	0	0	D	*	0	0	0	0
+0	0	0	0	D	*	0	0	0
+0	0	0	0	0	D	*	0	0
+0	0	0	0	0	0	D	*	0
+0	0	0	0	0	0	0	D	*
 ```

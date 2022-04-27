@@ -1584,7 +1584,7 @@ I couldn't mix models with the gene-flow drift equilibrium parameter (*) and the
 ```{bash eval = F}
 
 bayes-priors= SPLIT * * UNIFORMPRIOR: 0 1000  10
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 100 10 
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 500 10 
 
 ```
 
@@ -1622,11 +1622,11 @@ d	*	0	0	0	0	0	0	0
 
 ### North to South Divergence with migration and divergence from Oahu to Kure
 
-Model name stepping.stone.splitsD.KOsplitD
+Model name stepping.stone.splitsD.KOsplitD. Here, population 1 isn't born until it splits from population 6. I'm having trouble setting an individual prior for a very young divergence from 6 to 1.
 
 ```{bash eval = F}
 *	0	0	0	0	d	0	0	0
-D	*	0	0	0	0	0	0	0
+0	*	0	0	0	0	0	0	0
 0	D	*	0	0	0	0	0	0
 0	0	D	*	0	0	0	0	0
 0	0	0	D	*	0	0	0	0
@@ -1634,4 +1634,20 @@ D	*	0	0	0	0	0	0	0
 0	0	0	0	0	D	*	0	0
 0	0	0	0	0	0	D	*	0
 0	0	0	0	0	0	0	D	*
+```
+
+### Migration with Divergence from Oahu to Kure
+
+Model name stepping.stone.KOd. Note population 1 isn't born until it diverges from 6.
+
+```{bash eval = F}
+*	0	0	0	0	d	0	0	0
+0	*	*	0	0	0	0	0	0
+0	*	*	*	0	0	0	0	0
+0	0	*	*	*	0	0	0	0
+0	0	0	*	*	*	0	0	0
+0	0	0	0	*	*	*	0	0
+0	0	0	0	0	*	*	*	0
+0	0	0	0	0	0	*	*	*
+0	0	0	0	0	0	0	*	*
 ```

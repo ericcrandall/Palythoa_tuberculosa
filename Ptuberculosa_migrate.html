@@ -6363,7 +6363,7 @@ final_model</code></pre>
 </div>
 <div id="t-test" class="section level3">
 <h3>T-Test</h3>
-<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😭</p>
+<p>Difference between stepping.stone and stepping.stone.KO is not significant. 😞</p>
 <pre class="r"><code>top.choice &lt;- final_model$model[which(final_model$choice ==1)]
 second.choice &lt;- final_model$model[which(final_model$choice ==2)]
 
@@ -7132,7 +7132,7 @@ likesPlot_zoom</code></pre>
 <p>I couldn’t mix models with the gene-flow drift equilibrium parameter (*) and the divergence with (D) or without (d) gene flow parameters. So, given the history of the archipelago, I created three new models with only divergence parameters, with divergence occuring in a north to south order. Divergence with gene flow (D) is assumed by migrate to include bidirectional gene flow. All models had the following additional priors added:</p>
 <pre class="bash"><code>
 bayes-priors= SPLIT * * UNIFORMPRIOR: 0 1000  10
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 100 10 
+bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 500 10 
 </code></pre>
 <div id="north-to-south-divergence-with-migration" class="section level3">
 <h3>North to South Divergence with migration</h3>
@@ -7172,6 +7172,7 @@ D   *   0   0   0   0   0   0   0
 0   0   0   0   0   D   *   0   0
 0   0   0   0   0   0   D   *   0
 0   0   0   0   0   0   0   D   *</code></pre>
+<p>Started 10 replicates at 1:30pm on April 10.</p>
 </div>
 </div>
 </div>

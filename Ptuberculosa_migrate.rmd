@@ -883,7 +883,7 @@ migrate_mutation_models <- tibble(prefix = "#$",
 Read them back in so we don't have to recalculate them every time I knit.
 
 ```{r}
-stats <- read_csv("./migrate/run2/run2_locus_statistics.csv")
+stats <- read_csv("migrate/run2/run2_locus_statistics.csv")
 kable(stats)
 ```
 
@@ -1261,6 +1261,7 @@ for r in */
 			for m in */
 			  do
 				cd $m
+				  date > date.txt
 				  echo $m
 				  date
 				  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
@@ -1296,8 +1297,8 @@ rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/r
 ### Model Marginal Likelihoods
 
 ```{r likelihoods, message=F}
-# "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+#runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:10){
@@ -1324,7 +1325,7 @@ final_model
 
 ### T-Test
 
-Difference between stepping.stone and stepping.stone.KO is not significant. `r ji("sad")`
+Difference between stepping.stone and stepping.stone.KO is very significant. `r ji("happy")`
 
 ```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
@@ -1341,7 +1342,9 @@ And a figure summarizing all this
 
 ```{r}
 
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands","Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, KO", "SteppingStone: Islands, KO")
+models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands",
+            "Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, KO",
+            "SteppingStone: Islands, KO")
 
 likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
               ggplot(mapping = aes(x=model, y = bezier.corrected)) +
@@ -1353,137 +1356,38 @@ likesPlot
 
 ```
 
-Zoom in on the top two models
-
-```{r}
-
-likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
-
-likesPlot_zoom
-```
-
 ### Gene Flow between Oahu and Kure
 
-Even though this model doesn't technically "win", because it failed the t-test among 10 replicate estimates of marginal likelihood. there is an intriguing result of nearly one-way gene flow from Oahu to Kure. Also, the stepping.stone.breaks.KO is much better than just stepping.stone.breaks. This suggests that a divergence parameter for these two populations is in order.
+There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Also, the stepping.stone.breaks.KO is much better than just stepping.stone.breaks. This suggests that a divergence parameter for these two populations is in order.
 
 ![Gene Flow from Oahu to Kure](figures/Ptuberculosa_Oahu_to_Kure.jpg)
 
 
 ![Gene Flow from Kure to Oahu](figures/Ptuberculosa_Kure_to_Oahu.jpg)
+## What about one way gene flow?
 
-
-
-
-## Adding three more models
-
-Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, and another model of divergence from Oahu to Kure about 80 years ago with no subsequent gene flow, and finally, divergence plus migration between Oahu to Kure.
-
-### Models
-
-```{eval = F}
-
+Stepping.stone.KO.oneway
+```{}
 #Stepping-Stone with a *one way* Kure-Oahu ongoing gene flow connection 
 # (stepping.stone.KO.oneway)								
 population-relabel={1 2 3 4 5 1 7 8 9}								
-custom-migration=	
-	Pop_Kure 	                *	*	0	0	0	0	*	0	0
-	Pop_P&H	                    *	*	0	0	0	0	0	0	0
-	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
-	Pop_FFS	                    0	0	*	*	*	0	0	0	0
-	Pop_Kauai	                0	0	0	*	*	*	0	0	0
-	Pop_Oahu	                0	0	0	0	*	*	*	0	0
-	Pop_Molokai	                0	0	0	0	0	*	*	*	0
-	Pop_Maui	                0	0	0	0	0	0	*	*	*
-	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
-	
-#Stepping-Stone with a *one way* Kure-Oahu divergence with gene flow 
-# (stepping.stone.KO.divmig)								
-population-relabel={1 2 3 4 5 1 7 8 9}								
-custom-migration=	
-	Pop_Kure 	                *	*	0	0	0	0	D	0	0
-	Pop_P&H	                    *	*	0	0	0	0	0	0	0
-	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
-	Pop_FFS	                    0	0	*	*	*	0	0	0	0
-	Pop_Kauai	                0	0	0	*	*	*	0	0	0
-	Pop_Oahu	                0	0	0	0	*	*	*	0	0
-	Pop_Molokai	                0	0	0	0	0	*	*	*	0
-	Pop_Maui	                0	0	0	0	0	0	*	*	*
-	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
-
-#Stepping-Stone with a *one way* Kure-Oahu divergence without gene flow 
-# (stepping.stone.KO.div)	
-population-relabel={1 2 3 4 5 1 7 8 9}								
-custom-migration=	
-	Pop_Kure 	                *	*	0	0	0	0	d	0	0
-	Pop_P&H	                    *	*	0	0	0	0	0	0	0
-	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
-	Pop_FFS	                    0	0	*	*	*	0	0	0	0
-	Pop_Kauai	                0	0	0	*	*	*	0	0	0
-	Pop_Oahu	                0	0	0	0	*	*	*	0	0
-	Pop_Molokai	                0	0	0	0	0	*	*	*	0
-	Pop_Maui	                0	0	0	0	0	0	*	*	*
-	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
-```
-
-### Priors
-And we need to add reasonable priors on divergence time to match the foundation of [Naval Air Station Midway in 1941](https://en.wikipedia.org/wiki/Naval_Air_Facility_Midway_Island), with a standard deviation of say 20 years because it was placed under Navy control in 1903. Splitting times $\tau$ in Migrate are in units of $N_E$ x generations. I will assume a nuclear mutation rate of 1e-9 and a generation time of 1 year.
-
-```{r}
-#take the mean of the modes from one replicate of the stepping.stone.KO model
-meantheta <- mean(0.00570+0.00450+0.00450+0.00490+0.00630+0.00510+0.00570+0.00510+0.00590)
-mu <- 1e-9
-generation_time <- 1
-Ne_gen <- 4*meantheta*generation_time/mu
-mean_split <- 80*generation_time/Ne_gen
-std_split <- 20*generation_time/Ne_gen
-max_split <- 163 * generation_time/Ne_gen
+custom-migration={
+*	*	0	0	0	*	0	0	0
+*	*	*	0	0	0	0	0	0
+0	*	*	*	0	0	0	0	0
+0	0	*	*	*	0	0	0	0
+0	0	0	*	*	*	0	0	0
+*	0	0	0	*	*	*	0	0
+0	0	0	0	0	*	*	*	0
+0	0	0	0	0	0	*	*	*
+0	0	0	0	0	0	0	*	*
+}
 
 ```
 
-So one unit of $\tau$ is `r Ne_gen`. 80 years ago is `r mean_split`, with a standard deviation of between `r 10*generation_time/Ne_gen` and `r 30*generation_time/Ne_gen` and a max of 163 years (Midway discovered in 1859) which is `r max_split`. This results in adding the following two lines to the parmfiles. Turns out migrate doesn't take normal priors yet, so using uniform priors on both mean and stdev.
+### More Replicates
 
-
-
-```{bash eval = F}
-bayes-priors= SPLIT * * UNIFORMPRIOR: 0.0 0.0000008542977 0.0000001
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0.000000054109 0.0000001572327 0.000000025
-```
-
-Also, these priors aren't working. I will try larger ones.
-
-```{bash eval = F}
-bayes-priors= SPLIT * * UNIFORMPRIOR: 0.0 0.0001  0.00001
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0.000001 0.00001 0.000001
-```
-
-### Copy It Up
-
-Copy it up, and then make a total of 10 replicate copies of the folder.
-
-```{bash eval = F}
-scp -r ./run4.1 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4.1    
-mkdir rep1
-mv step* rep1
-cp ../run4/ptuberculosa.mig ./ptuberculosa.mig
-cp ../run4/mpi_run_migrate-n.sh ./mpi_run_migrate-n.sh
-cd rep1
-#once on server, copy it 9 times
-for a in $(seq 2 10); do cp -r rep1 rep$a; done
-```
-
-
-### Issues!
-
-So I was getting lots of messages like this one with the divergence models
-
-```
-[ 13] 10:18:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.58,0.61,0.62,0.67) Swap(33239,43851,16)
-                Param={ 0.001639 7.873e-06 0.0005709 9.102e-05 0.0004791 0.0006152 8.942e-05 1.131e-05 0.00225 192.7 0 0 0 182 0 0 0 232.9 304.6 0 0 0 0 0 0 0 730.9 348.1 0 0 0 0 0 0 0 469.6 949.5 0 0 0 0 0 0 0 1101 851.1 0 0 0 0 0 0 0 1249 813.4 0 0 0 0 0 0 0 34.37 6
-```
-
-## More Replicates
-
-Also some missing header messages arising from the message passing interface that I neglected to document. I might have traced it to using the SLICE sampler for the migration proposals, but for now we just want to get more replicates for the top 3 models of stepping.stone, stepping.stone.KO and stepping.stone.KO.oneway. 
+Going to add more replicates of stepping.stone.KO and stepping.stone.KO.oneway
 
 ```{bash eval =F}
 for a in $(seq 12 30); do cp -r rep11 rep$a; done
@@ -1500,8 +1404,8 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.ed
 #### Model Marginal Likelihoods
 
 ```{r likelihoods2, message=F}
-#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+#runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1511,7 +1415,7 @@ for(r in 1:30){
 }
 
 # Model selection for each replicate...
-likelist %>% map(bfcalcs)
+#likelist %>% map(bfcalcs)
 ```
 
 
@@ -1528,28 +1432,24 @@ final_model <- bfcalcs(means)
 final_model
 
 ```
-This time stepping stone beats out stepping stone with the Kure-Oahu connection
+This time stepping stone with two-way Kure-Oahu connection beats out the one way connection
 
-### T-Test
+#### T-Test
 
-Difference between stepping.stone and stepping.stone.KO is (still) not significant. 
+Difference between stepping.stone.KO and stepping.stone.KO.oneway is significant. 
 
 ```{r}
 top.choice <- final_model$model[which(final_model$choice ==1)]
 second.choice <- final_model$model[which(final_model$choice ==2)]
-third.choice <- final_model$model[which(final_model$choice ==3)]
+#third.choice <- final_model$model[which(final_model$choice ==3)]
 
-permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
+TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
        like.df$bezier.corrected[which(like.df$model == second.choice)],
        alternative = "greater")
-
-permTS(like.df$bezier.corrected[which(like.df$model == second.choice)],
-       like.df$bezier.corrected[which(like.df$model == third.choice)],
-       alternative = "greater")
-
+TS
 ```
 
-### Figures
+#### Figures
 
 And a figure summarizing all this
 
@@ -1574,23 +1474,60 @@ Zoom in on the top two models
 likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
 
 likesPlot_zoom
-```
-
-
-## Adding a divergence model
-
-I couldn't mix models with the gene-flow drift equilibrium parameter (*) and the divergence with (D) or without (d) gene flow parameters. So, given the history of the archipelago, I created three new models with only divergence parameters, with divergence occuring in a north to south order. Divergence with gene flow (D) is assumed by migrate to include bidirectional gene flow. All models had the following additional priors added:
-
-```{bash eval = F}
-
-bayes-priors= SPLIT * * UNIFORMPRIOR: 0 1000  10
-bayes-priors= SPLITSTD * * UNIFORMPRIOR: 0 500 10 
 
 ```
 
-### North to South Divergence with migration
 
-Model name stepping.stone.splitsD
+## Adding divergence models
+
+[Peter says you **can** mix \* with d parameters](https://groups.google.com/g/migrate-support/c/49njPlwp62E/m/xzy4DkU9AwAJ), and I tested it and it worked! Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, and another model of divergence from Oahu to Kure about 80 years ago with no subsequent gene flow, and finally, divergence plus migration between Oahu to Kure.
+
+### stepping.stone.KO.D
+
+Equilibrium Gene Flow, but divergence with gene flow from Oahu to Kure
+
+```{eval = F}
+
+#Stepping-Stone with a *one way* Kure-Oahu divergence with gene flow 
+# (stepping.stone.KO.divmig)								
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	
+	Pop_Kure 	                *	0	0	0	0	0	D	0	0
+	Pop_P&H	                  0	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	              0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
+```
+
+### stepping.stone.KOd
+
+Equilibrium Gene Flow, but divergence without gene flow from Oahu to Kure
+
+
+```{}
+#Stepping-Stone with a *one way* Kure-Oahu divergence without gene flow 
+# (stepping.stone.KO.div)	
+population-relabel={1 2 3 4 5 1 7 8 9}								
+custom-migration=	
+	Pop_Kure 	                *	0	0	0	0	0	d	0	0
+	Pop_P&H	                  0	*	0	0	0	0	0	0	0
+	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0	0	0
+	Pop_Kauai	                0	0	0	*	*	*	0	0	0
+	Pop_Oahu	                0	0	0	0	*	*	*	0	0
+	Pop_Molokai	              0	0	0	0	0	*	*	*	0
+	Pop_Maui	                0	0	0	0	0	0	*	*	*
+	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
+```
+
+### stepping.stone.splitsD
+
+North to South Divergence with migration
+
 
 ```{bash eval = F}
 *	0	0	0	0	0	0	0	0
@@ -1604,9 +1541,9 @@ D	*	0	0	0	0	0	0	0
 0	0	0	0	0	0	0	D	*
 ```
 
-### North to South Divergence without migration
+### stepping.stone.splits.d
 
-Model name stepping.stone.splits.d
+North to South Divergence without migration
 
 ```{bash eval = F}
 *	0	0	0	0	0	0	0	0
@@ -1620,9 +1557,9 @@ d	*	0	0	0	0	0	0	0
 0	0	0	0	0	0	0	d	*
 ```
 
-### North to South Divergence with migration and divergence from Oahu to Kure
+### stepping.stone.splitsD.KOsplitD
 
-Model name stepping.stone.splitsD.KOsplitD. Here, population 1 isn't born until it splits from population 6. I'm having trouble setting an individual prior for a very young divergence from 6 to 1.
+Here, population 1 isn't born until it splits from population 6. I'm having trouble setting an individual prior for a very young divergence from 6 to 1- apparently I found a bug- Peter is fixing it.
 
 ```{bash eval = F}
 *	0	0	0	0	d	0	0	0
@@ -1636,18 +1573,54 @@ Model name stepping.stone.splitsD.KOsplitD. Here, population 1 isn't born until 
 0	0	0	0	0	0	0	D	*
 ```
 
-### Migration with Divergence from Oahu to Kure
 
-Model name stepping.stone.KOd. Note population 1 isn't born until it diverges from 6.
+### Priors
+
+And we need to add reasonable priors on divergence time to match the foundation of [Naval Air Station Midway in 1941](https://en.wikipedia.org/wiki/Naval_Air_Facility_Midway_Island), with a standard deviation of say 20 years because it was placed under Navy control in 1903. Splitting times $\tau$ in [Migrate](https://groups.google.com/g/migrate-support/c/49njPlwp62E/m/xzy4DkU9AwAJ) are in units of $\mu$ x generations. I will assume a nuclear mutation rate of 1e-9 and a generation time of 1 year. Peter confirmed 
+
+```{r}
+#take the mean of the modes from one replicate of the stepping.stone.KO model
+#meantheta <- mean(0.00570+0.00450+0.00450+0.00490+0.00630+0.00510+0.00570+0.00510+0.00590)
+mu <- 1e-9
+generation_time <- 1
+
+mean_split <- 80*mu/generation_time
+std_split <- 20*mu/generation_time
+max_split <- 163 * mu/generation_time
+
+```
+
+ 80 years ago is `r mean_split`, and a max of 163 years (Midway discovered in 1859) which is `r max_split`. 
+ 
+It turns out that setting individual priors on divergence isn't working right now, so I'm just going to have to set a wide prior if there are other d or D parameters and only can set the specific prior if the Kure Oahu split is the only split in the model.
+
+This results in adding the following two lines to the parmfiles with only the Kure Oahu split.
+```{}
+bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-8 1.63e-7 1.63e-8 
+bayes-priors= SPLITSTD * * WEXPPRIOR: 0.0 8e-8 1.63e-7 1.63e-8
+```
+
+The rest get this wider prior. Also, I am using exponentially distributed priors, so the SPLITSTD is not going to be used.
+
+```{}
+bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+```
+
+### Copy It Up
+
+Copy it up, and then make a total of 10 replicate copies of the folder.
 
 ```{bash eval = F}
-*	0	0	0	0	d	0	0	0
-0	*	*	0	0	0	0	0	0
-0	*	*	*	0	0	0	0	0
-0	0	*	*	*	0	0	0	0
-0	0	0	*	*	*	0	0	0
-0	0	0	0	*	*	*	0	0
-0	0	0	0	0	*	*	*	0
-0	0	0	0	0	0	*	*	*
-0	0	0	0	0	0	0	*	*
+scp -r ./run4.1 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4.1    
+mkdir rep1
+mv step* rep1
+cp ../run4/ptuberculosa.mig ./ptuberculosa.mig
+cp ../run4/mpi_run_migrate-n.sh ./mpi_run_migrate-n.sh
+cd rep1
+#once on server, copy it 9 times
+for a in $(seq 2 10); do cp -r rep1 rep$a; done
 ```
+
+
+

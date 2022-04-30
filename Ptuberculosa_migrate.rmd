@@ -1294,7 +1294,9 @@ rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/r
 
 ```
 
-### Model Marginal Likelihoods
+### Results
+
+#### Model Marginal Likelihoods
 
 ```{r likelihoods, message=F, results='hide'}
 runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
@@ -1323,7 +1325,7 @@ final_model <- bfcalcs(means)
 final_model
 ```
 
-### T-Test
+#### T-Test
 
 Difference between stepping.stone and stepping.stone.KO is very significant. `r ji("happy")`
 
@@ -1336,7 +1338,7 @@ permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
        alternative = "greater", method = "exact.ce")
 ```
 
-### Figures
+#### Figures
 
 And a figure summarizing all this
 
@@ -1356,7 +1358,7 @@ likesPlot
 
 ```
 
-### Gene Flow between Oahu and Kure
+#### Gene Flow between Oahu and Kure
 
 There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Also, the stepping.stone.breaks.KO is much better than just stepping.stone.breaks. This suggests that a divergence parameter for these two populations is in order.
 
@@ -1364,6 +1366,7 @@ There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Als
 
 
 ![Gene Flow from Kure to Oahu](figures/Ptuberculosa_Kure_to_Oahu.jpg)
+
 ## What about one way gene flow?
 
 Stepping.stone.KO.oneway

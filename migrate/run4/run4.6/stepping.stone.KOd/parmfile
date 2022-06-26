@@ -80,5 +80,5 @@ heating=YES:1:{1.000000,1.500000,3.000000,1000000.000000}
 heated-swap=YES
 moving-steps=NO
 gelman-convergence=No
-replicate=YES:3
+replicate=NO
 end

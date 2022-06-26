@@ -1338,25 +1338,7 @@ permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
        alternative = "greater", method = "exact.ce")
 ```
 
-#### Figures
 
-And a figure summarizing all this
-
-```{r}
-
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands",
-            "Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, KO",
-            "SteppingStone: Islands, KO")
-
-likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
-              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
-              geom_violin(draw_quantiles = 0.5) +
-              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-              scale_x_discrete(labels = models) +
-              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
-likesPlot
-
-```
 
 #### Gene Flow between Oahu and Kure
 
@@ -1422,7 +1404,7 @@ for(r in 1:30){
 ```
 
 
-The final model marginal likelihood estimates based on the mean of 10 replicates:
+The final model marginal likelihood estimates based on the mean of 30 replicates:
 
 ```{r}
 like.df <-  likelist %>% bind_rows() %>% group_by(model)
@@ -1437,48 +1419,7 @@ final_model
 ```
 This time stepping stone with two-way Kure-Oahu connection beats out the one way connection
 
-#### T-Test
 
-Difference between stepping.stone.KO and stepping.stone.KO.oneway is significant. 
-
-```{r}
-top.choice <- final_model$model[which(final_model$choice ==1)]
-second.choice <- final_model$model[which(final_model$choice ==2)]
-#third.choice <- final_model$model[which(final_model$choice ==3)]
-
-TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
-       like.df$bezier.corrected[which(like.df$model == second.choice)],
-       alternative = "greater")
-TS
-```
-
-#### Figures
-
-And a figure summarizing all this
-
-```{r}
-
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands","Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, KO", "SteppingStone: Islands, KO", "Stepping-Stone: KO, OneWay")
-
-likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
-              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
-              geom_violin(draw_quantiles = 0.5) +
-              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-              scale_x_discrete(labels = models) +
-              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
-likesPlot
-
-```
-
-Zoom in on the top two models
-
-```{r}
-
-likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
-
-likesPlot_zoom
-
-```
 
 
 ## Adding divergence models
@@ -1625,5 +1566,91 @@ cd rep1
 for a in $(seq 2 10); do cp -r rep1 rep$a; done
 ```
 
+### And Back down
+
+```{bash eval = F}
+
+rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4.5 ./
+
+# then copied them into the run4 folder with:
+rsync -av --progress run4.5/ run4/ --exclude '*KO[\.d]*'  
+
+# the exclude statement excludes stepping.stone.KOd and stepping.stone.KO.D which didn't complete.
+```
 
 
+### Results
+
+#### Model Marginal Likelihoods
+
+```{r likelihoods3, message=F, results='hide'}
+#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+
+likelist <- list()
+for(r in 1:30){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist %>% map(bfcalcs)
+```
+The final model marginal likelihood estimates based on the mean of 10 replicates:
+
+```{r}
+like.df <-  likelist %>% bind_rows() %>% group_by(model)
+
+means <- like.df %>% summarize(bezier.corrected = mean(bezier.corrected))
+  
+
+final_model <- bfcalcs(means)
+
+final_model
+```
+
+#### T-Test
+
+The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. `r ji("happy")`
+
+```{r eval = F}
+top.choice <- final_model$model[which(final_model$choice ==1)]
+second.choice <- final_model$model[which(final_model$choice ==2)]
+
+TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
+       like.df$bezier.corrected[which(like.df$model == second.choice)],
+       alternative = "greater")
+
+```
+
+#### Figures
+
+And a figure summarizing all this
+
+```{r}
+
+models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands",
+            "Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, Kure/Oahu Connection",
+            "SteppingStone: Islands, Kure/Oahu Connection", "SteppingStone: Islands, One-way Kure/Oahu Connection",
+            "Sequential Splits: No Gene Flow","Sequential Splits: Gene Flow",
+            "Sequential Splits: Gene Flow, O founds K")
+
+likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+              scale_x_discrete(labels = models) +
+              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
+likesPlot
+```
+
+Zoom in on the top two models
+
+```{r}
+
+likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
+
+likesPlot_zoom
+
+```

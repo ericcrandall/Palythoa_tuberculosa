@@ -745,7 +745,7 @@ Install the parallel version of Migrate on Nautilus server. I hade to remove `-f
 
 ```{bash eval = F}
 curl https://peterbeerli.com/migrate-html5/download_version4/migrate-newest-src.tar.gz > migrate.tar.gz
-tar -fvxz migrate.tar.gz
+tar -xvf migrate.tar.gz
 cd migrate-4.4.4/
 cd src
 ./configure
@@ -1542,9 +1542,18 @@ This results in adding the following two lines to the parmfiles with only the Ku
 ```{}
 bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-8 1.63e-7 1.63e-8 
 bayes-priors= SPLITSTD * * WEXPPRIOR: 0.0 8e-8 1.63e-7 1.63e-8
+
 ```
 
-The rest get this wider prior. Also, I am using exponentially distributed priors, so the SPLITSTD is not going to be used.
+Unfortunately the prior above was resulting in error messages.
+
+```{}
+[1]    63427 illegal hardware instruction  /Applications/migrate/migrate-4.4.4/migrate-n
+```
+
+From the output, it looks like it can't consider priors smaller than 1e-6. But even using 1e-5 or 1-e4 results in errors.
+
+So all will use this wider prior. Also, I am using exponentially distributed priors, so the SPLITSTD is not going to be used.
 
 ```{}
 bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
@@ -1572,10 +1581,15 @@ for a in $(seq 2 10); do cp -r rep1 rep$a; done
 
 rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4.5 ./
 
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@moneta.tobolab.org:~/Palythoa/run4.6 ./run4.6
+
 # then copied them into the run4 folder with:
+# the exclude statement excludes stepping.stone.KOd and stepping.stone.KO.D which didn't complete.
 rsync -av --progress run4.5/ run4/ --exclude '*KO[\.d]*'  
 
-# the exclude statement excludes stepping.stone.KOd and stepping.stone.KO.D which didn't complete.
+rsync -av --progress run4.6/ run4/
+
+
 ```
 
 
@@ -1585,7 +1599,7 @@ rsync -av --progress run4.5/ run4/ --exclude '*KO[\.d]*'
 
 ```{r likelihoods3, message=F, results='hide'}
 #runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
+runDir <-"/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1622,6 +1636,8 @@ TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
        like.df$bezier.corrected[which(like.df$model == second.choice)],
        alternative = "greater")
 
+TS
+
 ```
 
 #### Figures
@@ -1630,11 +1646,14 @@ And a figure summarizing all this
 
 ```{r}
 
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "Stepping-Stone: Islands",
-            "Stepping-Stone: Regional Breaks", "Stepping-Stone: Regional Breaks, Kure/Oahu Connection",
-            "SteppingStone: Islands, Kure/Oahu Connection", "SteppingStone: Islands, One-way Kure/Oahu Connection",
-            "Sequential Splits: No Gene Flow","Sequential Splits: Gene Flow",
-            "Sequential Splits: Gene Flow, O founds K")
+models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "SS: Islands",
+            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
+            "SS: Islands, OK 2way", 
+            "SS: Islands, O2K Colonization with GF", 
+            "SS: Islands, O2K 1 way", 
+            "SS: Islands, O2K Colonization without GF",
+            "Seq Div: No GF","Seq Div: GF",
+            "Seq Div: GF, O2K Colonization without GF")
 
 likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
               ggplot(mapping = aes(x=model, y = bezier.corrected)) +
@@ -1649,7 +1668,7 @@ Zoom in on the top two models
 
 ```{r}
 
-likesPlot_zoom <- likesPlot + ylim(-69400, -69100) + geom_point()
+likesPlot_zoom <- likesPlot + ylim(-69400, -54000) + geom_point()
 
 likesPlot_zoom
 

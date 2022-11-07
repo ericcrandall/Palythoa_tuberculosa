@@ -6230,7 +6230,7 @@ final_model</code></pre>
 <div id="t-test" class="section level4">
 <h4>T-Test</h4>
 <p>Difference between stepping.stone and stepping.stone.KO is very
-significant. 🙋</p>
+significant. 😀</p>
 <pre class="r"><code>top.choice &lt;- final_model$model[which(final_model$choice ==1)]
 second.choice &lt;- final_model$model[which(final_model$choice ==2)]
 
@@ -6511,9 +6511,10 @@ final_model</code></pre>
 </div>
 <div id="t-test-1" class="section level4">
 <h4>T-Test</h4>
-<p>The three models with divergences are much worse than those without.
-Difference between stepping.stone and stepping.stone.KO is very
-significant. 😄</p>
+<p>The two best models are equilibrium models across the archipelago,
+with recent divergence from Oahu to Kure. The best one is divergence
+without gene flow, followed by divergence with gene flow. The difference
+between the top two models is significant. 😄</p>
 <pre class="r"><code>top.choice &lt;- final_model$model[which(final_model$choice ==1)]
 second.choice &lt;- final_model$model[which(final_model$choice ==2)]
 
@@ -6525,7 +6526,12 @@ TS</code></pre>
 </div>
 <div id="figures" class="section level4">
 <h4>Figures</h4>
-<p>And a figure summarizing all this</p>
+<p>And some figures summarizing all this. The two best models are
+equilibrium models across the archipelago, with recent divergence from
+Oahu to Kure. The best one is divergence without gene flow, followed by
+divergence with gene flow. The three models with divergences are much
+worse than those without. Difference between stepping.stone and
+stepping.stone.KO is very significant.</p>
 <pre class="r"><code>models &lt;- c(&quot;N-Island&quot;, &quot;NWHI vs. MHI&quot;,&quot; Panmixia&quot;, &quot;SS: Islands&quot;,
             &quot;SS: Regional Breaks&quot;, &quot;SS: Regional Breaks, KO 2way&quot;,
             &quot;SS: Islands, OK 2way&quot;, 

@@ -1626,7 +1626,7 @@ final_model
 
 #### T-Test
 
-The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. `r ji("happy")`
+The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r ji("happy")`
 
 ```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
@@ -1642,7 +1642,7 @@ TS
 
 #### Figures
 
-And a figure summarizing all this
+And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
 
 ```{r}
 

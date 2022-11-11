@@ -1730,7 +1730,7 @@ Here are plots of each parameter posterior, with each colored line being the pos
 
 $\theta=4N_e\mu$
 
-```{r}
+```{r, fig.dim = c(12, 9)}
 Theta_plot <- posterior_long %>%  filter(str_detect(parameter, "Theta_")) %>%  ggplot() + 
                                    geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
                               scale_x_log10(limits=c(1e-4,0.1)) + facet_wrap(~parameter, scales = "free_y",
@@ -1749,7 +1749,7 @@ Theta_plot
 
 Proportion of migrants relative to mutation rate $\frac{m}{\mu}$ 
 
-```{r}
+```{r, fig.dim = c(12, 9)}
 M_plot <- posterior_long %>%  filter(str_detect(parameter, "M_")) %>%  ggplot() + 
                                    geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
                               scale_x_log10(limits=c(1e-4,1000)) + facet_wrap(~parameter, scales = "free_y", 
@@ -1764,7 +1764,7 @@ M_plot
 
 Migrants per generation $4N_em$
 
-```{r}
+```{r, fig.dim = c(12, 9)}
 Nm_plot <- posterior_long %>%  filter(str_detect(parameter, "Nm_")) %>%  ggplot() + 
                                    geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
                               scale_x_log10(limits=c(1e-6,10)) + facet_wrap(~parameter, scales = "free_y",

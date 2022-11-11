@@ -1673,3 +1673,112 @@ likesPlot_zoom <- likesPlot + ylim(-69400, -54000) + geom_point()
 likesPlot_zoom
 
 ```
+
+## Model Parameter Estimates
+
+Because I set such wide priors on gene flow for marine species, the standard PDF output does a poor job of binning the data, such that even though an equilibrium model of gene flow is the best model, Migrate is telling me that all migration parameters have a mode of 2.5 and 0 at the 25th percentile. It would be nice if I could look at the posterior calculated across all loci myself, but it is unclear how Migrate does this exactly. I inquired about this to Peter a year ago, and he got back to me with this method for summing the posterior over all loci and some Python code as a demo.
+
+> 1. create a histogram for each locus
+2. log the histogram (there will be issues with zero value cells)
+*. migrate smoothes each locus histogram
+3. subtract the log(prior)
+4. sum all log histograms for each locus
+5. add the log prior back
+6. convert to non-log
+7. adjust so that the sum of the new histogram sums t0 1.0
+
+```{r}
+winningModelDir <- "/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/migrate/run4.6/rep1/stepping.stone.KOd"
+popkey <- read_csv("popkey.csv")
+names(popkey$Pop) <- popkey$Index
+
+
+
+
+#this may take a minute or two
+posterior <- read.table(file.path(winningModelDir,"bayesallfile"), header=T) 
+
+#calculate migrants per generation
+posterior <- migrants.per.gen(posterior)
+
+
+
+posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_", "Nm_","D_", "d_")),
+                                                         names_to = "parameter", values_to = "value")
+#make a new labeling key
+posterior_parameters <-posterior_long$parameter[1:37]
+
+
+
+parameter_key <- posterior_parameters %>% 
+                                  str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
+                                  str_replace("M_", "m/mu " ) %>% 
+                                  str_replace("Theta_", "theta ") %>% 
+                                  str_replace_all(popkey$Pop) %>% 
+                                  str_replace("Nm_", "4Nem ") 
+                                  
+
+names(parameter_key) <- posterior_parameters
+
+
+```
+
+
+### Theta plots
+
+Here are plots of each parameter posterior, with each colored line being the posterior from one of 106 loci. Next thing I have to do is code up the summation described by Peter above.
+
+$\theta=4N_e\mu$
+
+```{r}
+Theta_plot <- posterior_long %>%  filter(str_detect(parameter, "Theta_")) %>%  ggplot() + 
+                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
+                              scale_x_log10(limits=c(1e-4,0.1)) + facet_wrap(~parameter, scales = "free_y",
+                                                    labeller = labeller(parameter= parameter_key), 
+                                                    dir = "h",nrow=2) +
+                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+
+Theta_plot
+
+```
+
+
+
+
+### Migration plots
+
+Proportion of migrants relative to mutation rate $\frac{m}{\mu}$ 
+
+```{r}
+M_plot <- posterior_long %>%  filter(str_detect(parameter, "M_")) %>%  ggplot() + 
+                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
+                              scale_x_log10(limits=c(1e-4,1000)) + facet_wrap(~parameter, scales = "free_y", 
+                                                    labeller = labeller(parameter= parameter_key), 
+                                                    dir = "v",nrow=2) +
+                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+M_plot
+
+```
+
+### Gene Flow plots
+
+Migrants per generation $4N_em$
+
+```{r}
+Nm_plot <- posterior_long %>%  filter(str_detect(parameter, "Nm_")) %>%  ggplot() + 
+                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
+                              scale_x_log10(limits=c(1e-6,10)) + facet_wrap(~parameter, scales = "free_y",
+                                                    labeller = labeller(parameter= parameter_key), 
+                                                    dir = "v",nrow=2) +
+                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+
+Nm_plot
+```
+
+
+
+
+
+
+
+# Literature Cited

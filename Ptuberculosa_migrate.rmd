@@ -1687,28 +1687,26 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 6. convert to non-log
 7. adjust so that the sum of the new histogram sums t0 1.0
 
+### Read in the posterior and make a labeling key
+
 ```{r}
 winningModelDir <- "/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/migrate/run4.6/rep1/stepping.stone.KOd"
+
+# read in a population key to translate numbers into names in figures
 popkey <- read_csv("popkey.csv")
 names(popkey$Pop) <- popkey$Index
 
 
-
-
-#this may take a minute or two
+#read in the posterior for one replicate this may take a minute or two
 posterior <- read.table(file.path(winningModelDir,"bayesallfile"), header=T) 
 
 #calculate migrants per generation
 posterior <- migrants.per.gen(posterior)
 
-
-
 posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_", "Nm_","D_", "d_")),
                                                          names_to = "parameter", values_to = "value")
-#make a new labeling key
+#make a new labeling key (careful! the number used here will differ by species and model)
 posterior_parameters <-posterior_long$parameter[1:37]
-
-
 
 parameter_key <- posterior_parameters %>% 
                                   str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
@@ -1776,7 +1774,20 @@ Nm_plot
 ```
 
 
+### Sum over loci
 
+```{r}
+
+testhist <- hist(posterior$Nm_3_2[which(posterior$Locus==2)], n=1024)
+range <- test$x
+test$y <- log(test$y)
+
+#bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
+#bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
+
+
+thetaprior <- dexp(test$x, rate = 0.001, log = T)
+```
 
 
 

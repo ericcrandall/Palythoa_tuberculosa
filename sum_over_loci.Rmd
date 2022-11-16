@@ -1,0 +1,92 @@
+---
+title: "Convert Peter Beerli's code for summing the posterior over loci into R"
+output:
+  pdf_document: default
+  html_notebook: default
+author: "Eric D. Crandall"
+date: "November 14, 2022"
+---
+
+```{r setup, message = F}
+library(tidyverse)
+```
+
+
+# Starting from bayesfile
+
+
+
+```{r}
+bf <- read_table("/Applications/migrate/sumoverloci/bayesfile", comment = "#",
+                 col_names = c("Locus","Parameter","HPC50","HPC95","param_value","count","freq","cumulative_freq","prior_freq"), 
+                 col_types = "fiiiddddd")
+
+bf %>% ggplot(aes(x=param_value, y = freq, color = Locus)) + geom_path() + scale_color_discrete() + facet_wrap(vars(Parameter), scales = "free")
+
+```
+
+Locus "3" is the summed-across-loci estimate created by Migrate.
+
+
+Now I will write tidyverse code to:
+
+> 1. create a histogram for each locus
+2. log the histogram (there will be issues with zero value cells)
+*. migrate smoothes each locus histogram
+3. subtract the log(prior)
+4. sum all log histograms for each locus
+5. add the log prior back
+6. convert to non-log
+7. adjust so that the sum of the new histogram sums t0 1.0
+
+
+```{r}
+
+#remove the prior
+bf2 <- bf %>% filter(Parameter == 1) %>% group_by(Locus) %>% 
+      mutate(param_minus_prior = exp(log(freq + 0.0000001) - log(prior_freq + 0.0000001)) / sum(freq))
+
+#sum loci and add the prior back in
+bf3 <- bf2 %>% pivot_wider(id_cols= c(1,2,5,9), names_from = Locus, names_prefix = "locus", values_from = param_minus_prior) %>% 
+                  mutate(sum = sum(exp(log(locus1) + log(locus2) + log(prior_freq)))) %>% 
+                  mutate(locus4 = exp(log(locus1) + log(locus2) + log(prior_freq))/sum) %>% 
+                  pivot_longer(cols = starts_with("locus"), names_to = "Locus", names_prefix = "locus", values_to = "freq",
+                               names_ptypes = list(Locus = factor()))
+
+bf4 <- bf3 %>% filter(Locus =="4") %>% bind_rows(bf)
+
+bf4 %>% ggplot(aes(x=param_value, y = freq, color = Locus)) + geom_path() + scale_color_discrete() + facet_wrap(vars(Parameter), scales = "free")
+```
+
+Locus "4" was combined from locus 1 and 2 using the code above.
+
+# Starting from bayesallfile
+
+```{r, message = F, warning = F}
+ball <- read_table("/Applications/migrate/sumoverloci/bayesallfile",comment = "#")
+
+# do the smoothing parameters (kernel and number of points) matter?
+
+dens1 <- density(ball$Theta_1[which(ball$Locus==1)], kernel = "gaussian", 
+                    n = 1024, from = 0, to = 0.1, bw = "SJ")
+dens2 <- density(ball$Theta_1[which(ball$Locus==2)], kernel = "gaussian",
+                    n = 1024, from = 0, to = 0.1, bw = "SJ")
+
+dens1$y <- (dens1$y / exp(-9.210340)) / sum(dens1$y / exp(-9.210340))
+dens2$y <- (dens2$y / exp(-9.210340)) / sum(dens2$y / exp(-9.210340))
+
+densum<-tibble(.rows=1024)
+
+densum$x <- dens1$x
+densum$l1 <- (dens1$y / exp(-9.210340)) / sum(dens1$y / exp(-9.210340))
+densum$l2 <- (dens2$y / exp(-9.210340)) / sum(dens2$y / exp(-9.210340))
+densum$sum <- exp(log(densum$l1) + log(densum$l2) + -9.210340 ) / 
+                                          sum(exp(log(densum$l2) + log(densum$l2) + -9.210340 ))
+
+densum_long <- pivot_longer(densum,cols=2:4,names_to = "yplot", values_to = "y")
+
+ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line()
+
+```
+
+

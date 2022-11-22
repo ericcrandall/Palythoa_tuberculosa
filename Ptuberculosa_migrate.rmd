@@ -897,12 +897,8 @@ I went through and compared my 3.x parmfile line by line to the default one gene
 ################################################################################
 # Parmfile for Migrate 4.4.4(git:v4-series-26-ge85c6ff)-June-1-2019 [do not remove these first TWO lines]
 # generated automatically on
-# Sat Jan 15 14:10:36 2022
-#
-# please report problems to Peter Beerli
-#  email: beerli@fsu.edu
-#  http://popgen.sc.fsu.edu/migrate.html
-menu=YES
+# Fri Feb 4 2022
+menu=NO
 nmlength=10
 datatype=SequenceData
 datamodel=HKY
@@ -910,7 +906,6 @@ ttratio=1.000000
 
 freqs-from-data=YES 
 
-# data were filtered to Q30, so this seems like a good seqerror
 seqerror-rate={0.0001,0.0001,0.0001,0.0001}
 categories=1 #no categories file specified
 rates=1: 1.000000 
@@ -921,60 +916,43 @@ recover=NO
 fast-likelihood=NO
 inheritance-scalars={1.00000000000000000000}
 haplotyping=YES:no-report
-population-relabel={1 2 3 4 5 6 7 8 9 10}
-infile=../../ptuberculosa.mig
+population-relabel={1 2 3 4 5 6 7 8 9}
+infile=../../../ptuberculosa.mig
 random-seed=AUTO #OWN:410568459
 title= Palythoa tuberculosa - Hawaii
-
 progress=YES
-
-logfile=NO
-
+logfile=YES:logfile.txt
 print-data=NO
-
 outfile=outfile.txt
-
 pdf-outfile=outfile.pdf
-
-pdf-terse=NO
-
+pdf-terse=YES
 use-M=YES
-
 print-tree=NONE
-
-mig-histogram=NO
+mig-histogram=MIGRATIONEVENTSONLY
 skyline=NO #needs mig-histogram=ALL:...
-
 theta=PRIOR:50
 migration=PRIOR:10
 rate=PRIOR:50
 split=PRIOR:10
 splitstd=PRIOR:10
-
 mutation=CONSTANT
-
 analyze-loci=A
-
-divergence-distrib=S
-
-#standard stepping-stone model for starters
+divergence-distrib=E
 custom-migration={
-**00000000
-***0000000
-0***000000
-00***00000
-000***0000
-0000***000
-00000***00
-000000***0
-0000000***
-00000000**
+*	0	0	0	0	d	0	0	0
+0	*	*	0	0	0	0	0	0
+0	*	*	*	0	0	0	0	0
+0	0	*	*	*	0	0	0	0
+0	0	0	*	*	*	0	0	0
+0	0	0	0	*	*	*	0	0
+0	0	0	0	0	*	*	*	0
+0	0	0	0	0	0	*	*	*
+0	0	0	0	0	0	0	*	*
 }
-
 geo=NO
 
 updatefreq=0.200000 0.200000 0.200000 0.200000 #tree, parameter haplotype, timeparam updates
-bayes-posteriorbins= 500 500
+bayes-posteriorbins= 2000 2000
 bayes-posteriormaxtype=TOTAL
 bayes-file=YES:bayesfile
 bayes-allfile=YES:bayesallfile
@@ -983,27 +961,22 @@ bayes-proposals= THETA METROPOLIS-HASTINGS Sampler
 bayes-proposals= MIG SLICE Sampler
 bayes-proposals= DIVERGENCE METROPOLIS-HASTINGS Sampler
 bayes-proposals= DIVERGENCESTD METROPOLIS-HASTINGS Sampler
-bayes-priors= THETA WEXPPRIOR: 0.0 0.01 0.1000000 0.01000 
-bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000
-bayes-priors= RATE * * UNIFORMPRIOR: 0.000000 10000000000.000000 1000000000.000000 
+bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
+bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
+bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 bayes-hyperpriors=NO
-#
 long-chains=1
 long-inc=100
 long-sample=10000
 burn-in=2000  
 auto-tune=YES:0.440000
 assign=NO
-
 heating=YES:1:{1.000000,1.500000,3.000000,1000000.000000}
 heated-swap=YES
-
 moving-steps=NO
-
 gelman-convergence=No
-
 replicate=NO
-
 end
 
 
@@ -1705,8 +1678,8 @@ posterior <- migrants.per.gen(posterior)
 
 posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_", "Nm_","D_", "d_")),
                                                          names_to = "parameter", values_to = "value")
-#make a new labeling key (careful! the number used here will differ by species and model)
-posterior_parameters <-posterior_long$parameter[1:37]
+#make a new labeling key
+posterior_parameters <- unique(posterior_long$parameter)
 
 parameter_key <- posterior_parameters %>% 
                                   str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
@@ -1776,20 +1749,81 @@ Nm_plot
 
 ### Sum over loci
 
-```{r}
+#### Priors
 
-testhist <- hist(posterior$Nm_3_2[which(posterior$Locus==2)], n=1024)
-range <- test$x
-test$y <- log(test$y)
+Here are the priors I'm using, as a reminder.
+```
+bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
+bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
+bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+
+```
+
+# Two Loci
+
+Here are the basics for doing it over two loci:
+
+
+```{r}
+# make density objects for two loci (n must be a power of 2, using 2^14)
+testdens1 <- density(posterior$Theta_1[which(posterior$Locus==1)], n=16384, from = 0, to = 0.1, bw = "SJ")
+testdens2 <- density(posterior$Theta_1[which(posterior$Locus==2)], n=16384, from = 0, to = 0.1, bw = "SJ")
+
+#create the prior
+thetaprior <- dexp(testdens1$x, rate = 0.001, log = F)
+
+#create an empty tibble
+densum <- tibble(.rows=16384)
+densum$x <- testdens1$x
+#remove the prior and standardize
+densum$l1 <- (testdens1$y/ thetaprior) / sum(testdens1$y/ thetaprior)
+densum$l2 <- (testdens2$y/ thetaprior) / sum(testdens2$y/ thetaprior)
+#sum over loci and standardize again
+densum$sum <- exp(log(densum$l1+1e-20) + log(densum$l2 + 1e-20) + log(thetaprior)) / 
+                                          sum( exp(log(densum$l1+1e-20) + log(densum$l2 + 1e-20) + log(thetaprior)))
+#pivot to long format
+densum_long <- pivot_longer(densum,cols=2:4,names_to = "yplot", values_to = "y")
+#plot
+ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line() + scale_x_log10()
 
 #bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
 #bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
 
 
-thetaprior <- dexp(test$x, rate = 0.001, log = T)
+
 ```
 
+#### Many Loci
 
+```{r}
+
+remove_prior <- function(dens,prior){
+  # this function removes a prior from the y values of a density distributions (dens), and then renormalizes
+  new <- dens/prior / sum(dens/prior)
+}
+
+sum_over_loci <- function(df,prior){
+  df2 <- df %>% mutate(across(.fns = function(x) x + 1e-20))  %>% mutate(across(.fns = log)) %>% 
+    rowwise() %>% mutate(sum = sum(c_across())) %>% ungroup() %>% mutate(sum_prior = sum + log(prior))
+}
+
+
+# create a tibble with the x values for all density plots for a particular parameter type
+dens <- tibble(x=density(posterior$Theta_1[which(posterior$Locus==1)], n=4096, from = 0, to = 0.1, bw = "nrd0")$x)
+# calculate densities for each parameter of a given type at each locus
+dens <- posterior %>% select(starts_with(c("Steps","Locus","Theta_"))) %>% 
+              pivot_wider(names_from = "Locus", values_from = starts_with("Theta_"), names_sep = "-") %>% 
+              select(starts_with("Theta")) %>% 
+              map_dfc(function(x) density(x,n=4096, from = 0, to = 0.1, bw = "nrd0")$y) %>% bind_cols(dens)
+prior <- dexp(densTheta$x, rate = 0.001, log = F)
+
+dens2 <- dens %>% mutate(remove_prior(prior = prior, dens=across(starts_with("Theta")))) %>%
+           %>% sum
+
+
+
+```
 
 
 # Literature Cited

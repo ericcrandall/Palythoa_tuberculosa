@@ -17,9 +17,9 @@ library(tidyverse)
 library(ape)
 library(phangorn)
 library(pegas)
-library(strataG)
+#library(strataG)
 library(knitr)
-library(emo)
+library(emoji)
 library(coda)
 library(ggmcmc)
 library(perm)
@@ -1050,7 +1050,7 @@ Minor github issue. Got a little hung up at this point because I accidentally co
 
 #### Model Selection
 
-Very nice! `r ji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
+Very nice! `r emoji("smiley")` Going to need to modify my code to read multilocus output from migrate-n.
 
 ```{r run1_results}
 workingDir <- "./migrate/run2"
@@ -1760,7 +1760,7 @@ bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 
 ```
 
-# Two Loci
+#### Two Loci
 
 Here are the basics for doing it over two loci:
 

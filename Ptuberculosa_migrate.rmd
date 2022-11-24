@@ -1663,7 +1663,7 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 ### Read in the posterior and make a labeling key
 
 ```{r}
-winningModelDir <- "/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/migrate/run4.6/rep1/stepping.stone.KOd"
+winningModelDir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/run4.6/rep1/stepping.stone.KOd"
 
 # read in a population key to translate numbers into names in figures
 popkey <- read_csv("popkey.csv")
@@ -1702,12 +1702,17 @@ Here are plots of each parameter posterior, with each colored line being the pos
 $\theta=4N_e\mu$
 
 ```{r, fig.dim = c(12, 9)}
-Theta_plot <- posterior_long %>%  filter(str_detect(parameter, "Theta_")) %>%  ggplot() + 
-                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
-                              scale_x_log10(limits=c(1e-4,0.1)) + facet_wrap(~parameter, scales = "free_y",
-                                                    labeller = labeller(parameter= parameter_key), 
-                                                    dir = "h",nrow=2) +
-                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+Theta_plot <- posterior_long %>%  
+              filter(str_detect(parameter, "Theta_")) %>%  
+              ggplot() + 
+              geom_density(mapping = aes(x = value, 
+                    group=Locus, color =Locus), weight = 0.5) + 
+                    scale_x_log10(limits=c(1e-4,0.1)) +
+                    facet_wrap(~parameter, 
+                    scales = "free_y",
+                    labeller = labeller(parameter= parameter_key), 
+                           dir = "h",nrow=2) +
+                    theme(axis.text.x = element_text(size = rel(0.6)))
 
 Theta_plot
 
@@ -1721,12 +1726,16 @@ Theta_plot
 Proportion of migrants relative to mutation rate $\frac{m}{\mu}$ 
 
 ```{r, fig.dim = c(12, 9)}
-M_plot <- posterior_long %>%  filter(str_detect(parameter, "M_")) %>%  ggplot() + 
-                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
-                              scale_x_log10(limits=c(1e-4,1000)) + facet_wrap(~parameter, scales = "free_y", 
-                                                    labeller = labeller(parameter= parameter_key), 
-                                                    dir = "v",nrow=2) +
-                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+M_plot <- posterior_long %>%  
+          filter(str_detect(parameter, "M_")) %>%  
+          ggplot() + 
+          geom_density(mapping = aes(x = value, 
+                       group=Locus, color =Locus), weight = 0.5) + 
+          scale_x_log10(limits=c(1e-4,1000)) + 
+          facet_wrap(~parameter, scales = "free_y", 
+                    labeller = labeller(parameter= parameter_key), 
+                    dir = "v",nrow=2) +
+          theme(axis.text.x = element_text(size = rel(0.6)))
 M_plot
 
 ```
@@ -1736,12 +1745,16 @@ M_plot
 Migrants per generation $4N_em$
 
 ```{r, fig.dim = c(12, 9)}
-Nm_plot <- posterior_long %>%  filter(str_detect(parameter, "Nm_")) %>%  ggplot() + 
-                                   geom_density(mapping = aes(x = value, group=Locus, color =Locus), weight = 0.5) + 
-                              scale_x_log10(limits=c(1e-6,10)) + facet_wrap(~parameter, scales = "free_y",
-                                                    labeller = labeller(parameter= parameter_key), 
-                                                    dir = "v",nrow=2) +
-                                                    theme(axis.text.x = element_text(size = rel(0.6)))
+Nm_plot <- posterior_long %>%  
+          filter(str_detect(parameter, "Nm_")) %>%  
+          ggplot() + 
+          geom_density(mapping = aes(x = value, group=Locus, color
+                                     =Locus), weight = 0.5) + 
+                    scale_x_log10(limits=c(1e-6,10)) + 
+                    facet_wrap(~parameter, scales = "free_y",
+                    labeller = labeller(parameter= parameter_key), 
+                    dir = "v",nrow=2) +
+           theme(axis.text.x = element_text(size = rel(0.6)))
 
 Nm_plot
 ```
@@ -1800,27 +1813,81 @@ ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line
 
 remove_prior <- function(dens,prior){
   # this function removes a prior from the y values of a density distributions (dens), and then renormalizes
-  new <- dens/prior / sum(dens/prior)
+  new <- (dens/prior) / sum(dens/prior)
+  return(new)
 }
 
-sum_over_loci <- function(df,prior){
-  df2 <- df %>% mutate(across(.fns = function(x) x + 1e-20))  %>% mutate(across(.fns = log)) %>% 
-    rowwise() %>% mutate(sum = sum(c_across())) %>% ungroup() %>% mutate(sum_prior = sum + log(prior))
+sum_over_loci <- function(df,parameter){
+      #add a teeny-tiny amount to all values to avoid zeros
+  df2 <- df %>% mutate(across(starts_with(parameter), 
+                              .fns= function(x) x + 1e-20))  %>% 
+      #log all values
+    mutate(across(.fns=log)) %>% 
+      # convert the df to rowwise so that rows can be summed
+      # and then sum across the row
+    rowwise() %>% mutate(sum_param =
+                     sum(c_across(starts_with(parameter)))) %>% 
+    #convert back to a regular df
+    ungroup() %>% 
+    # add the prior
+    mutate(sum_param_prior = (sum_param + prior)) %>%
+    # exponentiate everything
+    mutate(across(.fns=exp)) %>%
+    # standardize by dividing by the sum of the column
+    mutate(sum_param_prior_standardized =
+             sum_param_prior/sum(sum_param_prior)) %>% 
+    # rename the summed column after the parameter
+    rename_with(.fn = ~ paste(parameter),
+             ends_with("standardized")) %>%
+    #drop the intermediate columns (no longer needed)
+    select(-c(sum_param, sum_param_prior))
+  
 }
 
 
 # create a tibble with the x values for all density plots for a particular parameter type
-dens <- tibble(x=density(posterior$Theta_1[which(posterior$Locus==1)], n=4096, from = 0, to = 0.1, bw = "nrd0")$x)
+dens <- tibble(x=density(posterior$Theta_1[which(posterior$Locus==1)], 
+                         n=4096, from = 0, to = 0.1, bw = "nrd0")$x)
 # calculate densities for each parameter of a given type at each locus
-dens <- posterior %>% select(starts_with(c("Steps","Locus","Theta_"))) %>% 
-              pivot_wider(names_from = "Locus", values_from = starts_with("Theta_"), names_sep = "-") %>% 
-              select(starts_with("Theta")) %>% 
-              map_dfc(function(x) density(x,n=4096, from = 0, to = 0.1, bw = "nrd0")$y) %>% bind_cols(dens)
-prior <- dexp(densTheta$x, rate = 0.001, log = F)
+dens <- posterior %>% 
+        select(starts_with(c("Steps","Locus","Theta_"))) %>% 
+        pivot_wider(names_from = "Locus", values_from = 
+                      starts_with("Theta_"),
+                          names_sep = "-") %>% 
+        select(starts_with("Theta")) %>% 
+        map_dfc(function(x) density(x,n=4096, from = 0, to = 0.1, 
+                                    bw = "nrd0")$y) %>%
+        bind_cols(dens)
 
-dens2 <- dens %>% mutate(remove_prior(prior = prior, dens=across(starts_with("Theta")))) %>%
-           %>% sum
+dens$prior <- dexp(dens$x, rate = 0.001, log = F)
 
+parameters <- names(dens) %>% str_extract("Theta_\\d") %>% 
+                  na.exclude() %>%  unique()
+
+
+dens2 <- dens %>% 
+        #remove the prior, standardize
+        mutate(across(starts_with("Theta"), 
+               ~ remove_prior(dens = .x,prior = dens$prior) ))  
+
+dens4 <- dens2
+
+for(p in parameters){
+  dens4 <- sum_over_loci(df = dens4, parameter = p)
+}
+
+# trying to do the above loop with purrr:map_dfc
+#dens4 <- parameters %>% 
+#        map_dfc(.f = ~ sum_over_loci(df = dens2, parameter = .x))
+
+dens5 <- dens4 %>% select(c("x","prior",parameters)) %>% 
+         pivot_longer(starts_with("Theta"), names_to = "Parameter",
+               values_to = "Density") %>% 
+         mutate(Parameter = str_replace_all(Parameter,parameter_key))
+#plot
+ggplot(dens5, aes(x = x, y = Density, color = Parameter)) +
+  geom_line()  + xlim(0.0,0.003)
+#this seems to get the sum right. Now need to do it across all parameters.
 
 
 ```

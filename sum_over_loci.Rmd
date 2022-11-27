@@ -18,7 +18,7 @@ library(tidyverse)
 
 ```{r}
 bf <- read_table("/Applications/migrate/sumoverloci/bayesfile", comment = "#",
-                 col_names = c("Locus","Parameter","HPC50","HPC95","param_value","count","freq","cumulative_freq","prior_freq"), 
+    col_names = c("Locus","Parameter","HPC50","HPC95","param_value","count","freq","cumulative_freq","prior_freq"), 
                  col_types = "fiiiddddd")
 
 bf %>% ggplot(aes(x=param_value, y = freq, color = Locus)) + geom_path() + scale_color_discrete() + facet_wrap(vars(Parameter), scales = "free")
@@ -81,7 +81,7 @@ densum$x <- dens1$x
 densum$l1 <- (dens1$y / exp(-9.210340)) / sum(dens1$y / exp(-9.210340))
 densum$l2 <- (dens2$y / exp(-9.210340)) / sum(dens2$y / exp(-9.210340))
 densum$sum <- exp(log(densum$l1) + log(densum$l2) + -9.210340 ) / 
-                                          sum(exp(log(densum$l2) + log(densum$l2) + -9.210340 ))
+                   sum(exp(log(densum$l2) + log(densum$l2) + -9.210340 ))
 
 densum_long <- pivot_longer(densum,cols=2:4,names_to = "yplot", values_to = "y")
 

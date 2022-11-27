@@ -23,6 +23,7 @@ library(emoji)
 library(coda)
 library(ggmcmc)
 library(perm)
+library(Rmpfr)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -1811,83 +1812,119 @@ ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line
 
 ```{r}
 
-remove_prior <- function(dens,prior){
-  # this function removes a prior from the y values of a density distributions (dens), and then renormalizes
-  new <- (dens/prior) / sum(dens/prior)
+remove_prior <- function(densityd,prior,threshold = 1e-10){
+  # this function changes values less than a threshold 
+  # to zero removes a prior from the 
+  # y values of a density distributions (density).
+  # first it zeros values less than a threshold, then 
+  # removes the prior, then renormalizes so the density
+  # sums to 1
+  densityd[which(densityd < threshold)] <- 0
+  new <- (densityd/exp(prior))/sum(densityd/exp(prior))
+  #new <- exp(log(densityd) - prior) /
+  #            sum(exp(log(densityd)-prior))
   return(new)
 }
 
 sum_over_loci <- function(df,parameter){
       #add a teeny-tiny amount to all values to avoid zeros
-  df2 <- df %>% mutate(across(starts_with(parameter), 
-                              .fns= function(x) x + 1e-20))  %>% 
+    df2 <- df %>% mutate(across(starts_with(parameter), 
+                        .fns= function(x) x + 1e-40))  %>% 
       #log all values
-    mutate(across(.fns=log)) %>% 
+    mutate(across(starts_with(c(parameter)),
+                  .fns=log)) %>% 
       # convert the df to rowwise so that rows can be summed
-      # and then sum across the row
-    rowwise() %>% mutate(sum_param =
-                     sum(c_across(starts_with(parameter)))) %>% 
+      # and then sum across the row, including the prior
+    rowwise() %>% 
+    mutate(sum_param_prior = 
+     sum(c_across(starts_with(c(parameter,"prior"))))) %>% 
     #convert back to a regular df
-    ungroup() %>% 
-    # add the prior
-    mutate(sum_param_prior = (sum_param + prior)) %>%
-    # exponentiate everything
-    mutate(across(.fns=exp)) %>%
+    ungroup()
+    
+    #need to convert to quadruple precision because 
+    #these will exponentiate to very small numbers.
+    sum_param_prior_exp <- exp(mpfr(df2$sum_param_prior, precBits = 128))
     # standardize by dividing by the sum of the column
-    mutate(sum_param_prior_standardized =
-             sum_param_prior/sum(sum_param_prior)) %>% 
+    sum_param_prior_standardized <-
+             sum_param_prior_exp/sum(sum_param_prior_exp)
     # rename the summed column after the parameter
-    rename_with(.fn = ~ paste(parameter),
-             ends_with("standardized")) %>%
+
     #drop the intermediate columns (no longer needed)
-    select(-c(sum_param, sum_param_prior))
+   df3<- df2 %>% select(-c(sum_param_prior)) %>%
+          mutate(summed_over_loci =
+                   as.numeric(sum_param_prior_standardized)) %>% 
+          rename_with(.fn = ~ paste(parameter), 
+                      .cols = summed_over_loci)
+  return(df3)
+}
+
+
+
+summarize_posterior <- function(posterior, 
+                  parameter_type = c("Theta","M","Nm","D"),
+                  prior_params = c(min,mean,max),
+                  n){
   
-}
+  parameters <- names(posterior) %>%
+    str_subset(parameter_type)
+# create a tibble with the x values for all density plots 
+#  for a particular parameter type
+  getx <- posterior %>% filter(Locus == 1) %>% 
+        select(parameters[1])
 
+# create a tibble with x values for a density plot
+#  of the chosen number of points
+  dens <- tibble(.rows = n, x = density(getx[,1],  n=n, 
+                           from = prior_params[1], 
+                           to = prior_params[3],
+                           bw = "nrd0")$x)
 
-# create a tibble with the x values for all density plots for a particular parameter type
-dens <- tibble(x=density(posterior$Theta_1[which(posterior$Locus==1)], 
-                         n=4096, from = 0, to = 0.1, bw = "nrd0")$x)
 # calculate densities for each parameter of a given type at each locus
-dens <- posterior %>% 
-        select(starts_with(c("Steps","Locus","Theta_"))) %>% 
-        pivot_wider(names_from = "Locus", values_from = 
-                      starts_with("Theta_"),
+  dens <- posterior %>% 
+          select(starts_with(c("Steps","Locus",
+                  paste0(parameter_type,"_")))) %>% 
+          pivot_wider(names_from = "Locus", values_from = 
+                  starts_with(paste0(parameter_type,"_")),
                           names_sep = "-") %>% 
-        select(starts_with("Theta")) %>% 
-        map_dfc(function(x) density(x,n=4096, from = 0, to = 0.1, 
+      select(starts_with(paste0(parameter_type,"_"))) %>% 
+      map_dfc(function(x) density(x, n = n, from = 
+                                    prior_params[1], 
+                                    to = prior_params[3], 
                                     bw = "nrd0")$y) %>%
-        bind_cols(dens)
+          bind_cols(dens)
 
-dens$prior <- dexp(dens$x, rate = 0.001, log = F)
-
-parameters <- names(dens) %>% str_extract("Theta_\\d") %>% 
-                  na.exclude() %>%  unique()
-
-
-dens2 <- dens %>% 
+  dens$prior <- dexp(dens$x, rate = 1/prior_params[2], 
+                     log = T)
+  
+  print("removing prior")
+  dens2 <- dens %>% 
         #remove the prior, standardize
-        mutate(across(starts_with("Theta"), 
-               ~ remove_prior(dens = .x,prior = dens$prior) ))  
+        mutate(across(starts_with(parameter_type), 
+      ~ remove_prior(densityd = .x,
+                     prior = dens$prior,
+                     threshold = 1e-10) ))
 
-dens4 <- dens2
-
-for(p in parameters){
-  dens4 <- sum_over_loci(df = dens4, parameter = p)
+    dens3<-dens2
+    
+  for(p in parameters){
+    print(p)  
+    dens3 <- sum_over_loci(df = dens3, parameter = p)
+   }
 }
-
 # trying to do the above loop with purrr:map_dfc
 #dens4 <- parameters %>% 
 #        map_dfc(.f = ~ sum_over_loci(df = dens2, parameter = .x))
 
-dens5 <- dens4 %>% select(c("x","prior",parameters)) %>% 
-         pivot_longer(starts_with("Theta"), names_to = "Parameter",
+  dens4 <- dens3 %>% select(c("x","prior",parameters)) %>% 
+    pivot_longer(starts_with(paste0(parameter_type,"_")), 
+                  names_to = "Parameter",
                values_to = "Density") %>% 
-         mutate(Parameter = str_replace_all(Parameter,parameter_key))
+          mutate(Parameter = str_replace_all(Parameter,parameter_key))
 #plot
-ggplot(dens5, aes(x = x, y = Density, color = Parameter)) +
-  geom_line()  + xlim(0.0,0.003)
-#this seems to get the sum right. Now need to do it across all parameters.
+  ggplot(dens4, aes(x = x, y = Density, 
+                    color = Parameter)) +
+          geom_line() + scale_x_log10(limits = c(5e-4,1e-2))
+
 
 
 ```

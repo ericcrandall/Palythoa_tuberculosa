@@ -1904,17 +1904,19 @@ summarize_posterior <- function(posterior,
                                     to = prior_params[3], 
                                     bw = "nrd0")$y) %>%
           bind_cols(dens)
-
+  
+  # create, standardize, log and remove prior
   dens$prior <- dexp(dens$x, rate = 1/prior_params[2], 
-                     log = T)
+                     log = F)
+  dens$prior <- log(dens$prior/sum(dens$prior))
   
   print("removing prior")
   dens2 <- dens %>% 
         #remove the prior, standardize
         mutate(across(starts_with(parameter_type), 
-      ~ remove_prior(densityd = .x,
-                     prior = dens$prior,
-                     threshold = 1e-10) ))
+                  ~ remove_prior(densityd = .x,
+                                  prior = dens$prior,
+                                  threshold = 1e-10) ))
 
   dens3 <- dens2
     
@@ -1940,7 +1942,17 @@ posterior_stats <- function(df,parameter){
   wsd <- sqrt(weighted.var(p$x, p$y))
   stats <- c(qu,mode = wmo, mean = wme, sd = wsd)
   return(stats)
-  }
+}
+
+# get stats for each summed-over-loci posterior
+names(parameters) <- parameter_key[names(parameter_key) %in% parameters]
+
+theta_stats <- parameters %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+
+
+
 
 
   thetas_long <- thetas %>% select(c("x","prior",parameters)) %>% 
@@ -1956,7 +1968,7 @@ posterior_stats <- function(df,parameter){
         scale_color_brewer(palette = "YlGnBu", labels = parameter_key) +
         geom_line(aes(x = x, y=exp(prior)), color = "grey",
                   linetype="dotted") +
-        ylim(0,0.5) + xlim(0,0.01)
+        ylim(0,0.5) + xlim(0,0.008)
 
 
 

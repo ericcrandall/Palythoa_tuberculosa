@@ -21,7 +21,9 @@ bf <- read_table("/Applications/migrate/sumoverloci/bayesfile", comment = "#",
     col_names = c("Locus","Parameter","HPC50","HPC95","param_value","count","freq","cumulative_freq","prior_freq"), 
                  col_types = "fiiiddddd")
 
-bf %>% ggplot(aes(x=param_value, y = freq, color = Locus)) + geom_path() + scale_color_discrete() + facet_wrap(vars(Parameter), scales = "free")
+bf %>% ggplot(aes(x=param_value, y = freq, color = Locus)) + 
+  geom_line() + scale_color_discrete() + 
+  facet_wrap(vars(Parameter), scales = "free")
 
 ```
 

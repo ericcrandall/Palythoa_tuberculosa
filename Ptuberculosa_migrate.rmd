@@ -24,6 +24,7 @@ library(coda)
 library(ggmcmc)
 library(perm)
 library(Rmpfr)
+library(spatstat.core)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -1301,7 +1302,7 @@ final_model
 
 #### T-Test
 
-Difference between stepping.stone and stepping.stone.KO is very significant. `r ji("happy")`
+Difference between stepping.stone and stepping.stone.KO is very significant. `r emoji("happy")`
 
 ```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
@@ -1600,7 +1601,7 @@ final_model
 
 #### T-Test
 
-The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r ji("happy")`
+The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
 
 ```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
@@ -1691,6 +1692,8 @@ parameter_key <- posterior_parameters %>%
                                   
 
 names(parameter_key) <- posterior_parameters
+
+
 
 
 ```
@@ -1810,8 +1813,57 @@ ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line
 
 #### Many Loci
 
-```{r}
+##### Bayesfile
 
+These functions are for reconstructing distributions from the `bayesfile` which consists of distributions for each locus calculated as histograms 
+
+```{r}
+bayesfilenames <- c("Locus","pnumber","HPC50","HPC95","value","count",
+                    "freq","cumFreq","priorFreq")
+
+bf <- read_table(file = file.path(winningModelDir,"bayesfile"), 
+                             col_types = "ifiiddddd", col_names = bayesfilenames,
+                             comment = "#", skip_empty_rows = T)
+
+parameter_number_table <- read_table(file = file.path(winningModelDir,"bayesfile"), 
+                             col_types = "cic", 
+                             col_names = c("drop","pnumber","parameter"),
+                             skip=9, n_max = 24) %>% 
+                      select(-drop) %>%
+                      mutate(parameter = str_replace_all(parameter, ",","_")) %>% 
+                      mutate(parameter = str_remove_all(parameter,"\\(")) %>% 
+                      mutate(parameter = str_remove_all(parameter,"\\)")) %>% 
+                      left_join(tibble(parameter_name =
+                                        parameter_key,parameter=names(parameter_key)),
+                                by = "parameter")
+
+parameter_number_key <- parameter_number_table$parameter_name 
+names(parameter_number_key) <- parameter_number_table$pnumber
+
+#bf %>% ggplot(aes(x=value, y = freq, color = Locus)) + 
+#  geom_line() + scale_color_continuous() + 
+#  facet_wrap(vars(Parameter), scales = "free")
+
+# bf %>% filter(pnumber %in% 1:9) %>% filter(Locus %in% 1:109) %>% 
+#       ggplot(aes(x=value, y = freq, color = Locus)) + geom_line() +
+#       facet_wrap(vars(pnumber), scales = "free")
+  
+```
+
+
+```{r}
+bf %>% filter(pnumber %in% 1:9) %>% filter(Locus == 110) %>% 
+      ggplot(aes(x = value, y = freq, color = pnumber)) + geom_line() +
+      scale_color_brewer(palette = "YlGnBu", labels = parameter_number_key) +
+      ylim(0,0.5) + xlim(0,0.01) + geom_line(aes(x = value, y = priorFreq),
+                                             color = "grey", linetype="dotted")
+
+```
+##### Bayesallfile
+
+These functions are for reconstructing distributions from the "raw" posterior output, which Peter calls a `bayesallfile`. 
+
+```{r}
 remove_prior <- function(densityd,prior,threshold = 1e-10){
   # this function changes values less than a threshold 
   # to zero removes a prior from the 
@@ -1820,16 +1872,15 @@ remove_prior <- function(densityd,prior,threshold = 1e-10){
   # removes the prior, then renormalizes so the density
   # sums to 1
   densityd[which(densityd < threshold)] <- 0
-  new <- (densityd/exp(prior))/sum(densityd/exp(prior))
-  #new <- exp(log(densityd) - prior) /
-  #            sum(exp(log(densityd)-prior))
+  new <- (densityd/prior)/sum(densityd/prior)
+
   return(new)
 }
 
 sum_over_loci <- function(df,parameter){
       #this function takes a data frame of probability densities for many loci
       # that have had the prior removed,
-      # together with with a logged prior named "prior",
+      # together with with a logged prior named "logPrior",
       #  as well as the name of a parameter (e.g. "Theta_1")
       # and sums the densities over loci.
        # Rmpfr package allows quadruple precision for calcs on very small numbers.
@@ -1845,7 +1896,7 @@ sum_over_loci <- function(df,parameter){
       # and then sum across the row, including the prior
           rowwise() %>% 
           mutate(sum_param_prior = 
-          sum(c_across(starts_with(c(parameter,"prior"))))) %>% 
+          sum(c_across(starts_with(c(parameter,"logPrior"))))) %>% 
     #convert back to a regular df
           ungroup()
     
@@ -1855,9 +1906,11 @@ sum_over_loci <- function(df,parameter){
     # standardize by dividing by the sum of the column
     sum_param_prior_standardized <-
              sum_param_prior_exp/sum(sum_param_prior_exp)
-    # rename the summed column after the parameter
+    
 
-    #drop the intermediate columns (no longer needed)
+    #drop the intermediate columns (no longer needed), change the standardized
+    # output back to double precision so that it can be incorporated into the df
+    # rename the summed column after the parameter
       df3 <- df2 %>% select(-c(sum_param_prior)) %>%
           mutate(summed_over_loci =
           as.numeric(sum_param_prior_standardized)) %>% 
@@ -1908,7 +1961,10 @@ summarize_posterior <- function(posterior,
   # create, standardize, log and remove prior
   dens$prior <- dexp(dens$x, rate = 1/prior_params[2], 
                      log = F)
-  dens$prior <- log(dens$prior/sum(dens$prior))
+  
+  dens$prior <- dens$prior/sum(dens$prior)
+  
+  dens$logPrior <- log(dens$prior)
   
   print("removing prior")
   dens2 <- dens %>% 
@@ -1944,18 +2000,23 @@ posterior_stats <- function(df,parameter){
   return(stats)
 }
 
-# get stats for each summed-over-loci posterior
-names(parameters) <- parameter_key[names(parameter_key) %in% parameters]
+```
 
-theta_stats <- parameters %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
-                                                             parameter = .x),
-                                      .id = "parameter")
+```{r}
+parameter_type <- "Theta"
 
+parameters <- names(posterior) %>%
+                        str_subset(parameter_type)
 
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
+#summarize the posterior for theta
+thetas <- summarize_posterior(posterior, parameter_type = "Theta", 
+                              prior_params = c(0,0.001,0.1))
 
-
-  thetas_long <- thetas %>% select(c("x","prior",parameters)) %>% 
+#conver to long format
+thetas_long <- thetas %>% select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
                             values_to = "Density")
@@ -1966,13 +2027,16 @@ theta_stats <- parameters %>% map_dfr(.f = ~ posterior_stats(df = thetas,
         geom_line(size = 1.5) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
         scale_color_brewer(palette = "YlGnBu", labels = parameter_key) +
-        geom_line(aes(x = x, y=exp(prior)), color = "grey",
+        geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") +
-        ylim(0,0.5) + xlim(0,0.008)
+        ylim(0,0.5) + xlim(0,0.01)
+# get stats for each summed-over-loci posterior
 
-
-
+theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
+                                                             parameter = .x),
+                                      .id = "parameter")
 ```
+
 
 
 # Literature Cited

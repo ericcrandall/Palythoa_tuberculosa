@@ -1,7 +1,7 @@
 ################################################################################
 # Parmfile for Migrate 4.4.4(git:v4-series-26-ge85c6ff)-June-1-2019 [do not remove these first TWO lines]
 # generated automatically on
-# Fri Dec 12 2022
+# Fri Feb 4 2022
 menu=NO
 nmlength=10
 datatype=SequenceData
@@ -43,12 +43,12 @@ mutation=CONSTANT
 analyze-loci=A
 divergence-distrib=E
 custom-migration={
-*	0	0	0	0	d	0	0	0
-0	*	*	0	0	0	0	0	0
+*	*	0	0	0	*	0	0	0
+*	*	*	0	0	0	0	0	0
 0	*	*	*	0	0	0	0	0
 0	0	*	*	*	0	0	0	0
 0	0	0	*	*	*	0	0	0
-0	0	0	0	*	*	*	0	0
+*	0	0	0	*	*	*	0	0
 0	0	0	0	0	*	*	*	0
 0	0	0	0	0	0	*	*	*
 0	0	0	0	0	0	0	*	*
@@ -73,7 +73,7 @@ bayes-hyperpriors=NO
 long-chains=1
 long-inc=100
 long-sample=30000
-burn-in=10000
+burn-in=10000  
 auto-tune=YES:0.440000
 assign=NO
 heating=YES:1:{1.000000,1.500000,3.000000,1000000.000000}
@@ -82,3 +82,4 @@ moving-steps=NO
 gelman-convergence=No
 replicate=NO
 end
+

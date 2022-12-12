@@ -43,7 +43,7 @@ mutation=CONSTANT
 analyze-loci=A
 divergence-distrib=E
 custom-migration={
-*	0	0	0	0	d	0	0	0
+*	0	0	0	0	D	0	0	0
 0	*	*	0	0	0	0	0	0
 0	*	*	*	0	0	0	0	0
 0	0	*	*	*	0	0	0	0

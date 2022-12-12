@@ -49,7 +49,7 @@ harvest.model.likelihoods <- function(workingDir = workingDir,
     #scan in the outfile, separating at each newline
       outfile<-scan(file=file.path(modelDir,outfileName),what="character",sep="\n") 
     #find the line with the likelihoods on it and split on runs of spaces
-      marglikeline <- strsplit(grep("  All          ",outfile,value=T),
+      marglikeline <- strsplit(grep("  All +",outfile,value=T),
                                "\\s+", perl = T)[[1]][3:5]
     #  if(length(marglikeline)==0){next}
       marglikes <- c(i,marglikeline)
@@ -1649,9 +1649,91 @@ likesPlot_zoom
 
 ```
 
+## Rerun the two top models
+
+Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
+
+## Copy it down
+
+```{bash, eval =F}
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.7 ./run4.7
+```
+
+### Results
+
+#### Model Marginal Likelihoods
+
+```{r likelihoods3, message=F, results='hide'}
+#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/run4.7"
+
+likelist <- list()
+for(r in 1:3){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist %>% map(bfcalcs)
+```
+The final model marginal likelihood estimates based on the mean of 10 replicates:
+
+```{r}
+like.df <-  likelist %>% bind_rows() %>% group_by(model)
+
+means <- like.df %>% summarize(bezier.corrected = mean(bezier.corrected))
+  
+
+final_model <- bfcalcs(means)
+
+final_model
+```
+
+#### T-Test
+
+The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
+
+```{r eval = F}
+top.choice <- final_model$model[which(final_model$choice ==1)]
+second.choice <- final_model$model[which(final_model$choice ==2)]
+
+TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
+       like.df$bezier.corrected[which(like.df$model == second.choice)],
+       alternative = "greater")
+
+TS
+
+```
+
+#### Figures
+
+And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
+
+```{r}
+
+models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "SS: Islands",
+            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
+            "SS: Islands, OK 2way", 
+            "SS: Islands, O2K Colonization with GF", 
+            "SS: Islands, O2K 1 way", 
+            "SS: Islands, O2K Colonization without GF",
+            "Seq Div: No GF","Seq Div: GF",
+            "Seq Div: GF, O2K Colonization without GF")
+
+likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+              scale_x_discrete(labels = models) +
+              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
+likesPlot
+```
+
+
 ## Model Parameter Estimates
 
-Because I set such wide priors on gene flow for marine species, the standard PDF output does a poor job of binning the data, such that even though an equilibrium model of gene flow is the best model, Migrate is telling me that all migration parameters have a mode of 2.5 and 0 at the 25th percentile. It would be nice if I could look at the posterior calculated across all loci myself, but it is unclear how Migrate does this exactly. I inquired about this to Peter a year ago, and he got back to me with this method for summing the posterior over all loci and some Python code as a demo.
+Because I set such wide priors on gene flow for marine species, the standard PDF output does a poor job of binning the data, such that even though an equilibrium model of gene flow is the best model, Migrate is telling me that all migration parameters have a mode of 2.5 and 0 at the 25th percentile. It would be nice if I could look at the posterior calculated across all loci myself, but it is unclear how Migrate does this exactly. I inquired about this to Peter, and he got back to me with this method for summing the posterior over all loci and some Python code as a demo.
 
 > 1. create a histogram for each locus
 2. log the histogram (there will be issues with zero value cells)
@@ -1665,7 +1747,7 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 ### Read in the posterior and make a labeling key
 
 ```{r}
-winningModelDir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/run4.6/rep1/stepping.stone.KOd"
+winningModelDir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.6/rep1/stepping.stone.KOd"
 
 # read in a population key to translate numbers into names in figures
 popkey <- read_csv("popkey.csv")
@@ -1698,6 +1780,23 @@ names(parameter_key) <- posterior_parameters
 
 ```
 
+#### Check Convergence
+
+```{r}
+posterior.grouped <- posterior %>% 
+                      select(all_of(c("Locus",
+                                        "Steps",
+                                        posterior_parameters))) %>% 
+                      group_by(Locus)
+
+posterior.reps <- group_split(posterior.grouped)
+posterior.key <- group_keys(posterior.grouped)
+                        
+posterior.mcmc <- mcmc.list(lapply(posterior.reps,mcmc))
+posterior.ggs <- ggs(posterior.mcmc)
+#ggmcmc(posterior.ggs, param_page = 4)
+
+```
 
 ### Theta plots
 
@@ -2001,6 +2100,8 @@ posterior_stats <- function(df,parameter){
 }
 
 ```
+
+And here I run the code for the $\theta$ estimates
 
 ```{r}
 parameter_type <- "Theta"

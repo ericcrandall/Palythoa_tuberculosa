@@ -1656,7 +1656,7 @@ Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 l
 ### Copy it down
 
 ```{bash, eval =F}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.71 ./run4.7
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.72 ./run4.7
 ```
 
 ### Results
@@ -1668,7 +1668,7 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab
 runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
 
 likelist <- list()
-for(r in 1:5){
+for(r in 1:10){
   rep = paste0("rep",r)
   print(rep)
   likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))

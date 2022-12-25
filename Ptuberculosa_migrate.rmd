@@ -1653,10 +1653,10 @@ likesPlot_zoom
 
 Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
 
-## Copy it down
+### Copy it down
 
 ```{bash, eval =F}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.7 ./run4.7
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.71 ./run4.7
 ```
 
 ### Results
@@ -1664,11 +1664,11 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab
 #### Model Marginal Likelihoods
 
 ```{r likelihoods3, message=F, results='hide'}
-#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/run4.7"
+
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
 
 likelist <- list()
-for(r in 1:3){
+for(r in 1:5){
   rep = paste0("rep",r)
   print(rep)
   likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))

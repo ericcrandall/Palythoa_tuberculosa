@@ -49,7 +49,8 @@ harvest.model.likelihoods <- function(workingDir = workingDir,
     #scan in the outfile, separating at each newline
       outfile<-scan(file=file.path(modelDir,outfileName),what="character",sep="\n") 
     #find the line with the likelihoods on it and split on runs of spaces
-      marglikeline <- strsplit(grep("  All +",outfile,value=T),
+      marglikeline <- grep("Scaling factor",outfile,value=F)-1
+      marglikeline <- strsplit(outfile[marglikeline],
                                "\\s+", perl = T)[[1]][3:5]
     #  if(length(marglikeline)==0){next}
       marglikes <- c(i,marglikeline)
@@ -1574,7 +1575,7 @@ rsync -av --progress run4.6/ run4/
 
 ```{r likelihoods3, message=F, results='hide'}
 #runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/migrate/run4"
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1603,7 +1604,7 @@ final_model
 
 The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
 
-```{r eval = F}
+```{r, eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
 second.choice <- final_model$model[which(final_model$choice ==2)]
 
@@ -1635,7 +1636,8 @@ likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>%
               geom_violin(draw_quantiles = 0.5) +
               theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
               scale_x_discrete(labels = models) +
-              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood")
 likesPlot
 ```
 
@@ -1656,14 +1658,14 @@ Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 l
 ### Copy it down
 
 ```{bash, eval =F}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.72 ./run4.7
+rsync -av -e ssh --exclude='bayesfile*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.71 ./run4.7_full
 ```
 
 ### Results
 
 #### Model Marginal Likelihoods
 
-```{r likelihoods3, message=F, results='hide'}
+```{r likelihoods4, message=F, results='hide'}
 
 runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
 
@@ -1712,21 +1714,18 @@ And some figures summarizing all this. The two best models are equilibrium model
 
 ```{r}
 
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "SS: Islands",
-            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
-            "SS: Islands, OK 2way", 
+models <- c("SS: Islands, OK 2way", 
             "SS: Islands, O2K Colonization with GF", 
-            "SS: Islands, O2K 1 way", 
-            "SS: Islands, O2K Colonization without GF",
-            "Seq Div: No GF","Seq Div: GF",
-            "Seq Div: GF, O2K Colonization without GF")
+            "SS: Islands, O2K Colonization without GF")
 
 likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
               ggplot(mapping = aes(x=model, y = bezier.corrected)) +
               geom_violin(draw_quantiles = 0.5) +
               theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
               scale_x_discrete(labels = models) +
-              labs(x = "Metapopulation Model", y = "Bezier Corrected Marginal Likelihood")
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood") +
+              ylim(-50000,-45000)
 likesPlot
 ```
 
@@ -1744,26 +1743,40 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 6. convert to non-log
 7. adjust so that the sum of the new histogram sums t0 1.0
 
-### Read in the posterior and make a labeling key
+### Read in the posteriors and make a labeling key
 
-```{r}
-winningModelDir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.6/rep1/stepping.stone.KOd"
+```{r, eval = F}
+#
+Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
+
+winningModel <- "stepping.stone.KO.D"
+
+
+
+posteriors <- list()
+
+#read in the posterior for one replicate this may take 5 minutes
+for(r in 1:5){
+  print(paste("Loading Rep",r))
+  posteriors[[r]] <- read.table(file.path(Dir,paste0("rep",r),winningModel,
+                                      "bayesallfile"), header=T) 
+}
+
+#combine into one, and then keep only the first 2 reps (based on diagnostics below)
+posteriors12 <- posteriors %>% bind_rows(.id = "rep") %>% 
+                                filter(rep <= 2) %>% migrants.per.gen()
+
+#posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_", 
+#                                                           "Nm_","D_","d_")),
+#                                                    names_to = "parameter",
+#                                                    values_to = "value") 
+
 
 # read in a population key to translate numbers into names in figures
 popkey <- read_csv("popkey.csv")
 names(popkey$Pop) <- popkey$Index
-
-
-#read in the posterior for one replicate this may take a minute or two
-posterior <- read.table(file.path(winningModelDir,"bayesallfile"), header=T) 
-
-#calculate migrants per generation
-posterior <- migrants.per.gen(posterior)
-
-posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_", "Nm_","D_", "d_")),
-                                                         names_to = "parameter", values_to = "value")
 #make a new labeling key
-posterior_parameters <- unique(posterior_long$parameter)
+posterior_parameters <- names(posteriors12) %>% str_subset("Theta|M_|Nm_|D_|d_")
 
 parameter_key <- posterior_parameters %>% 
                                   str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
@@ -1782,20 +1795,131 @@ names(parameter_key) <- posterior_parameters
 
 #### Check Convergence
 
-```{r}
-posterior.grouped <- posterior %>% 
-                      select(all_of(c("Locus",
-                                        "Steps",
-                                        posterior_parameters))) %>% 
-                      group_by(Locus)
+```{r, eval = F}
+# posteriors.grouped <- posteriors %>% 
+#                       select(all_of(c("Locus",
+#                                         "Steps",
+#                                         posterior_parameters))) %>% 
+#                       group_by(rep)
 
-posterior.reps <- group_split(posterior.grouped)
-posterior.key <- group_keys(posterior.grouped)
+# posterior.reps <- group_split(posterior.grouped)
+# posterior.key <- group_keys(posterior.grouped)
+
+#thin by taking every other step
+posteriors2 <- lapply(posteriors,filter,Steps%%500==0)
+# select parameters only
+posteriors2 <- lapply(posteriors2, select, starts_with(c("Theta_", "M_", 
+                                                          "Nm_","D_","d_")))
+
                         
-posterior.mcmc <- mcmc.list(lapply(posterior.reps,mcmc))
-posterior.ggs <- ggs(posterior.mcmc)
+posteriors.mcmc <- mcmc.list(lapply(posteriors2,mcmc,thin=500))
+posterior.ggs <- ggs(posteriors.mcmc, burnin = F)
+effectiveSize(posteriors2[[1]])
 #ggmcmc(posterior.ggs, param_page = 4)
 
+```
+
+
+##### Effective Sizes
+Effective sizes are good except for M_3_4. 
+
+```{}
+effectiveSize(posteriors2[[1]]) (first replicate)
+
+     Theta_1      Theta_2      Theta_3      Theta_4      Theta_5      Theta_6      Theta_7      Theta_8 
+127773.10928  60095.43078  58552.43846  71943.00597  77691.51114  61662.55359  45230.02725  64583.65543 
+     Theta_9        M_6_1        M_3_2        M_2_3        M_4_3        M_3_4        M_5_4        M_4_5 
+ 79323.26808 147192.07123  67813.55644    448.34109   1473.22013     68.48918   3983.63608  39822.63084 
+       M_6_5        M_5_6        M_7_6        M_6_7        M_8_7        M_7_8        M_9_8        M_8_9 
+140352.48682 316433.45752 333193.44720  63909.27617  63612.89938 653891.00000  38723.33119 441357.70803 
+       D_6_1 
+202634.81598
+
+effectiveSize(posteriors.mcmc[c(1,2)])
+  Theta_1   Theta_2   Theta_3   Theta_4   Theta_5   Theta_6   Theta_7   Theta_8   Theta_9     M_6_1 
+268101.80 175117.21  86454.19  84954.50  91454.47 134416.13 127731.50 110109.44 174394.67 313435.43 
+    M_3_2     M_2_3     M_4_3     M_3_4     M_5_4     M_4_5     M_6_5     M_5_6     M_7_6     M_6_7 
+674097.79 236556.17 421717.30 218933.72 390887.59 272926.62 585871.37 589532.54 613794.87 495933.81 
+    M_8_7     M_7_8     M_9_8     M_8_9     D_6_1 
+421019.97 667326.66  39515.35 531464.72 415678.34
+
+```
+
+
+##### Gelman-Rubin Diagnostic
+
+Gelman-Rubin diagnostic is a bit high for M_ parameters, but if I log transform them, all Gelman diagnostics are below 1.2.
+
+```{}
+
+gelman.diag(posteriors.mcmc)
+
+Potential scale reduction factors:
+
+        Point est. Upper C.I.
+Theta_1       1.00       1.00
+Theta_2       1.01       1.02
+Theta_3       1.00       1.01
+Theta_4       1.00       1.01
+Theta_5       1.00       1.00
+Theta_6       1.00       1.01
+Theta_7       1.01       1.02
+Theta_8       1.00       1.00
+Theta_9       1.01       1.01
+M_6_1         1.00       1.00
+M_3_2         1.20       1.25
+M_2_3         1.29       1.34
+M_4_3         1.28       1.34
+M_3_4         1.29       1.82
+M_5_4         1.12       1.15
+M_4_5         1.06       1.06
+M_6_5         1.04       1.04
+M_5_6         1.05       1.05
+M_7_6         1.01       1.01
+M_6_7         1.20       1.20
+M_8_7         1.01       1.01
+M_7_8         1.17       1.17
+M_9_8         1.24       1.40
+M_8_9         1.28       1.30
+D_6_1         1.00       1.00
+
+Multivariate psrf
+
+1.03
+
+gelman.diag(posteriors.mcmc, transform = T)
+Potential scale reduction factors:
+
+        Point est. Upper C.I.
+Theta_1       1.00       1.00
+Theta_2       1.00       1.01
+Theta_3       1.00       1.00
+Theta_4       1.00       1.01
+Theta_5       1.00       1.00
+Theta_6       1.00       1.01
+Theta_7       1.00       1.01
+Theta_8       1.00       1.00
+Theta_9       1.00       1.01
+M_6_1         1.00       1.00
+M_3_2         1.01       1.03
+M_2_3         1.01       1.03
+M_4_3         1.01       1.02
+M_3_4         1.02       1.04
+M_5_4         1.01       1.02
+M_4_5         1.00       1.01
+M_6_5         1.00       1.01
+M_5_6         1.01       1.02
+M_7_6         1.00       1.01
+M_6_7         1.00       1.01
+M_8_7         1.00       1.00
+M_7_8         1.01       1.01
+M_9_8         1.01       1.01
+M_8_9         1.00       1.01
+D_6_1         1.00       1.00
+
+Multivariate psrf
+
+1.02
 ```
 
 ### Theta plots
@@ -1804,8 +1928,8 @@ Here are plots of each parameter posterior, with each colored line being the pos
 
 $\theta=4N_e\mu$
 
-```{r, fig.dim = c(12, 9)}
-Theta_plot <- posterior_long %>%  
+```{r, eval = F, fig.dim = c(12, 9)}
+Theta_plot <- posteriors12_long %>%  
               filter(str_detect(parameter, "Theta_")) %>%  
               ggplot() + 
               geom_density(mapping = aes(x = value, 
@@ -1828,7 +1952,7 @@ Theta_plot
 
 Proportion of migrants relative to mutation rate $\frac{m}{\mu}$ 
 
-```{r, fig.dim = c(12, 9)}
+```{r, eval = F, fig.dim = c(12, 9)}
 M_plot <- posterior_long %>%  
           filter(str_detect(parameter, "M_")) %>%  
           ggplot() + 
@@ -1847,7 +1971,7 @@ M_plot
 
 Migrants per generation $4N_em$
 
-```{r, fig.dim = c(12, 9)}
+```{r, eval = F, fig.dim = c(12, 9)}
 Nm_plot <- posterior_long %>%  
           filter(str_detect(parameter, "Nm_")) %>%  
           ggplot() + 
@@ -1881,10 +2005,12 @@ bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 Here are the basics for doing it over two loci:
 
 
-```{r}
+```{r, eval = F}
 # make density objects for two loci (n must be a power of 2, using 2^14)
-testdens1 <- density(posterior$Theta_1[which(posterior$Locus==1)], n=16384, from = 0, to = 0.1, bw = "SJ")
-testdens2 <- density(posterior$Theta_1[which(posterior$Locus==2)], n=16384, from = 0, to = 0.1, bw = "SJ")
+testdens1 <- density(posterior$Theta_1[which(posterior$Locus==1)], n=16384, 
+                     from = 0, to = 0.1, bw = "SJ")
+testdens2 <- density(posterior$Theta_1[which(posterior$Locus==2)], n=16384, 
+                     from = 0, to = 0.1, bw = "SJ")
 
 #create the prior
 thetaprior <- dexp(testdens1$x, rate = 0.001, log = F)
@@ -1896,12 +2022,15 @@ densum$x <- testdens1$x
 densum$l1 <- (testdens1$y/ thetaprior) / sum(testdens1$y/ thetaprior)
 densum$l2 <- (testdens2$y/ thetaprior) / sum(testdens2$y/ thetaprior)
 #sum over loci and standardize again
-densum$sum <- exp(log(densum$l1+1e-20) + log(densum$l2 + 1e-20) + log(thetaprior)) / 
-                                          sum( exp(log(densum$l1+1e-20) + log(densum$l2 + 1e-20) + log(thetaprior)))
+densum$sum <- exp(log(densum$l1+1e-20) + log(densum$l2 + 1e-20) + 
+                    log(thetaprior)) / sum( exp(log(densum$l1+1e-20) + 
+                                                  log(densum$l2 + 1e-20) + 
+                                                  log(thetaprior)))
 #pivot to long format
 densum_long <- pivot_longer(densum,cols=2:4,names_to = "yplot", values_to = "y")
 #plot
-ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + geom_line() + scale_x_log10()
+ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) + 
+  geom_line() + scale_x_log10()
 
 #bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
 #bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
@@ -1970,6 +2099,7 @@ remove_prior <- function(densityd,prior,threshold = 1e-10){
   # first it zeros values less than a threshold, then 
   # removes the prior, then renormalizes so the density
   # sums to 1
+  prior[which(prior < 1e-30)] <- 1e-30
   densityd[which(densityd < threshold)] <- 0
   new <- (densityd/prior)/sum(densityd/prior)
 
@@ -2045,7 +2175,7 @@ summarize_posterior <- function(posterior,
   print("calculating densities")
   # calculate densities for each parameter of a given type at each locus
   dens <- posterior %>% 
-          select(starts_with(c("Steps","Locus",
+          select(starts_with(c("Steps","Locus","rep",
                   paste0(parameter_type,"_")))) %>% 
           pivot_wider(names_from = "Locus", values_from = 
                   starts_with(paste0(parameter_type,"_")),
@@ -2101,22 +2231,23 @@ posterior_stats <- function(df,parameter){
 
 ```
 
+##### Theta Estimates
 And here I run the code for the $\theta$ estimates
 
-```{r}
+```{r, eval = F}
 parameter_type <- "Theta"
 
-parameters <- names(posterior) %>%
+parameters <- names(posteriors12) %>%
                         str_subset(parameter_type)
 
 parameter_key2 <- parameters
 names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
-thetas <- summarize_posterior(posterior, parameter_type = "Theta", 
+thetas <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
                               prior_params = c(0,0.001,0.1))
 
-#conver to long format
+#convert to long format
 thetas_long <- thetas %>% select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
@@ -2130,10 +2261,47 @@ thetas_long <- thetas %>% select(all_of(c("x","prior",parameters))) %>%
         scale_color_brewer(palette = "YlGnBu", labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") +
-        ylim(0,0.5) + xlim(0,0.01)
+        ylim(0,0.2) + xlim(0,0.01)
 # get stats for each summed-over-loci posterior
 
 theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+```
+
+##### 4Nem estimates
+
+```{r, eval = F}
+parameter_type <- "Nm"
+
+parameters <- names(posteriors12) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for theta
+nms <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
+                              prior_params = c(0,1,1), n = 2^17)
+
+#convert to long format
+nms_long <- nms %>% select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density")
+               
+#plot
+  ggplot(nms_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") +
+        ylim(0,0.125) + xlim(0,0.003)
+# get stats for each summed-over-loci posterior
+
+nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
 ```

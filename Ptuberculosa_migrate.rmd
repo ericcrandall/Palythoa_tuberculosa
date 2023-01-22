@@ -25,6 +25,9 @@ library(ggmcmc)
 library(perm)
 library(Rmpfr)
 library(spatstat.core)
+library(colorspace)
+library(latex2exp)
+library(ggridges)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -1748,7 +1751,7 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 ```{r, eval = F}
 #
 Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
-
+      
 winningModel <- "stepping.stone.KO.D"
 
 
@@ -2252,19 +2255,87 @@ thetas_long <- thetas %>% select(all_of(c("x","prior",parameters))) %>%
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
                             values_to = "Density")
-               
+
+theta.colors <- rev(brewer.pal(9,"Spectral"))
+theta.colors.light <- lighten(theta.colors)
+theta.colors.dark <- darken(theta.colors)
+
 #plot
-  ggplot(thetas_long, aes(x = x, y = Density, 
+thetas_density <-  ggplot(thetas_long, aes(x = x, y = Density, 
                     color = Parameter)) +
-        geom_line(size = 1.5) + 
+        geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_brewer(palette = "YlGnBu", labels = parameter_key) +
+        scale_color_discrete(type = theta.colors, 
+                             labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") +
-        ylim(0,0.2) + xlim(0,0.01)
+        ylim(0,0.175) + xlim(0,0.01)
+
+thetas_ridges <- ggplot(thetas_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$\\Theta$")) + xlim(0,0.01)
+
+thetas_ridges
 # get stats for each summed-over-loci posterior
 
 theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+```
+##### m/mu estimates
+
+```{r, eval = F}
+parameter_type <- "M"
+
+parameters <- names(posteriors12) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for theta
+Ms <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
+                              prior_params = c(0,1,1000), n = 2^14)
+
+#convert to long format
+Ms_long <- Ms %>% select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density") %>% 
+#                filter(Parameter != "M_6_1")
+
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+#plot
+Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") +
+        ylim(0,0.125) + xlim(0,1)
+  
+           
+#plot
+M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$\frac{m}{\\mu}$")) +
+        xlim(0,0.003)
+  
+    ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+                    fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        ylim(0,0.003)
+# get stats for each summed-over-loci posterior
+
+Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
 ```
@@ -2288,17 +2359,35 @@ nms <- summarize_posterior(posteriors12, parameter_type = parameter_type,
 nms_long <- nms %>% select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
-                            values_to = "Density")
-               
+                            values_to = "Density") %>% 
+                filter(Parameter != "Nm_6_1")
+
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
 #plot
-  ggplot(nms_long, aes(x = x, y = Density, 
+Nms_density <-  ggplot(nms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(labels = parameter_key) +
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") +
         ylim(0,0.125) + xlim(0,0.003)
+  
+           
+#plot
+nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$4N_em$")) +
+        xlim(0,0.003)
+  
+    ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+                    fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        ylim(0,0.003)
 # get stats for each summed-over-loci posterior
 
 nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 

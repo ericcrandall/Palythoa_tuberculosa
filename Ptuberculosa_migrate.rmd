@@ -870,9 +870,7 @@ stats <- stats[which(stats$length %in% migrate_lengths$length),]
 Write a space delimited textfile that can be added to the migrate data file in the format that Peter suggested.
 
 ```{r}
-stats <- read_csv("./migrate/run4_locus_statistics.csv")
-kable(stats)
-
+stats <- read_csv("./migrate/run4/run4_locus_statistics.csv")
 
 # write a space delimited textfile that can be added to the migrate data file
 # following Peter's suggestion here:
@@ -885,12 +883,7 @@ migrate_mutation_models <- tibble(prefix = "#$",
                                  q2 = stats$Q3)
 
 #write_delim(migrate_mutation_models,"./migrate/run4_modelblock.txt", na="", delim = " ")
-```
-Read them back in so we don't have to recalculate them every time I knit.
-
-```{r}
-stats <- read_csv("migrate/run2/run2_locus_statistics.csv")
-kable(stats)
+stats
 ```
 
 So we have a `r length(which(stats$segSites == 0))` invariant loci, and the mean overall transition:transversion ratio is `r mean(!is.infinite(stats$ttRatio),na.rm = T)`. Mean gamma shape parameter is `r mean(stats$gammaShape)`, which argues for only one rate.
@@ -1730,6 +1723,8 @@ likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>%
                    y = "Bezier Corrected Marginal Likelihood") +
               ylim(-50000,-45000)
 likesPlot
+
+winningModel <- "stepping.stone.KO.D"
 ```
 
 
@@ -1748,18 +1743,16 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 
 ### Read in the posteriors and make a labeling key
 
-```{r, eval = F}
+```{r, eval = T}
 #
 Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
       
 winningModel <- "stepping.stone.KO.D"
 
-
-
 posteriors <- list()
 
 #read in the posterior for one replicate this may take 5 minutes
-for(r in 1:5){
+for(r in 1:2){
   print(paste("Loading Rep",r))
   posteriors[[r]] <- read.table(file.path(Dir,paste0("rep",r),winningModel,
                                       "bayesallfile"), header=T) 
@@ -1790,9 +1783,6 @@ parameter_key <- posterior_parameters %>%
                                   
 
 names(parameter_key) <- posterior_parameters
-
-
-
 
 ```
 
@@ -2044,19 +2034,21 @@ ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) +
 
 #### Many Loci
 
-##### Bayesfile
+##### Functions for Summarizing from Bayesfile
 
 These functions are for reconstructing distributions from the `bayesfile` which consists of distributions for each locus calculated as histograms 
 
 ```{r}
 bayesfilenames <- c("Locus","pnumber","HPC50","HPC95","value","count",
                     "freq","cumFreq","priorFreq")
-
-bf <- read_table(file = file.path(winningModelDir,"bayesfile"), 
+DirB <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.6"
+bf <- read_table(file = file.path(DirB,paste0("rep",1),winningModel,
+                                      "bayesfile"), 
                              col_types = "ifiiddddd", col_names = bayesfilenames,
                              comment = "#", skip_empty_rows = T)
 
-parameter_number_table <- read_table(file = file.path(winningModelDir,"bayesfile"), 
+parameter_number_table <- read_table(file = file.path(DirB,paste0("rep",1),winningModel,
+                                      "bayesfile"), 
                              col_types = "cic", 
                              col_names = c("drop","pnumber","parameter"),
                              skip=9, n_max = 24) %>% 
@@ -2090,7 +2082,8 @@ bf %>% filter(pnumber %in% 1:9) %>% filter(Locus == 110) %>%
                                              color = "grey", linetype="dotted")
 
 ```
-##### Bayesallfile
+
+##### Functions for Summarizing from Bayesallfile
 
 These functions are for reconstructing distributions from the "raw" posterior output, which Peter calls a `bayesallfile`. 
 
@@ -2234,7 +2227,11 @@ posterior_stats <- function(df,parameter){
 
 ```
 
-##### Theta Estimates
+## Final Parameter Estimates
+
+These are the final estimates, summed over loci.
+
+### Theta Estimates
 And here I run the code for the $\theta$ estimates
 
 ```{r, eval = F}
@@ -2278,14 +2275,36 @@ thetas_ridges <- ggplot(thetas_long, aes(x = x, y = Parameter, height = Density,
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$\\Theta$")) + xlim(0,0.01)
 
-thetas_ridges
+thetas_violins <- ggplot(thetas_long, aes(x = Parameter, y = x, 
+                                          violinwidth = Density*10, 
+                                          fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_x_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(y = TeX("$\\Theta$")) + ylim(0,0.01)
+
+
 # get stats for each summed-over-loci posterior
 
 theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
                                                              parameter = .x),
                                       .id = "parameter")
 ```
-##### m/mu estimates
+
+Theta estimates:
+
+```{r}
+thetastats <- read_csv("./tables/theta_stats.csv")
+thetastats
+```
+
+![Theta Density](./figures/thetas_density.jpg)
+![Theta Ridges](./figures/thetas_ridges.jpg)
+
+![Theta Violins](./figures/thetas_violins.jpg)
+
+
+### m/mu estimates
 
 ```{r, eval = F}
 parameter_type <- "M"
@@ -2312,35 +2331,48 @@ migration.colors <- c(rbind(theta.colors, theta.colors.dark))
 Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
-        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_x_log10(limits = c(1e-2,100)) + 
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") +
-        ylim(0,0.125) + xlim(0,1)
+                  linetype="dotted")
   
            
 #plot
 M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
+        scale_x_log10(limits = c(1e-2,100)) +
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
-        labs(x = TeX("$\frac{m}{\\mu}$")) +
-        xlim(0,0.003)
+        labs(x = TeX("$\\frac{m}{\\mu}$"))
+
   
-    ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+M_violins <- ggplot(Ms_long, aes(x = Parameter, y = x, violinwidth = Density, 
                     fill = Parameter)) +
-        geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
-        ylim(0,0.003)
+        geom_violin(stat = "identity") +
+        scale_y_log10(limits = c(1e-2,100)) +
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) 
 # get stats for each summed-over-loci posterior
 
-Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
+Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
                                                              parameter = .x),
                                       .id = "parameter")
 ```
 
-##### 4Nem estimates
+
+M/mu estimates:
+
+```{r}
+mmustats <- read_csv("./tables/Mmu_stats.csv")
+mmustats
+```
+
+![Mmu Density](./figures/Mmu_density.jpg)
+![Mmu Ridges](./figures/Mmu_ridges.jpg)
+
+![Mmu Violins](./figures/Mmu_violins.jpg)
+
+### 4Nem estimates
 
 ```{r, eval = F}
 parameter_type <- "Nm"
@@ -2383,7 +2415,7 @@ nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density,
         labs(x = TeX("$4N_em$")) +
         xlim(0,0.003)
   
-    ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
@@ -2395,6 +2427,148 @@ nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms,
                                       .id = "parameter")
 ```
 
+$4N_em$ estimates:
+
+```{r}
+nmstats <- read_csv("./tables/4Nm_stats.csv")
+nmstats
+```
 
 
-# Literature Cited
+![4Nem Density](./figures/4Nm_density.jpg)
+![4Nem Ridges](./figures/4Nm_ridges.jpg)
+
+![4Nem Violins](./figures/4Nm_violins.jpg)
+#### 4NeM Estimate for Oahu - Kure
+
+This parameter is orders of magnitude larger than the others, and effectively can't be summarized under the same prior limits. So this code is just rejigged to focus on the Oahu-Kure parameter
+
+```{r, eval = F}
+parameter_type <- "Nm"
+
+parameters <- names(posteriors12) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for theta
+nms61 <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
+                              prior_params = c(1,1,1000), n = 2^14)
+
+#convert to long format
+nms_61long <- nms61 %>% select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density") %>% 
+                filter(Parameter == "Nm_6_1")
+
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+#plot
+Nms_61density <-  ggplot(nms_61long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") +
+        ylim(0,0.125) + xlim(0,100)
+  
+           
+#plot
+nm_61ridges <- ggplot(nms_61long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$4N_em$")) +
+        xlim(0,50)
+  
+nm_61violins <- ggplot(nms_61long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+                    fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        ylim(0,50)
+# get stats for each summed-over-loci posterior
+
+nms_61stats <-posterior_stats(df = nms61, parameter = "Nm_6_1")
+```
+
+```{r}
+nm61stats <- read.csv("./tables/4Nm_Oahu_Kure.csv")
+nm61stats
+```
+
+#### Divergence Estimate Oahu-Kure
+
+This is the divergence 
+
+```{r, eval = F}
+dens <- tibble(.rows = 2^15, x = density(getx[,1],  n=2^15, 
+                                      from = 0, 
+                                      to = 0.0001,
+                                      bw = "nrd0")$x)
+
+dens2 <- posteriors12 %>%
+          select(starts_with(c("Steps","Locus","rep",
+                paste0(parameter_type,"_")))) %>%
+          pivot_wider(names_from = "Locus", values_from =
+                      starts_with(paste0(parameter_type,"_")),
+                      names_sep = "-") %>%
+          select(4:112) %>%
+          map_dfc(function(x) density(x, n = 2^15, from = 0, to = 0.001, bw = "nrd0")$y)
+
+dens2<-bind_cols(dens,dens2)
+
+dens3$prior <- dexp(dens3$x, rate = 1/0.001,log = F)
+dens3$prior <- dens3$prior/sum(dens3$prior)
+dens3$logPrior <- log(dens3$prior)
+
+
+dens4 <- dens3 %>%
+        #remove the prior, standardize
+        mutate(across(starts_with(parameter_type),~ remove_prior(densityd = .x,
+                                                                 prior = dens$prior,threshold = 1e-10) ))
+names(dens4)[1:109] <- paste0("D_6_1-",names(dens4)[1:109])
+
+dens5 <- sum_over_loci(df = dens4, parameter = "D_6_1")
+
+
+#convert to long format
+D_61long <- dens5 %>% select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density") %>% 
+                filter(Parameter == "D_6_1")
+
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+#plot
+D_61density <-  ggplot(D_61long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-5,1e-2)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") +
+        ylim(0,0.02) + xlim(0,0.001)
+  
+           
+
+# get stats for each summed-over-loci posterior
+
+D_61stats <-posterior_stats(df = dens5, parameter = "D_6_1")
+```
+
+![Divergence Density](./figures/D_6_1.jpg)
+
+```{r}
+D61stats <- read.csv("./tables/D_6_1_stats.csv")
+D61stats
+```
+
+Divergence time in coalescent units:
+
+```{r}
+5.951109e-04 / (0.00767+0.00569)
+```
+

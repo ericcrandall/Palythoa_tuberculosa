@@ -3072,7 +3072,7 @@ D_61density <-  ggplot(D_61long, aes(x = x, y = Density,
 D_61stats <-posterior_stats(df = dens5, parameter = "D_6_1")
 
 #ggsave(filename = "D_6_1.jpg",plot=D_61density, path = "./figures/stepping.stone.KOd")
-#write_csv(Nm_stats,"./tables/stepping.stone.KOd/D_6_1.csv")
+#write.csv(D_61stats ,"./tables/stepping.stone.KOd/D_6_1.csv",quote=F)
 ```
 
 ![Divergence Density](./figures/stepping.stone.KOd/D_6_1.jpg)
@@ -3085,8 +3085,7 @@ D61stats
 Divergence time in coalescent units, following along on page 25 here. @beerliPopulationGeneticInference2019
 
 ```{r}
-tau <- 6.932279e-05 / (0.00748+0.00423)
-tau
+
 t <- tau / 1.2e-8
 ```
 

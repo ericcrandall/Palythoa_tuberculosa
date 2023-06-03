@@ -20,26 +20,38 @@ island<-graph_from_data_frame(edges2,nodes,directed=T)
 
 hi_islands<-as.matrix(nodes[,c("long","lat")])
 
-plot(island,layout=hi_islands, edge.arrow.size=0.1, edge.curved=0.3, 
-     vertex.color=V(island)$sampled, 
-     vertex.size=3,vertex.label=NA,vertex.shape="csquare")
+
 
 
 #make a stepping-stone model
 stepstone<-graph_from_data_frame(d=stepedges,vertices=nodes,directed=T)
 
+#panmixia
 plot(stepstone,layout=hi_islands, edge.arrow.size=0.3, 
     edge.curved=0.4, vertex.color=V(stepstone)$sampled, 
-    edge.color="grey60",vertex.size=3, vertex.label = NA,
+    edge.color=NA,vertex.size=3, vertex.label = NA,
 #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
-    vertex.border = V(stepstone)$sector)
+vertex.frame.color =NA)
 
+#stepstone
+plot(stepstone,layout=hi_islands, edge.arrow.size=0.3, 
+     edge.curved=0.4, vertex.color=V(stepstone)$sampled, 
+     edge.color="grey50",vertex.size=3, vertex.label = NA,
+     #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
+     vertex.frame.color =NA)
+
+#divergence
 plot(stepstone,layout=hi_islands, edge.arrow.size=0.6, edge.width = 3, edge.lty = 6,
      edge.curved=3, vertex.color=V(stepstone)$sampled, 
-     edge.color="grey60",vertex.size=3, vertex.label = NA,
+     edge.color="grey50",vertex.size=3, vertex.label = NA,
      #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
      vertex.border = V(stepstone)$sector)
-# 
+#island
+plot(island,layout=hi_islands, edge.arrow.size=0.3, edge.curved=0.4, 
+     vertex.color=V(island)$sampled, edge.color = "grey90",vertex.frame.color = NA,
+     vertex.size=3,vertex.label=NA,vertex.shape="csquare")
+
+
 plot(stepstone,layout=hi_islands, edge.arrow.size=0.3, edge.curved=0.3, vertex.label=V(stepstone)$label, vertex.color=V(stepstone)$sector, edge.color="gray",vertex.label.cex=0.7,vertex.size=8, vertex.shape="csquare")
 
 

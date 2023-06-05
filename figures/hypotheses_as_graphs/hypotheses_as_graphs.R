@@ -7,6 +7,9 @@ nodes<-read.csv("./figures/hypotheses_as_graphs/hawaii_vertices.csv")
 
 stepedges<-read.csv("./figures/hypotheses_as_graphs/step_edges.csv",header=F)
 colrs<-c("black","gray50")
+stepedgesNS<-read.csv("./figures/hypotheses_as_graphs/step_edges_NtoS.csv",header=F)
+
+
 
 #island model make all possible connections
 
@@ -24,7 +27,9 @@ hi_islands<-as.matrix(nodes[,c("long","lat")])
 
 
 #make a stepping-stone model
-stepstone<-graph_from_data_frame(d=stepedges,vertices=nodes,directed=T)
+stepstone <- graph_from_data_frame(d=stepedges,vertices=nodes,directed=T)
+
+divergence <- graph_from_data_frame(d=stepedgesNS,vertices = nodes, directed=T)
 
 #panmixia
 plot(stepstone,layout=hi_islands, edge.arrow.size=0.3, 
@@ -41,8 +46,8 @@ plot(stepstone,layout=hi_islands, edge.arrow.size=0.3,
      vertex.frame.color =NA)
 
 #divergence
-plot(stepstone,layout=hi_islands, edge.arrow.size=0.6, edge.width = 3, edge.lty = 6,
-     edge.curved=3, vertex.color=V(stepstone)$sampled, 
+plot(divergence,layout=hi_islands, edge.arrow.size=0.6, edge.width = 3, edge.lty = 1,
+     edge.curved=1, vertex.color=V(stepstone)$sampled, 
      edge.color="grey50",vertex.size=3, vertex.label = NA,
      #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
      vertex.border = V(stepstone)$sector)

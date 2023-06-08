@@ -18,6 +18,7 @@ library(tidyverse)
 library(ape)
 library(phangorn)
 library(pegas)
+library(adegenet)
 #library(strataG)
 library(knitr)
 library(emoji)
@@ -29,6 +30,7 @@ library(spatstat.explore)
 library(colorspace)
 library(latex2exp)
 library(ggridges)
+library(raster)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -131,6 +133,89 @@ gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output 
 
 
 gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
+```
+
+## Isolation by Distance
+
+I'm going to use the pairwise Fst values reported by 'Ale'a in a quick IBD plot. Here I'm importing the Fst and calculating the great-circle distances.
+
+```{r}
+fst<-read_csv("figures/FST_table.csv")
+fst <- as.dist(fst[,2:10])
+fst <- fst / (1-fst) #linearize it
+islands <- read_csv("figures/hypotheses_as_graphs/hawaii_vertices.csv")
+islands <- islands[rev(row.names(islands)),] %>% filter(sampled == "black")
+gcdist <-  as.dist(pointDistance(islands[,8:7], lonlat=T)/1000)
+
+attr(gcdist, "Labels") <- islands$label
+attr(fst, "Labels") <- islands$label
+
+#write.csv(as.matrix(fst), "figures/linearizedFst.csv", row.names = F, quote=F)
+#write.csv(as.matrix(gcdist), "figures/gcdists.csv", row.names = F, quote=F)
+
+```
+
+Here's the IBD plot
+```{r}
+mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
+
+#trying to keep the population labels
+test <- tibble(distance=melt(as.matrix(gcdist), varnames = c("row", "col")),
+                    fst=melt(as.matrix(gcdist)))
+
+distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst), label =as.vector(attr(fst, "Labels")))
+
+lmodel <- lm(fst ~ distance , distances)
+
+slope <- round(lmodel$coefficients[2],7)
+mantelr <- round(mantelt$obs, 2)
+pvalue <- round(mantelt$pvalue, 5)
+
+lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
+              geom_point() + 
+                          geom_smooth(method=lm) + 
+                          xlab("Geographic Distance (km)") + 
+             ylab(expression(F["ST"]/1-F["ST"])) + 
+             geom_text(label = paste("m =", slope, 
+                          "; Mantel r =", mantelr,
+                         ", p =", pvalue ), 
+                  mapping = aes(x = 500, y = -0.002))
+
+lmodel_plot
+
+```
+But let's remove Oahu because we know there has been contact between this population and the NWHI via the Navy.
+
+```{r}
+
+fst <- as.matrix(fst)
+fst <- fst[-4,-4] %>% as.dist()
+
+gcdist <- as.matrix(gcdist)
+gcdist <- gcdist[-4,-4] %>% as.dist()
+
+mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
+
+distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst))
+
+lmodel <- lm(fst ~ distance , distances)
+
+slope <- round(lmodel$coefficients[2],7)
+mantelr <- round(mantelt$obs, 2)
+pvalue <- round(mantelt$pvalue, 5)
+
+lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
+              geom_point() + 
+                          geom_smooth(method=lm) + 
+                          xlab("Geographic Distance (km)") + 
+             ylab(expression(F["ST"]/1-F["ST"])) + 
+             geom_text(label = paste("m =", slope, 
+                          "; Mantel r =", mantelr,
+                         ", p =", pvalue ), 
+                  mapping = aes(x = 500, y = -0.002))
+
+lmodel_plot
+
 ```
 
 # Haplotypes from dDocent

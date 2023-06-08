@@ -39,4 +39,5 @@ vignettes/*.pdf
 .Renviron'
 
 #
-*.pdf
+#*.pdf
+ggmcmc*.pdf

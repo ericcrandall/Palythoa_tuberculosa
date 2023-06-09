@@ -31,6 +31,7 @@ library(colorspace)
 library(latex2exp)
 library(ggridges)
 library(raster)
+library(reshape2)
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -1657,7 +1658,7 @@ rsync -av --progress run4.6/ run4/
 
 ```{r likelihoods3, message=F, results='hide'}
 #runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4"
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:30){
@@ -1686,7 +1687,7 @@ final_model
 
 The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
 
-```{r, eval = F}
+```{r eval = F}
 top.choice <- final_model$model[which(final_model$choice ==1)]
 second.choice <- final_model$model[which(final_model$choice ==2)]
 
@@ -1743,13 +1744,13 @@ Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 l
 rsync -av -e ssh --exclude='bayesfile*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.71 ./run4.7_full
 ```
 
-### Results
+## Final Model Selection Results
 
 #### Model Marginal Likelihoods
 
 ```{r likelihoods4, message=F, results='hide'}
 
-runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.7"
 
 likelist <- list()
 for(r in 1:10){
@@ -1829,9 +1830,9 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 
 ### Read in the posteriors and make a labeling key
 
-```{r, eval = T}
+```{r}
 #
-Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
+Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.7"
       
 winningModel <- "stepping.stone.KO.D"
 
@@ -2124,10 +2125,10 @@ ggplot(densum_long, aes(x = x, y = y, group = yplot, color = yplot)) +
 
 These functions are for reconstructing distributions from the `bayesfile` which consists of distributions for each locus calculated as histograms 
 
-```{r}
+```{r, eval = F}
 bayesfilenames <- c("Locus","pnumber","HPC50","HPC95","value","count",
                     "freq","cumFreq","priorFreq")
-DirB <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.6"
+DirB <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.6"
 bf <- read_table(file = file.path(DirB,paste0("rep",1),winningModel,
                                       "bayesfile"), 
                              col_types = "ifiiddddd", col_names = bayesfilenames,
@@ -2160,7 +2161,7 @@ names(parameter_number_key) <- parameter_number_table$pnumber
 ```
 
 
-```{r}
+```{r, eval = F}
 bf %>% filter(pnumber %in% 1:9) %>% filter(Locus == 110) %>% 
       ggplot(aes(x = value, y = freq, color = pnumber)) + geom_line() +
       scale_color_brewer(palette = "YlGnBu", labels = parameter_number_key) +

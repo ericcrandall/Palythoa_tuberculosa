@@ -1,0 +1,3 @@
+﻿Population,SampSize,Pcrit,Weighted Mean,Ind. Alleles,r^2  ,Exp(r^2),Ne  ,Low_Parametric,High_Parametric,Low_Jacknife,High_Jacknife,Eff.df
+High,62,0.02,55.8,29081404,0.020283,0.01884,228.9,227.3,230.6,151.5,440.7,6300
+Low,31,0.02,28.7,19598953,0.039961,0.03859,223,219,227.2,85.8,  Infinite,2879

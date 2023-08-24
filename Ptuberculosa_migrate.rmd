@@ -33,6 +33,8 @@ library(ggridges)
 library(raster)
 library(reshape2)
 library(snpR)
+library(graph4lg)
+source("../IBD_Kernels/IBD_functions.R")
 
 # Function library
 harvest.model.likelihoods <- function(workingDir = workingDir,
@@ -142,7 +144,7 @@ gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder 
 I'm going to use the pairwise Fst values reported by 'Ale'a in a quick IBD plot. Here I'm importing the Fst and calculating the great-circle distances.
 
 ```{r}
-fst<-read_csv("figures/FST_table.csv")
+fst <- read_csv("figures/FST_table.csv")
 fst <- as.dist(fst[,2:10])
 fst <- fst / (1-fst) #linearize it
 islands <- read_csv("figures/hypotheses_as_graphs/hawaii_vertices.csv")
@@ -3176,174 +3178,4 @@ Divergence time in coalescent units, following along on page 25 here. @beerliPop
 t <- tau / 1.2e-8
 ```
 
-# Isolation By Distance Analysis
 
-Ok, so I am dying to know if these small Nm values between Hawaiian islands are consistent with $\sigma$ estimated with the Rousset/Pinsky IBD method. So I'm going to take the working file of 26,111 SNPs that 'Ale'a used and use that for the IBD analysis
-
-## Load the Data
-
-I'm goingt to use Will Hemstrom's new snpR package for the basic stats. It attaches sample metadata as "facets" to the datasets
-
-```{r}
-snps<-read_vcf("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/mm0.9minq30mac3thin500.recode.vcf")
-
-labels <- read_tsv("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/labels.txt") %>% arrange(name) %>% mutate(island)
-
-sample.meta(snps)$pop <- str_replace_all(labels$island," ","_")
-
-```
-
-## Calculate Distance Matrices
-
-### Calculate Fst
-
-Calculate Fst ($\theta_{WC}$) of Weir and Cockerham.
-
-```{r, eval = F}
-snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = T,verbose=T)
-fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop
-#add extra row and column to the data frame, then make it a square matrix
-fst <- tibble(fst) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
-fst <- as.matrix(fst[,2:11])
-#set diagonal equal to zero
-diag(fst) <- 0
-#make the matrix symmetrical
-fst[lower.tri(fst)] <- t(fst)[lower.tri(fst)]
-dimnames(fst)[[1]] <- dimnames(fst)[[2]]
-#reorder and also drop pioneer banks, which has n = 3
-fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
-fst_dist <- as.dist(t(fst), diag = T)
-#linearize
-fst_dist <- fst_dist/(1-fst_dist)
-
-#fst_pairwise <- get.snpR.stats(snps,facets = "pop",stats = "fst")$weighted.means  %>% 
-#                  separate(subfacet,into=c("from","to"), sep = "~")
-#fst2 <- fst_pairwise %>% spread(to,weighted_mean_fst, fill = NA)
-
-#write.csv(as.matrix(fst_dist), "IBD/Ptuberculosa_linearizedFst.csv", row.names = F, quote=F)
-```
-
-### Calculate Geographic Distance
-
-```{r, eval = F}
-
-localities <- read_csv("./figures/hypotheses_as_graphs/hawaii_vertices.csv") %>% 
-                filter(sampled == "black")
-gcdists <- as.dist(pointDistance(localities[,c(8,7)], lonlat=T)/1000)
-attr(gcdists, "Labels") <- dimnames(fst)[[1]]
-
-#write.csv(as.matrix(gcdists), "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv", row.names = F, quote=F)
-
-```
-
-### Read Matrices Back In
-
-```{r}
-#read in the two distance matrices that were created above
-gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_linearizedFst.csv") 
-                               
-geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
-
-# convert to distance matrix
-geo.dist <- as.dist(geo.dist.mat)
-gen.dist <- as.dist(gen.dist.mat)
-
-gen.df <- melt(as.matrix(gen.dist), varnames = c("row", "col")) %>% 
-                    filter(value %in% as.matrix(gen.fst)[lower.tri(gen.dist)]) %>% 
-                    distinct(value, .keep_all=T)
-geo.df <- melt(as.matrix(geo.dist), varnames = c("row", "col")) %>% rename(value = distance)
-
-dist.df <- gen.df %>% left_join(geo.df, by=c("row","col")) %>% rename(fst = value.x, distance = value.y)
-
-
-
-```
-
-## Create Dispersal Kernel
-
-Following Rousset's [-@roussetGeneticDifferentiationEstimation1997] equation:
-
-$$
-\frac{1}{m} = 4D_e\sigma^2
-$$
-
-Which [@pinskyMarineDispersalScales2017] re-arranged to give:
-
-$$
-\sigma = \sqrt{\frac{1}{4D_em}}
-$$
-
-Where $D_e = \frac{N_e}{geog.dist}$ is effective density and m is the slope of the relationship between $\frac{F_{st}}{1 - F_{st}}$ and geographic distance. $\sigma$ is standard deviation of offspring-parent distance. So we need to calculate $N_e$ and $m$.
-
-### Calculate linear model
-
-First to get the slope $m$ we need to make a simple linear model, calculating significance with a Mantel test. Because we have clear evidence of recent genetic exchange between Oahu and Kure (Midway) I'm going to take a closer look at those points with `gghighlight()`.
-
-```{r IBD}
-# Oahu has this weird negative slope with distance! Probably due to naval activity
-ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point() + geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
-                ylab(expression(F["ST"]/1-F["ST"])) + 
-                geom_text(label = paste("m =", slope, 
-                                        "; Mantel r =", mantelr,
-                                        ", p =", pvalue ), 
-                          mapping = aes(x = 1000, y = 0.04)) +
-            gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T)
-
-ibd_plot_oahu
-
-# Kure has a positive, slightly steeper slope
-ibd_plot_kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point() + geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
-                ylab(expression(F["ST"]/1-F["ST"])) + 
-                geom_text(label = paste("m =", slope, 
-                                        "; Mantel r =", mantelr,
-                                        ", p =", pvalue ), 
-                          mapping = aes(x = 1000, y = 0.04)) +
-            gghighlight(row == "Kure" | col == "Kure", keep_scales = T)
-
-ibd_plot_kure
-```
-
-So we'll remove Oahu from these distance matrices
-
-```{r}
-# Remove Oahu related distances
-dist.df <- dist.df %>% filter(row != "Oahu" & col != "Oahu")
-gen.dist.mat <- gen.dist.mat[-4,-4]
-geo.dist.mat <- geo.dist.mat[-4,-4]
-geo.dist <- as.dist(geo.dist.mat)
-gen.dist <- as.dist(gen.dist.mat)
-
-#pull out a few other distances we'll need
-neighbordists <- geo.dist.mat[row(geo.dist.mat) == col(geo.dist.mat) + 1]
-distfromP1 <- geo.dist.mat[,1]
-maxdist <- max(geo.dist.mat)
-meandist <- mean(neighbordists)
-
-# mantel test
-mantel <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
-
-#distances <- tibble(distance=as.vector(geo.dist),fst=as.vector(gen.fst))
-
-ibd_lm <- lm(fst ~ distance , dist.df)
-
-slope <- round(ibd_lm$coefficients[2],7)
-mantelr <- round(mantel$obs, 2)
-pvalue <- round(mantel$pvalue, 5)
-
-
-ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point() + geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
-                ylab(expression(F["ST"]/1-F["ST"])) + 
-                geom_text(label = paste("m =", slope, 
-                                        "; Mantel r =", mantelr,
-                                        ", p =", pvalue ), 
-                          mapping = aes(x = 1000, y = 0.04)) 
-
-ibd_plot
-#ggsave("IBD/palythoa_IBD_noOahu.pdf", plot=ibd_plot,device="pdf", width=7, height=5,units="in")
-
-```
-
-# Literature Cited

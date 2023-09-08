@@ -183,7 +183,7 @@ lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
              geom_text(label = paste("m =", slope, 
                           "; Mantel r =", mantelr,
                          ", p =", pvalue ), 
-                  mapping = aes(x = 500, y = -0.002))
+                  mapping = aes(x = 700, y = -0.002))
 
 lmodel_plot
 
@@ -216,7 +216,7 @@ lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
              geom_text(label = paste("m =", slope, 
                           "; Mantel r =", mantelr,
                          ", p =", pvalue ), 
-                  mapping = aes(x = 500, y = -0.002))
+                  mapping = aes(x = 700, y = -0.002))
 
 lmodel_plot
 
@@ -1087,7 +1087,7 @@ Prior on m was too wide, giving results like this:
 
 ### Results
 
-![Wide Priors on m](./figures/wide_priors.jpg)
+![Wide Priors on m](./figures/stepping.stone.KO.D/wide_priors.jpg)
 No bueno.
 
 ## Test Run 2
@@ -1199,11 +1199,9 @@ allstats<-cbind(summ$statistics[,1:2],HPD,ess,gelman$psrf)
 
 ```
 
-## First Analysis Run
+## Models
 
-'Ale'a and I settled on the following models
-
-### Models
+'Ale'a and I settled on the following initial models
 
 ```{bash eval = F}
 
@@ -1236,12 +1234,12 @@ custom-migration=
 #Stepping-Stone	(stepping.stone)				
 population-relabel={1 2 3 4 5 6 7 8 9}								
 	Pop_Kure 	                *	*	0	0	0	0	0	0	0
-	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_P&H	                  *	*	0	0	0	0	0	0	0
 	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
-	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0	0	0
 	Pop_Kauai	                0	0	0	*	*	*	0	0	0
 	Pop_Oahu	                0	0	0	0	*	*	*	0	0
-	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Molokai	              0	0	0	0	0	*	*	*	0
 	Pop_Maui	                0	0	0	0	0	0	*	*	*
 	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 								
@@ -1253,12 +1251,12 @@ population-relabel={1 2 3 4 5 6 7 8 9}
 population-relabel={1 2 3 4 5 1 7 8 9}								
 custom-migration=	
 	Pop_Kure 	                *	*	0	0	0	0	*	0	0
-	Pop_P&H	                    *	*	0	0	0	0	0	0	0
+	Pop_P&H	                  *	*	0	0	0	0	0	0	0
 	Pop_MaroReef	            0	*	*	*	0	0	0	0	0
-	Pop_FFS	                    0	0	*	*	*	0	0	0	0
+	Pop_FFS	                  0	0	*	*	*	0	0	0	0
 	Pop_Kauai	                0	0	0	*	*	*	0	0	0
 	Pop_Oahu	                *	0	0	0	*	*	*	0	0
-	Pop_Molokai	                0	0	0	0	0	*	*	*	0
+	Pop_Molokai	              0	0	0	0	0	*	*	*	0
 	Pop_Maui	                0	0	0	0	0	0	*	*	*
 	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 								
@@ -1306,102 +1304,6 @@ custom-migration=
 
 I also turned menu = NO, and replicate=YES:3.
 
-
-### Bash Script
-
-So we will do 10 replicates of 3 replicates.  This will start at r1, and run all models for that before moving on. Pretty sure this will finish one whole model before moving on to the next one (since all threads are being used for different loci)
-
-
-```{bash eval = F}
-#!
-for r in */
-	do
-		cd $r
-		echo $r
-		date
-		date > date.txt
-			for m in */
-			  do
-				cd $m
-				  date > date.txt
-				  echo $m
-				  date
-				  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
-				  sleep 1
-				cd ..
-			  done
-		cd ..
-	done
-```
-
-### Copy It Up
-Copy it up, and then make a total of 10 replicate copies of the folder.
-
-```{bash eval = F}
-scp -r ./run4 ecrandall@nautilus.psu.edu:./Ptuberculosa/run4/r1    
-
-#once on server, copy it 9 times
-for a in $(seq 2 10); do cp -r rep1 rep$a; done
-
-```
-
-### And back down
-
-And ten replicates finished in about 10 days! Found [this guide](https://www.cyberciti.biz/faq/scp-exclude-files-when-using-command-recursively-on-unix-linux/) to download everything except the massive bayesallfiles and pdfs
-
-```{bash eval = F}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4 ./
-
-rsync -av -e ssh --exclude='bayes*'  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4/rep1/stepping.stone.all ./stepping.stone.KO.all
-
-```
-
-### Results
-
-#### Model Marginal Likelihoods
-
-```{r likelihoods, message=F, results='hide'}
-runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-#runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
-
-likelist <- list()
-for(r in 1:10){
-  rep = paste0("rep",r)
-  print(rep)
-  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
-}
-
-# Model selection for each replicate...
-likelist %>% map(bfcalcs)
-```
-The final model marginal likelihood estimates based on the mean of 10 replicates:
-
-```{r}
-like.df <-  likelist %>% bind_rows() %>% group_by(model)
-
-means <- like.df %>% summarize(bezier.corrected = mean(bezier.corrected))
-  
-
-final_model <- bfcalcs(means)
-
-final_model
-```
-
-#### T-Test
-
-Difference between stepping.stone and stepping.stone.KO is very significant. `r emoji("happy")`
-
-```{r eval = F}
-top.choice <- final_model$model[which(final_model$choice ==1)]
-second.choice <- final_model$model[which(final_model$choice ==2)]
-
-permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
-       like.df$bezier.corrected[which(like.df$model == second.choice)],
-       alternative = "greater", method = "exact.ce")
-```
-
-
-
 #### Gene Flow between Oahu and Kure
 
 There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Also, the stepping.stone.breaks.KO is much better than just stepping.stone.breaks. This suggests that a divergence parameter for these two populations is in order.
@@ -1411,7 +1313,7 @@ There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Als
 
 ![Gene Flow from Kure to Oahu](figures/Ptuberculosa_Kure_to_Oahu.jpg)
 
-## What about one way gene flow?
+### What about one way gene flow?
 
 Stepping.stone.KO.oneway
 ```{}
@@ -1432,63 +1334,11 @@ custom-migration={
 
 ```
 
-### More Replicates
-
-Going to add more replicates of stepping.stone.KO and stepping.stone.KO.oneway
-
-```{bash eval =F}
-for a in $(seq 12 30); do cp -r rep11 rep$a; done
-```
-
-### Copy It Down
-
-```{bash eval = F}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  ecrandall@nautilus.psu.edu:~/Ptuberculosa/run4.2 ./   
-```
-
-### Results
-
-#### Model Marginal Likelihoods
-
-```{r likelihoods2, message=F, results='hide'}
-runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-#runDir <-   "/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
-
-likelist <- list()
-for(r in 1:30){
-  rep = paste0("rep",r)
-  print(rep)
-  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
-}
-
-# Model selection for each replicate...
-#likelist %>% map(bfcalcs)
-```
-
-
-The final model marginal likelihood estimates based on the mean of 30 replicates:
-
-```{r}
-like.df <-  likelist %>% bind_rows() %>% group_by(model)
-
-means <- like.df %>% summarize(bezier.corrected = mean(bezier.corrected))
-  
-
-final_model <- bfcalcs(means)
-
-final_model
-
-```
-This time stepping stone with two-way Kure-Oahu connection beats out the one way connection
-
-
-
-
-## Adding divergence models
+### Adding divergence models
 
 [Peter says you **can** mix \* with d parameters](https://groups.google.com/g/migrate-support/c/49njPlwp62E/m/xzy4DkU9AwAJ), and I tested it and it worked! Based on these results I'm going to add a model of one way ongoing migration from Oahu to Kure, and another model of divergence from Oahu to Kure about 80 years ago with no subsequent gene flow, and finally, divergence plus migration between Oahu to Kure.
 
-### stepping.stone.KO.D
+#### stepping.stone.KO.D
 
 Equilibrium Gene Flow, but divergence with gene flow from Oahu to Kure
 
@@ -1509,7 +1359,7 @@ custom-migration=
 	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 ```
 
-### stepping.stone.KOd
+#### stepping.stone.KOd
 
 Equilibrium Gene Flow, but divergence without gene flow from Oahu to Kure
 
@@ -1530,7 +1380,7 @@ custom-migration=
 	Pop_BigIsland	            0	0	0	0	0	0	0	*	*
 ```
 
-### stepping.stone.splitsD
+#### stepping.stone.splitsD
 
 North to South Divergence with migration
 
@@ -1547,7 +1397,7 @@ D	*	0	0	0	0	0	0	0
 0	0	0	0	0	0	0	D	*
 ```
 
-### stepping.stone.splits.d
+#### stepping.stone.splits.d
 
 North to South Divergence without migration
 
@@ -1563,7 +1413,7 @@ d	*	0	0	0	0	0	0	0
 0	0	0	0	0	0	0	d	*
 ```
 
-### stepping.stone.splitsD.KOsplitD
+#### stepping.stone.splitsD.KOsplitD
 
 Here, population 1 isn't born until it splits from population 6. I'm having trouble setting an individual prior for a very young divergence from 6 to 1- apparently I found a bug- Peter is fixing it.
 
@@ -1580,7 +1430,7 @@ Here, population 1 isn't born until it splits from population 6. I'm having trou
 ```
 
 
-### Priors
+#### Priors
 
 And we need to add reasonable priors on divergence time to match the foundation of [Naval Air Station Midway in 1941](https://en.wikipedia.org/wiki/Naval_Air_Facility_Midway_Island), with a standard deviation of say 20 years because it was placed under Navy control in 1903. Splitting times $\tau$ in [Migrate](https://groups.google.com/g/migrate-support/c/49njPlwp62E/m/xzy4DkU9AwAJ) are in units of $\mu$ x generations. I will assume a nuclear mutation rate of 1e-9 and a generation time of 1 year. Peter confirmed 
 
@@ -1622,7 +1472,7 @@ bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 ```
 
-### Copy It Up
+#### Copy It Up
 
 Copy it up, and then make a total of 10 replicate copies of the folder.
 
@@ -1637,7 +1487,7 @@ cd rep1
 for a in $(seq 2 10); do cp -r rep1 rep$a; done
 ```
 
-### And Back down
+#### And Back down
 
 ```{bash eval = F}
 
@@ -1655,105 +1505,42 @@ rsync -av --progress run4.6/ run4/
 ```
 
 
-### Results
+### Bash Script
+
+So we will do 10 replicates of 3 replicates.  This will start at r1, and run all models for that before moving on. Pretty sure this will finish one whole model before moving on to the next one (since all threads are being used for different loci)
+
+
+```{bash eval = F}
+#!
+for r in */
+	do
+		cd $r
+		echo $r
+		date
+		date > date.txt
+			for m in */
+			  do
+				cd $m
+				  date > date.txt
+				  echo $m
+				  date
+				  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+				  sleep 1
+				cd ..
+			  done
+		cd ..
+	done
+```
+
+
+
+## Results
 
 #### Model Marginal Likelihoods
 
-```{r likelihoods3, message=F, results='hide'}
-#runDir <- "/Volumes/GoogleDrive/My Drive/ptuberculosa/migrate/run4"
-runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4"
-
-likelist <- list()
-for(r in 1:30){
-  rep = paste0("rep",r)
-  print(rep)
-  likelist[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
-}
-
-# Model selection for each replicate...
-likelist %>% map(bfcalcs)
-```
-The final model marginal likelihood estimates based on the mean of 10 replicates:
-
-```{r}
-like.df <-  likelist %>% bind_rows() %>% group_by(model)
-
-means <- like.df %>% summarize(bezier.corrected = mean(bezier.corrected))
-  
-
-final_model <- bfcalcs(means)
-
-final_model
-```
-
-#### T-Test
-
-The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
-
-```{r eval = F}
-top.choice <- final_model$model[which(final_model$choice ==1)]
-second.choice <- final_model$model[which(final_model$choice ==2)]
-
-TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
-       like.df$bezier.corrected[which(like.df$model == second.choice)],
-       alternative = "greater")
-
-TS
-
-```
-
-#### Figures
-
-And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
-
-```{r}
-
-models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "SS: Islands",
-            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
-            "SS: Islands, OK 2way", 
-            "SS: Islands, O2K Colonization with GF", 
-            "SS: Islands, O2K 1 way", 
-            "SS: Islands, O2K Colonization without GF",
-            "Seq Div: No GF","Seq Div: GF",
-            "Seq Div: GF, O2K Colonization without GF")
-
-likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
-              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
-              geom_violin(draw_quantiles = 0.5) +
-              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-              scale_x_discrete(labels = models) +
-              labs(x = "Metapopulation Model", 
-                   y = "Bezier Corrected Marginal Likelihood")
-likesPlot
-```
-
-Zoom in on the top two models
-
-```{r}
-
-likesPlot_zoom <- likesPlot + ylim(-69400, -54000) + geom_point()
-
-likesPlot_zoom
-
-```
-
-## Rerun the two top models
-
-Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
-
-### Copy it down
-
-```{bash, eval =F}
-rsync -av -e ssh --exclude='bayesfile*' --exclude="*.pdf"  eric@threadripper.tobolab.org:~/Palythoa/run4.71 ./run4.7_full
-```
-
-## Final Model Selection Results
-
-#### Model Marginal Likelihoods
-
-```{r likelihoods4, message=F, results='hide'}
-
-runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.7"
+```{r likelihoods, message=F, results='hide'}
+runDir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4"
+#runDir <-"/Volumes/GoogleDrive-103325533945714033178/My Drive/ptuberculosa/migrate/run4"
 
 likelist <- list()
 for(r in 1:10){
@@ -1778,16 +1565,92 @@ final_model <- bfcalcs(means)
 final_model
 ```
 
+
+### Figures
+
+And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
+
+```{r}
+
+models <- c("N-Island", "NWHI vs. MHI"," Panmixia", "SS: Islands",
+            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
+            "SS: Islands, OK 2way", 
+            "SS: Islands, O2K Colonization with GF",
+            "SS: Islands, O2K Colonization without GF",
+            "Seq Div: No GF","Seq Div: GF",
+            "Seq Div: GF, O2K Colonization without GF")
+
+model_letters <- c("B", "C"," A", "D","G", "H",
+                    "F", "L", "M", "I","J","K")
+model_letters <- rep(model_letters,10)
+
+likesPlot <- likelist %>% bind_rows() %>% 
+              group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+              scale_x_discrete(labels = models) +
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood")
+likesPlot
+
+likesPlot_letters <- likelist %>% bind_rows() %>% 
+                      bind_cols(model_letters=model_letters) %>% 
+                      group_by(model_letters) %>% 
+                      ggplot(mapping = aes(x=model_letters, y = bezier.corrected)) +
+                      geom_violin(draw_quantiles = 0.5) +
+                      labs(x = "Metapopulation Model", 
+                      y = "Bezier Corrected Marginal Likelihood")
+
+ggsave("figures/final_figures/MarginalLikelihoodsPlot.pdf", likesPlot_letters)
+```
+
+
+## Rerun the three top models
+
+Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
+
+## Final Model Selection Results
+
+#### Model Marginal Likelihoods
+
+```{r likelihoods4, message=F, results='hide'}
+
+runDir <-"/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.7"
+
+likelist2 <- list()
+for(r in 1:10){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist2[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist2 %>% map(bfcalcs)
+```
+The final model marginal likelihood estimates based on the mean of 10 replicates:
+
+```{r}
+like2.df <-  likelist2 %>% bind_rows() %>% group_by(model)
+
+means2 <- like2.df %>% summarize(bezier.corrected = mean(bezier.corrected))
+  
+
+final_model2 <- bfcalcs(means2)
+
+final_model2
+```
+
 #### T-Test
 
 The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
 
 ```{r eval = F}
-top.choice <- final_model$model[which(final_model$choice ==1)]
-second.choice <- final_model$model[which(final_model$choice ==2)]
+top.choice <- final_model2$model[which(final_model2$choice ==1)]
+second.choice <- final_model2$model[which(final_model2$choice ==2)]
 
-TS <- permTS(like.df$bezier.corrected[which(like.df$model == top.choice)],
-       like.df$bezier.corrected[which(like.df$model == second.choice)],
+TS <- permTS(like2.df$bezier.corrected[which(like2.df$model == top.choice)],
+       like2.df$bezier.corrected[which(like2.df$model == second.choice)],
        alternative = "greater")
 
 TS
@@ -1800,11 +1663,13 @@ And some figures summarizing all this. The two best models are equilibrium model
 
 ```{r}
 
-models <- c("SS: Islands, OK 2way", 
-            "SS: Islands, O2K Colonization with GF", 
+models <- c("SS: Islands, O2K Colonization with GF", 
             "SS: Islands, O2K Colonization without GF")
 
-likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>% 
+model_letters2 <- c("L","M")
+
+likesPlot2 <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>% 
+              group_by(model) %>% 
               ggplot(mapping = aes(x=model, y = bezier.corrected)) +
               geom_violin(draw_quantiles = 0.5) +
               theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -1812,9 +1677,20 @@ likesPlot <- likelist %>% bind_rows() %>% group_by(model) %>%
               labs(x = "Metapopulation Model", 
                    y = "Bezier Corrected Marginal Likelihood") +
               ylim(-50000,-45000)
-likesPlot
+likesPlot2
 
-winningModel <- "stepping.stone.KO.D"
+likesPlot2_letters <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>%
+              group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              scale_x_discrete(labels = model_letters2) +
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood") +
+              ylim(-50000,-45000)
+
+likesPlot2
+
+
 ```
 
 
@@ -1852,10 +1728,10 @@ for(r in 1:2){
 posteriors12 <- posteriors %>% bind_rows(.id = "rep") %>% 
                                 filter(rep <= 2) %>% migrants.per.gen()
 
-#posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_", 
-#                                                           "Nm_","D_","d_")),
-#                                                    names_to = "parameter",
-#                                                    values_to = "value") 
+posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_", 
+                                                           "Nm_","D_","d_")),
+                                                    names_to = "parameter",
+                                                    values_to = "value") 
 
 
 # read in a population key to translate numbers into names in figures
@@ -2036,7 +1912,7 @@ Theta_plot
 Proportion of migrants relative to mutation rate $\frac{m}{\mu}$ 
 
 ```{r, eval = F, fig.dim = c(12, 9)}
-M_plot <- posterior_long %>%  
+M_plot <- posteriors12_long %>%  
           filter(str_detect(parameter, "M_")) %>%  
           ggplot() + 
           geom_density(mapping = aes(x = value, 
@@ -2055,7 +1931,7 @@ M_plot
 Migrants per generation $4N_em$
 
 ```{r, eval = F, fig.dim = c(12, 9)}
-Nm_plot <- posterior_long %>%  
+Nm_plot <- posteriors12_long %>%  
           filter(str_detect(parameter, "Nm_")) %>%  
           ggplot() + 
           geom_density(mapping = aes(x = value, group=Locus, color
@@ -2660,7 +2536,7 @@ D61stats <- read.csv("./tables/stepping.stone.KO.D/D_6_1_stats.csv")
 D61stats
 ```
 
-Divergence time in coalescent units (working from page 25 of )
+Divergence time in coalescent units following along on page 25 here. @beerliPopulationGeneticInference2019
 
 ```{r}
 tau <- 5.951109e-04 / (0.00767+0.00569)

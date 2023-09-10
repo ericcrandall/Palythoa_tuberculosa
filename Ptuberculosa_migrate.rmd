@@ -1688,8 +1688,6 @@ likesPlot2_letters <- likelist2 %>% bind_rows() %>% filter(model != "stepping.st
                    y = "Bezier Corrected Marginal Likelihood") +
               ylim(-50000,-45000)
 
-likesPlot2
-
 
 ```
 
@@ -2126,7 +2124,7 @@ summarize_posterior <- function(posterior,
   # create a tibble with the x values for all density plots 
   #  for a particular parameter type
   getx <- posterior %>% filter(Locus == 1) %>% 
-        select(parameters[1])
+        dplyr::select(parameters[1])
 
   # create a tibble with x values for a density plot
   #  of the chosen number of points
@@ -2259,6 +2257,18 @@ thetas_violins <- ggplot(thetas_long, aes(x = Parameter, y = x,
 theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
                                                              parameter = .x),
                                       .id = "parameter")
+
+# write_csv(theta_stats, "tables/stepping.stone.KO.D/theta_stats.csv")
+# 
+# ggsave("figures/stepping.stone.KO.D/thetas_density.jpg",thetas_density)
+# ggsave("figures/stepping.stone.KO.D/thetas_ridges.jpg",thetas_ridges)
+# ggsave("figures/stepping.stone.KO.D/thetas_violins.jpg",thetas_violins)
+# 
+# ggsave("figures/stepping.stone.KO.D/thetas_density.pdf",thetas_density)
+# ggsave("figures/stepping.stone.KO.D/thetas_ridges.pdf",thetas_ridges)
+# ggsave("figures/stepping.stone.KO.D/thetas_violins.pdf",thetas_violins)
+#https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
+#to make multipanel figures
 ```
 
 Theta estimates:
@@ -2327,6 +2337,17 @@ M_violins <- ggplot(Ms_long, aes(x = Parameter, y = x, violinwidth = Density,
 Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
                                                              parameter = .x),
                                       .id = "parameter")
+
+# write_csv(Ms_stats, "tables/stepping.stone.KO.D/Mmu_stats.csv")
+# 
+# ggsave("figures/stepping.stone.KO.D/Mmu_density.jpg",Ms_density)
+# ggsave("figures/stepping.stone.KO.D/Mmu_ridges.jpg",M_ridges)
+# ggsave("figures/stepping.stone.KO.D/Mmu_violins.jpg",M_violins)
+# 
+# ggsave("figures/stepping.stone.KO.D/Mmu_density.pdf",Ms_density)
+# ggsave("figures/stepping.stone.KO.D/Mmu_ridges.pdf",M_ridges)
+# ggsave("figures/stepping.stone.KO.D/Mmu_violins.pdf",M_violins)
+
 ```
 
 
@@ -2395,6 +2416,16 @@ nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*2
 nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
+
+# write_csv(nms_stats, "tables/stepping.stone.KO.D/4Nm_stats.csv")
+# 
+# ggsave("figures/stepping.stone.KO.D/4Nm_density.jpg",Nms_density)
+# ggsave("figures/stepping.stone.KO.D/4Nm_ridges.jpg",nm_ridges)
+# ggsave("figures/stepping.stone.KO.D/4Nm_violins.jpg",nm_violins)
+# 
+# ggsave("figures/stepping.stone.KO.D/4Nm_density.pdf",Nms_density)
+# ggsave("figures/stepping.stone.KO.D/4Nm_ridges.pdf",nm_ridges)
+# ggsave("figures/stepping.stone.KO.D/4Nm_violins.pdf",nm_violins)
 ```
 
 $4N_em$ estimates:
@@ -2474,6 +2505,10 @@ nm61stats
 This is the divergence 
 
 ```{r, eval = F}
+parameter_type <- "D"
+getx <- posteriors12 %>% filter(Locus == 1) %>% 
+     dplyr::select("D_6_1")
+
 dens <- tibble(.rows = 2^15, x = density(getx[,1],  n=2^15, 
                                       from = 0, 
                                       to = 0.0001,
@@ -2488,7 +2523,7 @@ dens2 <- posteriors12 %>%
           select(4:112) %>%
           map_dfc(function(x) density(x, n = 2^15, from = 0, to = 0.001, bw = "nrd0")$y)
 
-dens2<-bind_cols(dens,dens2)
+dens3<-bind_cols(dens,dens2)
 
 dens3$prior <- dexp(dens3$x, rate = 1/0.001,log = F)
 dens3$prior <- dens3$prior/sum(dens3$prior)
@@ -2498,14 +2533,14 @@ dens3$logPrior <- log(dens3$prior)
 dens4 <- dens3 %>%
         #remove the prior, standardize
         mutate(across(starts_with(parameter_type),~ remove_prior(densityd = .x,
-                                                                 prior = dens$prior,threshold = 1e-10) ))
-names(dens4)[1:109] <- paste0("D_6_1-",names(dens4)[1:109])
+                                           prior =dens$prior,threshold = 1e-10) ))
+names(dens4)[2:110] <- paste0("D_6_1-",names(dens4)[1:109])
 
 dens5 <- sum_over_loci(df = dens4, parameter = "D_6_1")
 
 
 #convert to long format
-D_61long <- dens5 %>% select(all_of(c("x","prior",parameters))) %>% 
+D_61long <- dens5 %>% select(all_of(c("x","prior","D_6_1"))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
                             values_to = "Density") %>% 
@@ -2520,13 +2555,18 @@ D_61density <-  ggplot(D_61long, aes(x = x, y = Density,
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") +
-        ylim(0,0.02) + xlim(0,0.001)
+        ylim(0,0.0004) + xlim(0,0.0001) + theme(legend.position = "none")
+
   
            
 
 # get stats for each summed-over-loci posterior
 
 D_61stats <-posterior_stats(df = dens5, parameter = "D_6_1")
+
+# write_csv(data.frame(D_61stats), "tables/stepping.stone.KO.D/D_6_1_stats.csv")
+# 
+# ggsave("figures/stepping.stone.KO.D/D_6_1.jpg",D_61density)
 ```
 
 ![Divergence Density](./figures/stepping.stone.KO.D/D_6_1.jpg)
@@ -2536,15 +2576,17 @@ D61stats <- read.csv("./tables/stepping.stone.KO.D/D_6_1_stats.csv")
 D61stats
 ```
 
-Divergence time in coalescent units following along on page 25 here. @beerliPopulationGeneticInference2019
+Divergence time in coalescent units following along on page 25 here. Assuming 1 year generation time @beerliPopulationGeneticInference2019
 
 ```{r}
-tau <- 5.951109e-04 / (0.00767+0.00569)
+D <- 5.970336e-05
+tau <- D / (0.00767+0.00569)
 tau
-t <- tau / 1.2e-8
+t <- D / 1.2e-8
+t
 ```
 
-
+Divergence time is estimated at `r t` years before present
 
 ### Stepping-Stone KO.d model
 
@@ -3047,11 +3089,15 @@ D61stats <- read.csv("./tables/stepping.stone.KOd/D_6_1.csv")
 D61stats
 ```
 
-Divergence time in coalescent units, following along on page 25 here. @beerliPopulationGeneticInference2019
+Divergence time in coalescent units, following along on page 25 here. Assuming a 1 year generation time. @beerliPopulationGeneticInference2019
 
 ```{r}
+d <- 6.932279e-05
+t <- d / 1.2e-8
 
-t <- tau / 1.2e-8
+t
 ```
+Divergence time is estimated at `r t` years before present
 
+# Literature Cited
 

@@ -2101,7 +2101,7 @@ sum_over_loci <- function(df,parameter){
     #drop the intermediate columns (no longer needed), change the standardized
     # output back to double precision so that it can be incorporated into the df
     # rename the summed column after the parameter
-      df3 <- df2 %>% select(-c(sum_param_prior)) %>%
+      df3 <- df2 %>% dplyr::select(-c(sum_param_prior)) %>%
           mutate(summed_over_loci =
           as.numeric(sum_param_prior_standardized)) %>% 
           rename_with(.fn = ~ paste(parameter), 
@@ -2136,12 +2136,12 @@ summarize_posterior <- function(posterior,
   print("calculating densities")
   # calculate densities for each parameter of a given type at each locus
   dens <- posterior %>% 
-          select(starts_with(c("Steps","Locus","rep",
+          dplyr::select(starts_with(c("Steps","Locus","rep",
                   paste0(parameter_type,"_")))) %>% 
           pivot_wider(names_from = "Locus", values_from = 
                   starts_with(paste0(parameter_type,"_")),
                           names_sep = "-") %>% 
-          select(starts_with(paste0(parameter_type,"_"))) %>% 
+          dplyr::select(starts_with(paste0(parameter_type,"_"))) %>% 
           map_dfc(function(x) density(x, n = n, from = 
                                     prior_params[1], 
                                     to = prior_params[3], 
@@ -2178,7 +2178,7 @@ summarize_posterior <- function(posterior,
 
 posterior_stats <- function(df,parameter){
   require(spatstat.explore)
-  p <- df %>% select(x,parameter) %>% as.list(bw = 6.33e-05)
+  p <- df %>% dplyr::select(x,parameter) %>% as.list(bw = 6.33e-05)
   names(p) <- c("x", "y")
   p$bw <- 6.33e-5
   attr(p, "class") <- "density"
@@ -2307,7 +2307,7 @@ Ms_long <- Ms %>% select(all_of(c("x","prior",parameters))) %>%
                             values_to = "Density") %>% 
 #                filter(Parameter != "M_6_1")
 
-migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))[4:18]            
 #plot
 Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
@@ -2341,14 +2341,15 @@ Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms,
 
 # write_csv(Ms_stats, "tables/stepping.stone.KO.D/Mmu_stats.csv")
 # 
-# ggsave("figures/stepping.stone.KO.D/Mmu_density.jpg",Ms_density)
-# ggsave("figures/stepping.stone.KO.D/Mmu_ridges.jpg",M_ridges)
-# ggsave("figures/stepping.stone.KO.D/Mmu_violins.jpg",M_violins)
-# 
-# ggsave("figures/stepping.stone.KO.D/Mmu_density.pdf",Ms_density)
-# ggsave("figures/stepping.stone.KO.D/Mmu_ridges.pdf",M_ridges)
-# ggsave("figures/stepping.stone.KO.D/Mmu_violins.pdf",M_violins)
+ggsave("figures/stepping.stone.KO.D/Mmu_density.jpg",Ms_density)
+ggsave("figures/stepping.stone.KO.D/Mmu_ridges.jpg",M_ridges)
+ggsave("figures/stepping.stone.KO.D/Mmu_violins.jpg",M_violins)
 
+ggsave("figures/stepping.stone.KO.D/Mmu_density.pdf",Ms_density)
+ggsave("figures/stepping.stone.KO.D/Mmu_ridges.pdf",M_ridges)
+ggsave("figures/stepping.stone.KO.D/Mmu_violins.pdf",M_violins)
+M_ridges2<-M_ridges + theme(legend.position = "none")
+ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.KO.D/", width = 10.7, height = 6.42)
 ```
 
 
@@ -2386,7 +2387,7 @@ nms_long <- nms %>% select(all_of(c("x","prior",parameters))) %>%
                             values_to = "Density") %>% 
                 filter(Parameter != "Nm_6_1")
 
-migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))[4:18]            
 #plot
 Nms_density <-  ggplot(nms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
@@ -2427,6 +2428,9 @@ nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms,
 # ggsave("figures/stepping.stone.KO.D/4Nm_density.pdf",Nms_density)
 # ggsave("figures/stepping.stone.KO.D/4Nm_ridges.pdf",nm_ridges)
 # ggsave("figures/stepping.stone.KO.D/4Nm_violins.pdf",nm_violins)
+# Nm_ridges2 <- Nm_ridges + theme(legend.position = "none")
+# ggsave("figures/stepping.stone.KO.D/4Nm_ridges.pdf",nm_ridges)
+
 ```
 
 $4N_em$ estimates:
@@ -2868,9 +2872,7 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
 #        path = "./figures/stepping.stone.KOd")
 
 # 
-# ggsave("figures/stepping.stone.KO.D/thetas_density.pdf",thetas_density)
-# ggsave("figures/stepping.stone.KO.D/thetas_ridges.pdf",thetas_ridges)
-# ggsave("figures/stepping.stone.KO.D/thetas_violins.pdf",thetas_violins)
+
 ```
 
 Theta estimates:
@@ -2908,7 +2910,8 @@ Ms_long <- Ms %>% select(all_of(c("x","prior",parameters))) %>%
                             values_to = "Density")
 
 
-migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))[4:18]  
+
 #plot
 M_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
@@ -2942,15 +2945,16 @@ Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms,
                                                              parameter = .x),
                                       .id = "parameter")
 
-# ggsave(filename = "M_density.jpg",plot=M_density, path = "./figures/stepping.stone.KOd")
-# ggsave(filename = "M_ridges.jpg",plot=M_ridges, path = "./figures/stepping.stone.KOd")
-# ggsave(filename = "M_violins.jpg",plot=M_violins, path = "./figures/stepping.stone.KOd")
-# write_csv(Ms_stats,"./tables/stepping.stone.KOd/Mmu_stats.csv")
-# 
-# ggsave(filename = "M_density.pdf",plot=M_density, path = "./figures/stepping.stone.KOd")
-# ggsave(filename = "M_ridges.pdf",plot=M_ridges, path = "./figures/stepping.stone.KOd")
-# ggsave(filename = "M_violins.pdf",plot=M_violins, path = "./figures/stepping.stone.KOd")
+ggsave(filename = "M_density.jpg",plot=M_density, path = "./figures/stepping.stone.KOd")
+ggsave(filename = "M_ridges.jpg",plot=M_ridges, path = "./figures/stepping.stone.KOd")
+ggsave(filename = "M_violins.jpg",plot=M_violins, path = "./figures/stepping.stone.KOd")
+write_csv(Ms_stats,"./tables/stepping.stone.KOd/Mmu_stats.csv")
 
+ggsave(filename = "M_density.pdf",plot=M_density, path = "./figures/stepping.stone.KOd")
+ggsave(filename = "M_ridges.pdf",plot=M_ridges, path = "./figures/stepping.stone.KOd")
+ggsave(filename = "M_violins.pdf",plot=M_violins, path = "./figures/stepping.stone.KOd")
+M_ridges2 <- M_ridges + theme(legend.position="none")
+ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.KOd", width = 10.7, height = 6.42)
 ```
 
 
@@ -2988,7 +2992,7 @@ nms_long <- nms %>% select(all_of(c("x","prior",parameters))) %>%
                             values_to = "Density") %>% 
                 filter(Parameter != "Nm_6_1")
 
-migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))[4:18]            
 #plot
 Nm_density <-  ggplot(nms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
@@ -3029,6 +3033,10 @@ Nm_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms,
 # ggsave(filename = "Nm_violins.pdf",plot=Nm_violins, path = "./figures/stepping.stone.KOd")
 # 
 # write_csv(Nm_stats,"./tables/stepping.stone.KOd/Nm_stats.csv")
+# 
+# Nm_ridges2 <- Nm_ridges + theme(legend.position="none")
+# ggsave(filename = "Nm_ridges_nolegend.pdf",plot=Nm_ridges2, path = "./figures/stepping.stone.KOd", width = 10.7, height = 6.42)
+# ggsave(filename = "Nm_ridges.pdf",plot=Nm_ridges, path = "./figures/stepping.stone.KOd", width = 10.7, height = 6.42)
 
 ```
 

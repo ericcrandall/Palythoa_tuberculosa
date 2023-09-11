@@ -31,6 +31,7 @@ library(colorspace)
 library(latex2exp)
 library(ggridges)
 library(raster)
+library(RColorBrewer)
 library(reshape2)
 library(snpR)
 library(graph4lg)
@@ -2596,14 +2597,14 @@ This is the same model, without ongoing gene flow between Kure and Oahu
 
 ```{r, eval = F}
 #
-Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Research/Ptuberculosa/migrate/run4.7"
+Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run4.7"
       
 winningModel <- "stepping.stone.KOd"
 
 posteriors <- list()
 
 #read in the posterior for two replicates this may take 5 minutes
-for(r in 1:5){
+for(r in 1:2){
   print(paste("Loading Rep",r))
   posteriors[[r]] <- read.table(file.path(Dir,paste0("rep",r),winningModel,
                                       "bayesallfile"), header=T) 
@@ -2631,7 +2632,7 @@ posteriors12 <- posteriors %>% bind_rows(.id = "rep") %>%
 popkey <- read_csv("popkey.csv")
 names(popkey$Pop) <- popkey$Index
 #make a new labeling key
-posterior_parameters <- names(posteriors15) %>% str_subset("Theta|M_|Nm_|D_|d_")
+posterior_parameters <- names(posteriors12) %>% str_subset("Theta|M_|Nm_|D_|d_")
 
 parameter_key <- posterior_parameters %>% 
                                   str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
@@ -2842,9 +2843,6 @@ thetas_violins <- ggplot(thetas_long, aes(x = Parameter, y = x,
         scale_x_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(y = TeX("$\\Theta$")) + ylim(0,0.01)
 
-#ggsave(filename = "thetas_density.jpg",plot=thetas_density, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "thetas_ridges.jpg",plot=thetas_ridges, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "thetas_violins.jpg",plot=thetas_violins, path = "./figures/stepping.stone.KOd")
 
 # get stats for each summed-over-loci posterior
 
@@ -2853,6 +2851,26 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
                                       .id = "parameter")
 
 #write_csv(theta_stats,"./tables/stepping.stone.KOd/theta_stats.csv")
+
+# 
+# ggsave(filename = "thetas_density.jpg",plot=thetas_density, 
+#         path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "thetas_ridges.jpg",plot=thetas_ridges, 
+#        path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "thetas_violins.jpg",plot=thetas_violins, 
+#        path = "./figures/stepping.stone.KOd")
+# 
+# ggsave(filename = "thetas_density.pdf",plot=thetas_density, 
+#         path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "thetas_ridges.pdf",plot=thetas_ridges, 
+#        path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "thetas_violins.pdf",plot=thetas_violins, 
+#        path = "./figures/stepping.stone.KOd")
+
+# 
+# ggsave("figures/stepping.stone.KO.D/thetas_density.pdf",thetas_density)
+# ggsave("figures/stepping.stone.KO.D/thetas_ridges.pdf",thetas_ridges)
+# ggsave("figures/stepping.stone.KO.D/thetas_violins.pdf",thetas_violins)
 ```
 
 Theta estimates:
@@ -2924,10 +2942,15 @@ Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms,
                                                              parameter = .x),
                                       .id = "parameter")
 
-#ggsave(filename = "M_density.jpg",plot=M_density, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "M_ridges.jpg",plot=M_ridges, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "M_violins.jpg",plot=M_violins, path = "./figures/stepping.stone.KOd")
-#write_csv(Ms_stats,"./tables/stepping.stone.KOd/Mmu_stats.csv")
+# ggsave(filename = "M_density.jpg",plot=M_density, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "M_ridges.jpg",plot=M_ridges, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "M_violins.jpg",plot=M_violins, path = "./figures/stepping.stone.KOd")
+# write_csv(Ms_stats,"./tables/stepping.stone.KOd/Mmu_stats.csv")
+# 
+# ggsave(filename = "M_density.pdf",plot=M_density, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "M_ridges.pdf",plot=M_ridges, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "M_violins.pdf",plot=M_violins, path = "./figures/stepping.stone.KOd")
+
 ```
 
 
@@ -2997,10 +3020,15 @@ Nm_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms,
                                                              parameter = .x),
                                       .id = "parameter")
 
-#ggsave(filename = "Nm_density.jpg",plot=Nm_density, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "Nm_ridges.jpg",plot=Nm_ridges, path = "./figures/stepping.stone.KOd")
-#ggsave(filename = "Nm_violins.jpg",plot=Nm_violins, path = "./figures/stepping.stone.KOd")
-#write_csv(Nm_stats,"./tables/stepping.stone.KOd/Nm_stats.csv")
+# ggsave(filename = "Nm_density.jpg",plot=Nm_density, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "Nm_ridges.jpg",plot=Nm_ridges, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "Nm_violins.jpg",plot=Nm_violins, path = "./figures/stepping.stone.KOd")
+# 
+# ggsave(filename = "Nm_density.pdf",plot=Nm_density, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "Nm_ridges.pdf",plot=Nm_ridges, path = "./figures/stepping.stone.KOd")
+# ggsave(filename = "Nm_violins.pdf",plot=Nm_violins, path = "./figures/stepping.stone.KOd")
+# 
+# write_csv(Nm_stats,"./tables/stepping.stone.KOd/Nm_stats.csv")
 
 ```
 
@@ -3021,6 +3049,10 @@ nmstats
 This is the divergence 
 
 ```{r, eval = F}
+parameter_type <- "D"
+getx <- posteriors12 %>% filter(Locus == 1) %>% 
+     dplyr::select("D_6_1")
+
 dens <- tibble(.rows = 2^15, x = density(getx[,1],  n=2^15, 
                                       from = 0, 
                                       to = 0.0001,
@@ -3032,7 +3064,7 @@ dens2 <- posteriors12 %>%
           pivot_wider(names_from = "Locus", values_from =
                       starts_with(paste0(parameter_type,"_")),
                       names_sep = "-") %>%
-          select(4:112) %>%
+          select(3:111) %>%
           map_dfc(function(x) density(x, n = 2^15, from = 0, to = 0.001, bw = "nrd0")$y)
 
 dens2<-bind_cols(dens,dens2)
@@ -3044,9 +3076,10 @@ dens2$logPrior <- log(dens2$prior)
 
 dens4 <- dens2 %>%
         #remove the prior, standardize
-        mutate(across(starts_with(parameter_type),~ remove_prior(densityd = .x,
-                                                                 prior = dens2$prior,threshold = 1e-10) ))
-names(dens4)[1:109] <- paste0("D_6_1-",names(dens4)[1:109])
+        mutate(across(starts_with(parameter_type),
+                      ~ remove_prior(densityd = .x,
+                          prior = dens2$prior,threshold = 1e-10) ))
+names(dens4)[1:109] <- paste0("D_6_1-",names(dens4)[2:110])
 
 dens5 <- sum_over_loci(df = dens4, parameter = "D_6_1") 
 dens5 <- bind_cols(dens5, x=dens$x)
@@ -3059,7 +3092,7 @@ D_61long <- dens5 %>%
                 filter(Parameter == "D_6_1")
 
 
-D_61long <- bind_cols(D_61long,x=dens$x)
+#D_61long <- bind_cols(D_61long,x=dens$x)
 
 #migration.colors <- c(rbind(theta.colors, theta.colors.dark))            
 #plot
@@ -3070,7 +3103,7 @@ D_61density <-  ggplot(D_61long, aes(x = x, y = Density,
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         #geom_line(aes(x = x, y=prior), color = "grey",
         #          linetype="dotted") +
-        ylim(0,0.0002) + xlim(0,0.0002)
+        ylim(0,0.0003) + xlim(0,0.0001) + theme(legend.position = "none")
   
            
 
@@ -3082,7 +3115,7 @@ D_61stats <-posterior_stats(df = dens5, parameter = "D_6_1")
 #write.csv(D_61stats ,"./tables/stepping.stone.KOd/D_6_1.csv",quote=F)
 ```
 
-![Divergence Density](./figures/stepping.stone.KOd/D_6_1.jpg)
+![Divergence Density](./figures/stepping.stone.KOd/D_6_1.jpg) 
 
 ```{r}
 D61stats <- read.csv("./tables/stepping.stone.KOd/D_6_1.csv")
@@ -3092,7 +3125,7 @@ D61stats
 Divergence time in coalescent units, following along on page 25 here. Assuming a 1 year generation time. @beerliPopulationGeneticInference2019
 
 ```{r}
-d <- 6.932279e-05
+d <- 6.027578e-05
 t <- d / 1.2e-8
 
 t

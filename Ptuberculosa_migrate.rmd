@@ -35,6 +35,7 @@ library(RColorBrewer)
 library(reshape2)
 library(snpR)
 library(graph4lg)
+library(gghighlight)
 source("../IBD_Kernels/IBD_functions.R")
 
 # Function library
@@ -142,86 +143,145 @@ gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder 
 
 ## Isolation by Distance
 
-I'm going to use the pairwise Fst values reported by 'Ale'a in a quick IBD plot. Here I'm importing the Fst and calculating the great-circle distances.
+## Calculate Distance Matrices
 
-```{r}
-fst <- read_csv("figures/FST_table.csv")
-fst <- as.dist(fst[,2:10])
-fst <- fst / (1-fst) #linearize it
-islands <- read_csv("figures/hypotheses_as_graphs/hawaii_vertices.csv")
-islands <- islands[rev(row.names(islands)),] %>% filter(sampled == "black")
-gcdist <-  as.dist(pointDistance(islands[,8:7], lonlat=T)/1000)
+### Calculate Fst
 
-attr(gcdist, "Labels") <- islands$label
-attr(fst, "Labels") <- islands$label
+Calculate Fst ($\theta_{WC}$) of Weir and Cockerham.
 
-#write.csv(as.matrix(fst), "figures/linearizedFst.csv", row.names = F, quote=F)
-#write.csv(as.matrix(gcdist), "figures/gcdists.csv", row.names = F, quote=F)
+```{r, eval = F}
+snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = T,verbose=T)
+fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop
+#add extra row and column to the data frame, then make it a square matrix
+fst <- tibble(fst) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
+fst <- as.matrix(fst[,2:11])
+#set diagonal equal to zero
+diag(fst) <- 0
+#make the matrix symmetrical
+fst[lower.tri(fst)] <- t(fst)[lower.tri(fst)]
+dimnames(fst)[[1]] <- dimnames(fst)[[2]]
+#reorder and also drop pioneer banks, which has n = 3
+fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
+fst_dist <- as.dist(t(fst), diag = T)
+#linearize
+fst_dist <- fst_dist/(1-fst_dist)
+
+#fst_pairwise <- get.snpR.stats(snps,facets = "pop",stats = "fst")$weighted.means  %>% 
+#                  separate(subfacet,into=c("from","to"), sep = "~")
+#fst2 <- fst_pairwise %>% spread(to,weighted_mean_fst, fill = NA)
+
+#write.csv(as.matrix(fst_dist), "IBD/Ptuberculosa_linearizedFst.csv", row.names = F, quote=F)
+```
+
+### Calculate Geographic Distance
+
+```{r, eval = F}
+
+localities <- read_csv("./figures/hypotheses_as_graphs/hawaii_vertices.csv") %>% 
+                filter(sampled == "black")
+gcdists <- as.dist(pointDistance(localities[,c(8,7)], lonlat=T)/1000)
+attr(gcdists, "Labels") <- dimnames(fst)[[1]]
+
+#write.csv(as.matrix(gcdists), "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv", row.names = F, quote=F)
 
 ```
 
-Here's the IBD plot
-```{r}
-mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
-
-#trying to keep the population labels
-test <- tibble(distance=melt(as.matrix(gcdist), varnames = c("row", "col")),
-                    fst=melt(as.matrix(gcdist)))
-
-distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst), label =as.vector(attr(fst, "Labels")))
-
-lmodel <- lm(fst ~ distance , distances)
-
-slope <- round(lmodel$coefficients[2],7)
-mantelr <- round(mantelt$obs, 2)
-pvalue <- round(mantelt$pvalue, 5)
-
-lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
-              geom_point() + 
-                          geom_smooth(method=lm) + 
-                          xlab("Geographic Distance (km)") + 
-             ylab(expression(F["ST"]/1-F["ST"])) + 
-             geom_text(label = paste("m =", slope, 
-                          "; Mantel r =", mantelr,
-                         ", p =", pvalue ), 
-                  mapping = aes(x = 700, y = -0.002))
-
-lmodel_plot
-
-```
-But let's remove Oahu because we know there has been contact between this population and the NWHI via the Navy.
+### Read Matrices Back In
 
 ```{r}
+#read in the two distance matrices that were created above
+gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_linearizedFst.csv") 
+                               
+geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
 
-fst <- as.matrix(fst)
-fst <- fst[-4,-4] %>% as.dist()
+# convert to distance matrix
+geo.dist <- as.dist(geo.dist.mat)
+gen.dist <- as.dist(gen.dist.mat)
 
-gcdist <- as.matrix(gcdist)
-gcdist <- gcdist[-4,-4] %>% as.dist()
+gen.df <- melt(as.matrix(gen.dist), varnames = c("row", "col")) %>% 
+                    filter(value %in% as.matrix(gen.dist)[lower.tri(gen.dist)]) %>% 
+                    distinct(value, .keep_all=T)  %>% rename(fst = value)
+geo.df <- melt(as.matrix(geo.dist), varnames = c("row", "col")) %>% rename(distance = value)
 
-mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
+dist.df <- gen.df %>% left_join(geo.df, by=c("row","col"))
 
-distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst))
 
-lmodel <- lm(fst ~ distance , distances)
-
-slope <- round(lmodel$coefficients[2],7)
-mantelr <- round(mantelt$obs, 2)
-pvalue <- round(mantelt$pvalue, 5)
-
-lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
-              geom_point() + 
-                          geom_smooth(method=lm) + 
-                          xlab("Geographic Distance (km)") + 
-             ylab(expression(F["ST"]/1-F["ST"])) + 
-             geom_text(label = paste("m =", slope, 
-                          "; Mantel r =", mantelr,
-                         ", p =", pvalue ), 
-                  mapping = aes(x = 700, y = -0.002))
-
-lmodel_plot
 
 ```
+
+### Calculate linear model
+
+First to get the slope $m$ we need to make a simple linear model, calculating significance with a Mantel test. 
+
+```{r}
+mantelt_withOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+lmodel_withOahu <- lm(fst ~ distance , dist.df)
+slope <- round(lmodel_withOahu$coefficients[2],7)
+mantelr <- round(mantelt_withOahu$obs, 2)
+pvalue <- round(mantelt_withOahu$pvalue, 5)
+
+ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(shape = "triangle") + 
+                geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+                geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                          mapping = aes(x = 1000, y = 0.04))
+
+#ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot)
+```
+
+#### Remove Oahu
+Because we have clear evidence of recent genetic exchange between Oahu and Kure (Midway) I'm going to take a closer look at those points with `gghighlight()`.
+
+```{r}
+
+
+ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "circle") + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+              gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
+
+#remove Oahu
+gen.dist.mat <- gen.dist.mat[-4,-4]
+geo.dist.mat <- geo.dist.mat[-4,-4]
+geo.dist <- as.dist(geo.dist.mat)
+gen.dist <- as.dist(gen.dist.mat)
+dist.df_withoutOahu <- dist.df %>% filter(row == "Oahu" | col == "Oahu")
+lmodel_withoutOahu <- lm(fst ~ distance , dist.df_withoutOahu)
+mantelt_withoutOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+slope <- round(lmodel_withoutOahu$coefficients[2],7)
+mantelr <- round(mantelt_withoutOahu$obs, 2)
+pvalue <- round(mantelt_withoutOahu$pvalue, 5)
+
+ibd_plot_oahu <- ibd_plot_oahu +  geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                                        mapping = aes(x = 1000, y = 0.04))
+
+ibd_plot_oahu
+
+#ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
+```
+
+#### Remove Kure
+
+```{r}
+
+ibd_plot_kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "circle") + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+              gghighlight(row == "Kure" | col == "Kure", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
+
+#ggsave("figures/final_figures/final_ibd_plot_withoutkure.pdf",ibd_plot_kure)
+```
+
+Kure still has a positive slope
 
 # Haplotypes from dDocent
 

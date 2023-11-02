@@ -141,7 +141,25 @@ gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output 
 gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 ```
 
-## Isolation by Distance
+# Isolation by Distance
+
+## Load the Data
+
+I'm goingt to use Will Hemstrom's new snpR package for the basic stats. It attaches sample metadata as "facets" to the datasets
+
+```{r}
+snps<-read_vcf("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/mm0.9minq30mac3thin500.recode.vcf")
+
+labels <- read_tsv("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/labels.txt") %>% arrange(name) %>% mutate(island)
+
+labels <- labels %>% mutate(region = case_when(island %in% c("Big Island","Maui","Molokai","Oahu","Kauai") ~ "High",
+                                      .default = "Low"      ))
+
+sample.meta(snps)$pop <- str_replace_all(labels$island," ","_")
+sample.meta(snps)$region <- labels$region
+
+```
+
 
 ## Calculate Distance Matrices
 
@@ -209,7 +227,7 @@ dist.df <- gen.df %>% left_join(geo.df, by=c("row","col"))
 
 ```
 
-### Calculate linear model
+## Calculate linear model
 
 First to get the slope $m$ we need to make a simple linear model, calculating significance with a Mantel test. 
 
@@ -232,12 +250,10 @@ ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
 #ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot)
 ```
 
-#### Remove Oahu
+### Remove Oahu
 Because we have clear evidence of recent genetic exchange between Oahu and Kure (Midway) I'm going to take a closer look at those points with `gghighlight()`.
 
 ```{r}
-
-
 ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
                 geom_point(fill = "grey40", color = "red",shape = "circle") + 
                 geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
@@ -267,7 +283,7 @@ ibd_plot_oahu
 #ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
 ```
 
-#### Remove Kure
+### Remove Kure
 
 ```{r}
 
@@ -277,7 +293,7 @@ ibd_plot_kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
                 ylab(expression(F["ST"]/1-F["ST"])) + 
               gghighlight(row == "Kure" | col == "Kure", keep_scales = T,
                         unhighlighted_params = (aes(color = NULL, shape = "triangle")))
-
+ibd_plot_kure
 #ggsave("figures/final_figures/final_ibd_plot_withoutkure.pdf",ibd_plot_kure)
 ```
 
@@ -3199,6 +3215,11 @@ t <- d / 1.2e-8
 t
 ```
 Divergence time is estimated at `r t` years before present
+
+
+# Sanity Check
+
+So these results 
 
 # Literature Cited
 

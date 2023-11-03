@@ -168,27 +168,48 @@ sample.meta(snps)$region <- labels$region
 Calculate Fst ($\theta_{WC}$) of Weir and Cockerham.
 
 ```{r, eval = F}
-snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = T,verbose=T)
-fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop
+snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = F,verbose=T, 
+                          boot = 1000, boot_par = 4)
+fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$fst
+fstps <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$p
+#FDR correction to q-values
+fstqs <- fstps[,2:10] %>% as.matrix %>% as.vector %>% p.adjust("BY") %>%
+            matrix(ncol = 9) %>% bind_cols(fstps[,1]) %>% relocate(p1)
+names(fstqs) <- names(fstps)
+
 #add extra row and column to the data frame, then make it a square matrix
 fst <- tibble(fst) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
 fst <- as.matrix(fst[,2:11])
+fstqs <- tibble(fstqs) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
+fstqs <- as.matrix(fstqs[,2:11])
 #set diagonal equal to zero
 diag(fst) <- 0
+diag(fstqs) <- 0
 #make the matrix symmetrical
 fst[lower.tri(fst)] <- t(fst)[lower.tri(fst)]
 dimnames(fst)[[1]] <- dimnames(fst)[[2]]
+
+fstqs[lower.tri(fstqs)] <- t(fstqs)[lower.tri(fstqs)]
+dimnames(fstqs)[[1]] <- dimnames(fstqs)[[2]]
 #reorder and also drop pioneer banks, which has n = 3
 fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
 fst_dist <- as.dist(t(fst), diag = T)
-#linearize
-fst_dist <- fst_dist/(1-fst_dist)
+
+fstqs <- fstqs[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
+fstqs_dist <- as.dist(t(fstqs), diag = T)
+
+fst_qs <- fst
+fst_qs[upper.tri(fst_qs)] <- fstqs[upper.tri(fstqs)]
 
 #fst_pairwise <- get.snpR.stats(snps,facets = "pop",stats = "fst")$weighted.means  %>% 
 #                  separate(subfacet,into=c("from","to"), sep = "~")
 #fst2 <- fst_pairwise %>% spread(to,weighted_mean_fst, fill = NA)
 
-#write.csv(as.matrix(fst_dist), "IBD/Ptuberculosa_linearizedFst.csv", row.names = F, quote=F)
+#write.csv(fst_qs, "IBD/Ptuberculosa_Fst_SNPs_qvaluesInUpper.csv",row.names=F,quote=F)
+#write.csv(fst, "IBD/Ptuberculosa_Fst_SNPs.csv",row.names=F,quote=F)
+
+
+#do this for 109 migrate loci!
 ```
 
 ### Calculate Geographic Distance
@@ -208,8 +229,9 @@ attr(gcdists, "Labels") <- dimnames(fst)[[1]]
 
 ```{r}
 #read in the two distance matrices that were created above
-gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_linearizedFst.csv") 
-                               
+gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_Fst_SNPs.csv") 
+#linearize
+gen.dist.mat <- gen.dist.mat/(1-gen.dist.mat)                           
 geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
 
 # convert to distance matrix
@@ -247,6 +269,8 @@ ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
                                         ", p =", pvalue ), 
                           mapping = aes(x = 1000, y = 0.04))
 
+ibd_plot
+
 #ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot)
 ```
 
@@ -266,7 +290,7 @@ gen.dist.mat <- gen.dist.mat[-4,-4]
 geo.dist.mat <- geo.dist.mat[-4,-4]
 geo.dist <- as.dist(geo.dist.mat)
 gen.dist <- as.dist(gen.dist.mat)
-dist.df_withoutOahu <- dist.df %>% filter(row == "Oahu" | col == "Oahu")
+dist.df_withoutOahu <- dist.df %>% filter(row != "Oahu" | col != "Oahu")
 lmodel_withoutOahu <- lm(fst ~ distance , dist.df_withoutOahu)
 mantelt_withoutOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
 slope <- round(lmodel_withoutOahu$coefficients[2],7)
@@ -1685,7 +1709,7 @@ ggsave("figures/final_figures/MarginalLikelihoodsPlot.pdf", likesPlot_letters)
 
 ## Rerun the three top models
 
-Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
+Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed to 6 for those three loci.
 
 ## Final Model Selection Results
 
@@ -3219,7 +3243,18 @@ Divergence time is estimated at `r t` years before present
 
 # Sanity Check
 
-So these results 
+So these results are pretty cool in that they suggest that we could be getting quite low pairwise $F_{ST}$ values even when there is neglible gene flow between islands. I want to double check that the results are indeed consistent with $F_{ST}$ so I am going to simulate the model (minus the anthropogenic gene flow between Oahu and Kure) using the `coala` package.
+
+```{r}
+#simulate the model
+
+coal_model(sample_size = c(10, 4,5, 9, 15, 10, 10, 10, 17),
+           loci_number = 109) +
+          feat_mutation(rate = par_prior("theta", rnorm(1, 0.0061,0.002), 
+                                         model = HKY) +
+                          
+
+
 
 # Literature Cited
 

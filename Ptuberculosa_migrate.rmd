@@ -192,10 +192,11 @@ dimnames(fst)[[1]] <- dimnames(fst)[[2]]
 fstqs[lower.tri(fstqs)] <- t(fstqs)[lower.tri(fstqs)]
 dimnames(fstqs)[[1]] <- dimnames(fstqs)[[2]]
 #reorder and also drop pioneer banks, which has n = 3
-fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
+#fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)] # this is south to north
+fst <- fst[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)] # this is north to south
 fst_dist <- as.dist(t(fst), diag = T)
 
-fstqs <- fstqs[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)]
+fstqs <- fstqs[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)]
 fstqs_dist <- as.dist(t(fstqs), diag = T)
 
 fst_qs <- fst
@@ -3230,11 +3231,12 @@ D61stats <- read.csv("./tables/stepping.stone.KOd/D_6_1.csv")
 D61stats
 ```
 
-Divergence time in coalescent units, following along on page 25 here. Assuming a 1 year generation time. @beerliPopulationGeneticInference2019
+Divergence time in coalescent units, following along on page 25 here.  @beerliPopulationGeneticInference2019
 
+Assuming a 1 year generation time, and 1.2e-8 mutation rate 
 ```{r}
 d <- 6.027578e-05
-t <- d / 1.2e-8
+t <- d / 0.5e-8
 
 t
 ```
@@ -3248,13 +3250,24 @@ So these results are pretty cool in that they suggest that we could be getting q
 ```{r}
 #simulate the model
 
-coal_model(sample_size = c(10, 4,5, 9, 15, 10, 10, 10, 17),
-           loci_number = 109) +
-          feat_mutation(rate = par_prior("theta", rnorm(1, 0.0061,0.002), 
-                                         model = HKY) +
-                          
+ptuberculosa_model <- coal_model(sample_size = c(10, 4,5, 9, 15, 10, 10, 10, 17),
+           loci_number = 109, loci_length = 500, ploidy = 2) +
+           feat_mutation(rate = par_prior("theta", rnorm(1, 0.0061,0.002)),
+                        base_frequencies=c(0.25,0.25,0.25,0.25),
+                        model = "HKY", tstv_ratio = 6) +
+            feat_migration(rate = 0.001, symmetric = TRUE) +
+            sumstat_dna()
+          
+simulated_loci <- simulate(ptuberculosa_model)
 
+```
 
+Check Fsts for microhaplotypes
+
+```{r}
+haps <- read.genepop("IBD/ptuberculosa.haps.gen")
+mat_pw_fst(haps)
+```
 
 # Literature Cited
 

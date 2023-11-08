@@ -1,0 +1,43 @@
+IBDsim built on Nov  3 2023 at 13:50:01.
+
+Random Seeds : 14071789
+nbr of simulated samples : 10 dataset(s) x 3 locus = 30
+generic data file name: Example_
+Lattice with absorbing boundaries
+nbr of loci per sample file (n_locus): 3
+Postdisp Sample: nbr of sampled nodes (dim_sample1 X dim_sample2): 2 x 2
+Postdisp sample: nbr of sampled individuals per sampled node (IndPerPopSampled): 5
+Postdisp sample: x/y coordinate of "first" (bottom left) sampled node (xmin_sample/ymin_sample): 9/12
+
+==============
+Mutation model(s) (if multiple markers/loci have been specified, only the first locus of each marker is mentioned below):
+
+ Mutation rate (mu) is constant for this marker : 6.42285e-323
+==============
+
+Demographic phase: 0
+At G=0 (sampling time ==  present) : 
+lattice dimensions are (LatticeSizeX * LatticeSizeY): 20 x 20
+Haploid individuals : nbr of genes per lattice node (1* IndsPerPop): 30
+
+
+Dispersal model: b
+Axial dispersal proba (TotalEmmigrationRate): 0.05
+Stepping stone model 
+Bounds (dx_max,dy_max)=(1,1)
+Marginal dispersal distribution and checksum:
+0 0.95 0.95
+1 0.05 1
+
+axial mean dispersal (within bounds): 0.05
+axial sigma2 (within bounds): 0.05
+axial kurtosis (within bounds): 17
+
+If kurtosis appears wrong there may be many reasons
+   It may be because the dispersal distribution is not
+   computed with enough precision.
+
+D sigma2 (within bounds): 1.5
+Neighborhood  (within bounds): 3(1D) or 9.42478 (2D).
+expected slope (within bounds): 0.333333(1D) or 0.106103 (2D).
+

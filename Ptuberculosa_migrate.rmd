@@ -3336,9 +3336,26 @@ Divergence time is estimated at `r t` years before present
 
 # Sanity Check
 
+## Simulations
+
 So these results are pretty cool in that they suggest that we could be getting quite low pairwise $F_{ST}$ values even when there is neglible gene flow between islands. However, it doesn't make sense that an equilbrium model could yield such low $F_{ST}$ without a non-equilibrium event preceeding it, such as a founder event. I want to double check that the results are indeed consistent with low $F_{ST}$ so I am going to simulate the model (minus the anthropogenic gene flow between Oahu and Kure) with a founder event to see if our results are consistent.
 
-IBDsim [@lebloisIBDSimComputerProgram2009] did well for me in my previous Hawaii paper, so I am turning to it again, as it is able to simulate all the aspects that I need. I'm going to start with just doing 90 diploid samples of DNA under the Juke Cantor model to simulate the haplotype dataset used in migrate. Here is the parmfile for a simulation with a 1.2e-8 mutation rate (* 500bp = 6e-6), and an equivalent migration rate.
+IBDsim [@lebloisIBDSimComputerProgram2009] did well for me in my previous Hawaii paper, so I am turning to it again, as it is able to simulate all the aspects that I need. I'm going to start with just doing 90 diploid samples of DNA under the Juke Cantor model to simulate the haplotype dataset used in migrate. 
+
+Here is the parmfile for a coalescentsimulation with a 1.2e-8 mutation rate (* 500bp = 6e-6), and an equivalent migration rate (as Migrate found this ratio close to 1). From the present, there are 15 demes of 50K effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At 999 generations, there is a founder event of 100 individuals in one deme, which, at 1,000 generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
+
+I have varied the simulations to test the effect of the age and size of the founder event as such:
+
+| [A]ge of Founder Event (generations) | Size of [F]ounding Population |
+|--------------------------------------|-------------------------------|
+| Infinite (true equilibrium)          | NA                            |
+| 1000                                 | 100                           |
+| 10000                                | 100                           |
+| 100000                               | 100                           |
+| 1000                                 | 1000                          |
+| 10000                                | 1000                          |
+| 100000                               | 1000                          |
+
 
 ```{}
 %%%%%%%%%% SIMULATION PARAMETERS %%%%%%%
@@ -3401,11 +3418,52 @@ Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
 
 ```
 
+Now read and plot the results
+
+```{r}
+
+sims <- list()
+for(sim in list.files("IBDsim", pattern = "^F", include.dirs=T, full.names = T)){
+  simname <- sim %>% str_match("F\\d+_A.+") %>% as.character()
+  sims[simname] <- read.genepop(file.path(sim,"stepstone_radseq.gen"),ncode = 3)
+  
+}
+
+# use map() to loop over all the genepop objects and calculate Fst 
+# (WC Theta is not working for reasons I can't figure out, so using Nei 87)
+fsts <- sims %>% map(\(x) genet.dist(genind2hierfstat(x), method = "Nei87"))
+
+locus_fsts <- sims %>% map(\(x) basic.stats(genind2hierfstat(x)))
+
+# create a "geographic" distance matrix                  
+sim_geo_points <- matrix(c(1,1,3,1,6,1,8,1,11,1,12,1,13,1,14,1,15,1),ncol = 2, byrow = T)
+sim_geo_dists <- pointDistance(sim_geo_points,lonlat=F)
+
+sim_dists.df <-  bind_cols(fst = as.dist(sim_haps_fst), distance = as.dist(sim_geo_dists))
+
+mantelt_sims <- mantel.randtest(as.dist(sim_haps_fst),as.dist(sim_geo_dists), nrepet = 10000)
+lmodel_sims <- lm(fst ~ distance , sim_dists.df)
+
+
+
+ibd_plot_sims <- ggplot(sim_dists.df,aes(x=distance,y=fst)) +
+                geom_point() + 
+                geom_smooth(method=lm) + xlab("Lattice Distance") + 
+                ylab(expression(F["ST"]/1-F["ST"]))
+
+```
+
+
 ```{r}
 haps <- read.genepop("IBD/ptuberculosa.haps.gen")
-fst_haps <- mat_pw_fst(haps)
+#fst_haps <- mat_pw_fst(haps)
+fst_haps <- genet.dist(genind2hierfstat(haps), method = "Nei87")
+stats_haps <- basic.stats(haps)
+
 #linearize
-fst_haps <- fst_haps/(1-fst_haps)                           
+fst_haps <- fst_haps/(1-fst_haps)
+
+
 
 dist.df <- dist.df %>% bind_cols(fst_haps = as.dist(fst_haps))
 
@@ -3463,34 +3521,7 @@ ibd_plot_haps_noOahu
 ```
 
 
-```{r}
-sim_haps10 <- read.genepop("IBDsim/5k-100-500k/stepstone_radseq_1.gen", ncode=3) #col10k 50k 100 100k
-sim_haps11 <- read.genepop("IBDsim/1k-100-500k/stepstone_radseq_1.gen", ncode=3) #col1k 1k 100 500k
-sim_haps12 <- read.genepop("IBDsim/1k-1000-500k/stepstone_radseq_1.gen", ncode=3) #col1k 1k 1000 500k
-sim_haps13 <- read.genepop("IBDsim/1k-10000-500k/stepstone_radseq_1.gen", ncode=3) #col1k 1k 10000 500k
-sim_haps14 <- read.genepop("IBDsim/1k-10000-100k/stepstone_radseq.gen", ncode=3) #col1k 1k 10000 500k
-sim_haps15 <- read.genepop("IBDsim/1k-5000-100k/stepstone_radseq.gen", ncode=3) #col1k 1k 5000 500k
-sim_haps16 <- read.genepop("IBDsim/1k-1000-100k/stepstone_radseq.gen", ncode=3) #col1k 1k 1000 500k
 
-sim_haps_fst <- genet.dist(genind2hierfstat(sim_haps16), method = "Nei87")
-sim_haps_fst <-sim_haps_fst/(1-sim_haps_fst)                           
-
-sim_geo_points <- matrix(c(1,1,3,1,6,1,8,1,11,1,12,1,13,1,14,1,15,1),ncol = 2, byrow = T)
-sim_geo_dists <- pointDistance(sim_geo_points,lonlat=F)
-
-sim_dists.df <-  bind_cols(fst = as.dist(sim_haps_fst), distance = as.dist(sim_geo_dists))
-
-mantelt_sims <- mantel.randtest(as.dist(sim_haps_fst),as.dist(sim_geo_dists), nrepet = 10000)
-lmodel_sims <- lm(fst ~ distance , sim_dists.df)
-
-
-
-ibd_plot_sims <- ggplot(sim_dists.df,aes(x=distance,y=fst)) +
-                geom_point() + 
-                geom_smooth(method=lm) + xlab("Lattice Distance") + 
-                ylab(expression(F["ST"]/1-F["ST"]))
-
-```
 
 
 

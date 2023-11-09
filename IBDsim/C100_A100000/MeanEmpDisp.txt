@@ -12,9 +12,9 @@
    -4        0        0 0.000000000000 0.000000000000 
    -3        0        0 0.000000000000 0.000000000000 
    -2        0        0 0.000000000000 0.000000000000 
-   -1      324        0 0.000001116705 0.000000000000 
-    0 290138676 290139287 0.999997894115 1.000000000000 
-    1      287        0 0.000000989180 0.000000000000 
+   -1      795        0 0.000002637683 0.000000000000 
+    0 301399234 301400834 0.999994691455 1.000000000000 
+    1      805        0 0.000002670862 0.000000000000 
     2        0        0 0.000000000000 0.000000000000 
     3        0        0 0.000000000000 0.000000000000 
     4        0        0 0.000000000000 0.000000000000 
@@ -30,12 +30,12 @@
    14        0        0 0.000000000000 0.000000000000 
    15        0        0 0.000000000000 0.000000000000 
 Various statistics on the whole empirical distribution (non-central moments)
-mean =  -0.00000013   0.00000000 
-non-central sigma2 =   0.00000211   0.00000000 
-non-central kurtosis= 474856.71685761   0.00000000 
-non-central skewness=  -0.06055646   0.00000000 
+mean =   0.00000003   0.00000000 
+non-central sigma2 =   0.00000531   0.00000000 
+non-central kurtosis= 188372.52125000   0.00000000 
+non-central skewness=   0.00625000   0.00000000 
 Various statistics on the semi empirical distribution (one side, axial dispersal, central moments)
-mean axial dispersal =   0.00000211   0.00000000 
-central/axial sigma2 =   0.00000211   0.00000000 
-central/axial kurtosis= 474854.71685972   0.00000000 
-central/axial skewness=   0.99999579   0.00000000
+mean axial dispersal =   0.00000531   0.00000000 
+central/axial sigma2 =   0.00000531   0.00000000 
+central/axial kurtosis= 188370.52125531   0.00000000 
+central/axial skewness=   0.99998938   0.00000000

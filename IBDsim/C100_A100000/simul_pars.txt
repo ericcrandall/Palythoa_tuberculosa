@@ -12,7 +12,7 @@ Postdisp sample: x/y coordinate of "first" (bottom left) sampled node (xmin_samp
 ==============
 Mutation model(s) (if multiple markers/loci have been specified, only the first locus of each marker is mentioned below):
 
-JC69 Mutation rate (mu) is constant for this marker : 2.5e-06
+JC69 Mutation rate (mu) is constant for this marker : 6e-06
 ==============
 
 Demographic phase: 0
@@ -24,22 +24,22 @@ ContLatticeSizeChange=Linear
 
 
 Dispersal model: b
-Axial dispersal proba (TotalEmmigrationRate): 2.5e-06
+Axial dispersal proba (TotalEmmigrationRate): 6e-06
 Stepping stone model 
 Bounds (dx_max,dy_max)=(1,0)
 Marginal dispersal distribution and checksum:
-0 0.999997 0.999997
-1 2.5e-06 1
+0 0.999994 0.999994
+1 6e-06 1
 
-axial mean dispersal (within bounds): 2.5e-06
-axial sigma2 (within bounds): 2.5e-06
-axial kurtosis (within bounds): 399997
+axial mean dispersal (within bounds): 6e-06
+axial sigma2 (within bounds): 6e-06
+axial kurtosis (within bounds): 166664
 
 If kurtosis appears wrong there may be many reasons
    It may be because the dispersal distribution is not
    computed with enough precision.
 
-D sigma2 (within bounds): 0.25
-Neighborhood  (within bounds): 0.5(1D) or 1.5708 (2D).
-expected slope (within bounds): 2(1D) or 0.63662 (2D).
+D sigma2 (within bounds): 0.6
+Neighborhood  (within bounds): 1.2(1D) or 3.76991 (2D).
+expected slope (within bounds): 0.833333(1D) or 0.265258 (2D).
 

@@ -35,6 +35,8 @@ library(RColorBrewer)
 library(reshape2)
 library(snpR)
 library(graph4lg)
+library(gghighlight)
+library(hierfstat)
 source("../IBD_Kernels/IBD_functions.R")
 
 # Function library
@@ -140,88 +142,188 @@ gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output 
 gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
 ```
 
-## Isolation by Distance
+# Isolation by Distance
 
-I'm going to use the pairwise Fst values reported by 'Ale'a in a quick IBD plot. Here I'm importing the Fst and calculating the great-circle distances.
+## Load the Data
+
+I'm going to use Will Hemstrom's new snpR package for the basic stats. It attaches sample metadata as "facets" to the datasets
 
 ```{r}
-fst <- read_csv("figures/FST_table.csv")
-fst <- as.dist(fst[,2:10])
-fst <- fst / (1-fst) #linearize it
-islands <- read_csv("figures/hypotheses_as_graphs/hawaii_vertices.csv")
-islands <- islands[rev(row.names(islands)),] %>% filter(sampled == "black")
-gcdist <-  as.dist(pointDistance(islands[,8:7], lonlat=T)/1000)
+snps<-read_vcf("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/mm0.9minq30mac3thin500.recode.vcf")
 
-attr(gcdist, "Labels") <- islands$label
-attr(fst, "Labels") <- islands$label
+labels <- read_tsv("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/labels.txt") %>% arrange(name) %>% mutate(island)
 
-#write.csv(as.matrix(fst), "figures/linearizedFst.csv", row.names = F, quote=F)
-#write.csv(as.matrix(gcdist), "figures/gcdists.csv", row.names = F, quote=F)
+labels <- labels %>% mutate(region = case_when(island %in% c("Big Island","Maui","Molokai","Oahu","Kauai") ~ "High",
+                                      .default = "Low"      ))
+
+sample.meta(snps)$pop <- str_replace_all(labels$island," ","_")
+sample.meta(snps)$region <- labels$region
 
 ```
 
-Here's the IBD plot
-```{r}
-mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
 
-#trying to keep the population labels
-test <- tibble(distance=melt(as.matrix(gcdist), varnames = c("row", "col")),
-                    fst=melt(as.matrix(gcdist)))
+## Calculate Distance Matrices
 
-distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst), label =as.vector(attr(fst, "Labels")))
+### Calculate Fst
 
-lmodel <- lm(fst ~ distance , distances)
+Calculate Fst ($\theta_{WC}$) of Weir and Cockerham.
 
-slope <- round(lmodel$coefficients[2],7)
-mantelr <- round(mantelt$obs, 2)
-pvalue <- round(mantelt$pvalue, 5)
+```{r, eval = F}
+snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = F,verbose=T, 
+                          boot = 1000, boot_par = 4)
+fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$fst
+fstps <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$p
+#FDR correction to q-values
+fstqs <- fstps[,2:10] %>% as.matrix %>% as.vector %>% p.adjust("BY") %>%
+            matrix(ncol = 9) %>% bind_cols(fstps[,1]) %>% relocate(p1)
+names(fstqs) <- names(fstps)
 
-lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
-              geom_point() + 
-                          geom_smooth(method=lm) + 
-                          xlab("Geographic Distance (km)") + 
-             ylab(expression(F["ST"]/1-F["ST"])) + 
-             geom_text(label = paste("m =", slope, 
-                          "; Mantel r =", mantelr,
-                         ", p =", pvalue ), 
-                  mapping = aes(x = 700, y = -0.002))
+#add extra row and column to the data frame, then make it a square matrix
+fst <- tibble(fst) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
+fst <- as.matrix(fst[,2:11])
+fstqs <- tibble(fstqs) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
+fstqs <- as.matrix(fstqs[,2:11])
+#set diagonal equal to zero
+diag(fst) <- 0
+diag(fstqs) <- 0
+#make the matrix symmetrical
+fst[lower.tri(fst)] <- t(fst)[lower.tri(fst)]
+dimnames(fst)[[1]] <- dimnames(fst)[[2]]
 
-lmodel_plot
+fstqs[lower.tri(fstqs)] <- t(fstqs)[lower.tri(fstqs)]
+dimnames(fstqs)[[1]] <- dimnames(fstqs)[[2]]
+#reorder and also drop pioneer banks, which has n = 3
+#fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)] # this is south to north
+fst <- fst[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)] # this is north to south
+fst_dist <- as.dist(t(fst), diag = T)
+
+fstqs <- fstqs[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)]
+fstqs_dist <- as.dist(t(fstqs), diag = T)
+
+fst_qs <- fst
+fst_qs[upper.tri(fst_qs)] <- fstqs[upper.tri(fstqs)]
+
+#fst_pairwise <- get.snpR.stats(snps,facets = "pop",stats = "fst")$weighted.means  %>% 
+#                  separate(subfacet,into=c("from","to"), sep = "~")
+#fst2 <- fst_pairwise %>% spread(to,weighted_mean_fst, fill = NA)
+
+#write.csv(fst_qs, "IBD/Ptuberculosa_Fst_SNPs_qvaluesInUpper.csv",row.names=F,quote=F)
+#write.csv(fst, "IBD/Ptuberculosa_Fst_SNPs.csv",row.names=F,quote=F)
+
+
+#do this for 109 migrate loci!
+```
+
+### Calculate Geographic Distance
+
+```{r, eval = F}
+
+localities <- read_csv("./figures/hypotheses_as_graphs/hawaii_vertices.csv") %>% 
+                filter(sampled == "black") %>% map_df(rev)
+gcdists <- as.dist(pointDistance(localities[,c(8,7)], lonlat=T)/1000)
+attr(gcdists, "Labels") <- dimnames(fst)[[1]]
+
+#write.csv(as.matrix(gcdists), "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv", row.names = F, quote=F)
 
 ```
-But let's remove Oahu because we know there has been contact between this population and the NWHI via the Navy.
+
+### Read Matrices Back In
+
+```{r}
+#read in the two distance matrices that were created above
+gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_Fst_SNPs.csv") 
+#linearize
+gen.dist.mat <- gen.dist.mat/(1-gen.dist.mat)                           
+geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
+
+# convert to distance matrix
+geo.dist <- as.dist(geo.dist.mat)
+gen.dist <- as.dist(gen.dist.mat)
+
+gen.df <- melt(as.matrix(gen.dist), varnames = c("row", "col")) %>% 
+                    filter(value %in% as.matrix(gen.dist)[lower.tri(gen.dist)]) %>% 
+                    distinct(value, .keep_all=T)  %>% rename(fst = value)
+geo.df <- melt(as.matrix(geo.dist), varnames = c("row", "col")) %>% rename(distance = value)
+
+dist.df <- gen.df %>% left_join(geo.df, by=c("row","col"))
+
+
+
+```
+
+## Calculate linear model
+
+First to get the slope $m$ we need to make a simple linear model, calculating significance with a Mantel test. 
+
+```{r}
+mantelt_withOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+lmodel_withOahu <- lm(fst ~ distance , dist.df)
+slope <- round(lmodel_withOahu$coefficients[2],7)
+mantelr <- round(mantelt_withOahu$obs, 2)
+pvalue <- round(mantelt_withOahu$pvalue, 5)
+
+ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(shape = "triangle") + 
+                geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+                geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                          mapping = aes(x = 1000, y = 0.04))
+
+ibd_plot
+
+#ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot)
+```
+
+### Remove Oahu
+Because we have clear evidence of recent genetic exchange between Oahu and Kure (Midway) I'm going to take a closer look at those points with `gghighlight()`.
+
+```{r}
+ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "circle") + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+              gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
+
+#remove Oahu
+gen.dist.mat <- gen.dist.mat[-4,-4]
+geo.dist.mat <- geo.dist.mat[-4,-4]
+geo.dist <- as.dist(geo.dist.mat)
+gen.dist <- as.dist(gen.dist.mat)
+dist.df_withoutOahu <- dist.df %>% filter(row != "Oahu" | col != "Oahu")
+lmodel_withoutOahu <- lm(fst ~ distance , dist.df_withoutOahu)
+mantelt_withoutOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+slope <- round(lmodel_withoutOahu$coefficients[2],7)
+mantelr <- round(mantelt_withoutOahu$obs, 2)
+pvalue <- round(mantelt_withoutOahu$pvalue, 5)
+
+ibd_plot_oahu <- ibd_plot_oahu +  geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                                        mapping = aes(x = 1000, y = 0.04))
+
+ibd_plot_oahu
+
+#ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
+```
+
+### Remove Kure
 
 ```{r}
 
-fst <- as.matrix(fst)
-fst <- fst[-4,-4] %>% as.dist()
-
-gcdist <- as.matrix(gcdist)
-gcdist <- gcdist[-4,-4] %>% as.dist()
-
-mantelt <- mantel.randtest(fst,gcdist, nrepet = 10000)
-
-distances <- tibble(distance=as.vector(gcdist),fst=as.vector(fst))
-
-lmodel <- lm(fst ~ distance , distances)
-
-slope <- round(lmodel$coefficients[2],7)
-mantelr <- round(mantelt$obs, 2)
-pvalue <- round(mantelt$pvalue, 5)
-
-lmodel_plot <- ggplot(distances,aes(x=distance,y=fst)) +
-              geom_point() + 
-                          geom_smooth(method=lm) + 
-                          xlab("Geographic Distance (km)") + 
-             ylab(expression(F["ST"]/1-F["ST"])) + 
-             geom_text(label = paste("m =", slope, 
-                          "; Mantel r =", mantelr,
-                         ", p =", pvalue ), 
-                  mapping = aes(x = 700, y = -0.002))
-
-lmodel_plot
-
+ibd_plot_kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "circle") + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+              gghighlight(row == "Kure" | col == "Kure", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
+ibd_plot_kure
+#ggsave("figures/final_figures/final_ibd_plot_withoutkure.pdf",ibd_plot_kure)
 ```
+
+Kure still has a positive slope
 
 # Haplotypes from dDocent
 
@@ -351,7 +453,7 @@ Now remove SNPs that occur on both strands of a read. Jon:
 
 > Unless you are using super small genomic fragment or really long reads (MiSeq). A SNP should be covered only by forward or only reverse reads. The filter is based on proportions, so that a few extraneous reads won’t remove an entire locus.... In plain english, it’s keeping loci that have over 100 times more forward alternate reads than reverse alternate reads and 100 times more forward reference reads than reverse reference reads along with the reciprocal....That only removes a small proportion of loci, but these loci are likely to be paralogs, microbe contamination, or weird PCR chimeras.
 
-```{basjh. eval = F}
+```{bash. eval = F}
 vcffilter -f "SAF / SAR > 100 & SRF / SRR > 100 | SAR / SAF > 100 & SRR / SRF > 100" -s rawg.1mac1dp3allpop.1.ABfil.vcf > rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf
 
 mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf | wc -l
@@ -987,8 +1089,8 @@ I went through and compared my 3.x parmfile line by line to the default one gene
 ################################################################################
 # Parmfile for Migrate 4.4.4(git:v4-series-26-ge85c6ff)-June-1-2019 [do not remove these first TWO lines]
 # generated automatically on
-# Fri Feb 4 2022
-menu=NO
+# Fri Dec 12 2022
+menu=YES
 nmlength=10
 datatype=SequenceData
 datamodel=HKY
@@ -997,8 +1099,7 @@ ttratio=1.000000
 freqs-from-data=YES 
 
 seqerror-rate={0.0001,0.0001,0.0001,0.0001}
-categories=1 #no categories file specified
-rates=1: 1.000000 
+categories=1 rates=1: 1.000000 
 prob-rates=1: 1.000000 
 autocorrelation=NO
 weights=NO
@@ -1006,43 +1107,41 @@ recover=NO
 fast-likelihood=NO
 inheritance-scalars={1.00000000000000000000}
 haplotyping=YES:no-report
-population-relabel={1 2 3 4 5 6 7 8 9}
-infile=../../../ptuberculosa.mig
-random-seed=AUTO #OWN:410568459
-title= Palythoa tuberculosa - Hawaii
+population-relabel={1 2 3 4 5 6 7 8 9 10}
+infile=../../ptuberculosa.mig
+random-seed=AUTO title= Palythoa tuberculosa - Hawaii
 progress=YES
-logfile=YES:logfile.txt
+logfile=NO
 print-data=NO
 outfile=outfile.txt
 pdf-outfile=outfile.pdf
-pdf-terse=YES
+pdf-terse=NO
 use-M=YES
 print-tree=NONE
-mig-histogram=MIGRATIONEVENTSONLY
-skyline=NO #needs mig-histogram=ALL:...
-theta=PRIOR:50
+mig-histogram=NO
+skyline=NO theta=PRIOR:50
 migration=PRIOR:10
 rate=PRIOR:50
 split=PRIOR:10
 splitstd=PRIOR:10
 mutation=CONSTANT
 analyze-loci=A
-divergence-distrib=E
+divergence-distrib=S
 custom-migration={
-*	0	0	0	0	d	0	0	0
-0	*	*	0	0	0	0	0	0
-0	*	*	*	0	0	0	0	0
-0	0	*	*	*	0	0	0	0
-0	0	0	*	*	*	0	0	0
-0	0	0	0	*	*	*	0	0
-0	0	0	0	0	*	*	*	0
-0	0	0	0	0	0	*	*	*
-0	0	0	0	0	0	0	*	*
+**00000000
+***0000000
+0***000000
+00***00000
+000***0000
+0000***000
+00000***00
+000000***0
+0000000***
+00000000**
 }
 geo=NO
 
-updatefreq=0.200000 0.200000 0.200000 0.200000 #tree, parameter haplotype, timeparam updates
-bayes-posteriorbins= 2000 2000
+updatefreq=0.200000 0.200000 0.200000 0.200000 bayes-posteriorbins= 500 500
 bayes-posteriormaxtype=TOTAL
 bayes-file=YES:bayesfile
 bayes-allfile=YES:bayesallfile
@@ -1051,10 +1150,9 @@ bayes-proposals= THETA METROPOLIS-HASTINGS Sampler
 bayes-proposals= MIG SLICE Sampler
 bayes-proposals= DIVERGENCE METROPOLIS-HASTINGS Sampler
 bayes-proposals= DIVERGENCESTD METROPOLIS-HASTINGS Sampler
-bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
-bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
-bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
-bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-priors= THETA WEXPPRIOR: 0.0 0.01 0.1000000 0.01000 
+bayes-priors= MIG WEXPPRIOR: 0.000100 100000.000000 1000000
+bayes-priors= RATE * * UNIFORMPRIOR: 0.000000 10000000000.000000 1000000000.000000 
 bayes-hyperpriors=NO
 long-chains=1
 long-inc=100
@@ -1079,7 +1177,7 @@ Let's see what happens! Started this run on Jan 22, at 10pm.
 ```{bash testrun, eval = F}
 screen -S migrate_testrun
 
-mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+mpirun -np 16 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
 
 ```
 
@@ -1088,7 +1186,9 @@ Prior on m was too wide, giving results like this:
 
 ### Results
 
-![Wide Priors on m](./figures/stepping.stone.KO.D/wide_priors.jpg)
+![Wide Priors on m -pg 1](./figures/wide_priors.jpg)
+![Wide Priors on m - pg2](./figures/wide_priors2.jpg)
+![Wide Priors on m-pg3](./figures/wide_priors3.jpg)
 No bueno.
 
 ## Test Run 2
@@ -1473,6 +1573,100 @@ bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
 ```
 
+### Final Parmfile
+
+Here's the parmfile that I used for Run 4, with of course the various models-specific settings changed for each model.
+
+```{bash, eval = F}
+################################################################################
+# Parmfile for Migrate 4.4.4(git:v4-series-26-ge85c6ff)-June-1-2019 [do not remove these first TWO lines]
+# generated automatically on
+# Fri Dec 12 2022
+menu=NO
+nmlength=10
+datatype=SequenceData
+datamodel=HKY
+ttratio=1.000000
+
+freqs-from-data=YES 
+
+seqerror-rate={0.0001,0.0001,0.0001,0.0001}
+categories=1 #no categories file specified
+rates=1: 1.000000 
+prob-rates=1: 1.000000 
+autocorrelation=NO
+weights=NO
+recover=NO
+fast-likelihood=NO
+inheritance-scalars={1.00000000000000000000}
+haplotyping=YES:no-report
+population-relabel={1 2 3 4 5 6 7 8 9}
+infile=../../../ptuberculosa.mig
+random-seed=AUTO #OWN:410568459
+title= Palythoa tuberculosa - Hawaii
+progress=YES
+logfile=YES:logfile.txt
+print-data=NO
+outfile=outfile.txt
+pdf-outfile=outfile.pdf
+pdf-terse=YES
+use-M=YES
+print-tree=NONE
+mig-histogram=MIGRATIONEVENTSONLY
+skyline=NO #needs mig-histogram=ALL:...
+theta=PRIOR:50
+migration=PRIOR:10
+rate=PRIOR:50
+split=PRIOR:10
+splitstd=PRIOR:10
+mutation=CONSTANT
+analyze-loci=A
+divergence-distrib=E
+custom-migration={
+*	0	0	0	0	d	0	0	0
+0	*	*	0	0	0	0	0	0
+0	*	*	*	0	0	0	0	0
+0	0	*	*	*	0	0	0	0
+0	0	0	*	*	*	0	0	0
+0	0	0	0	*	*	*	0	0
+0	0	0	0	0	*	*	*	0
+0	0	0	0	0	0	*	*	*
+0	0	0	0	0	0	0	*	*
+}
+geo=NO
+
+updatefreq=0.200000 0.200000 0.200000 0.200000 #tree, parameter haplotype, timeparam updates
+bayes-posteriorbins= 2000 2000
+bayes-posteriormaxtype=TOTAL
+bayes-file=YES:bayesfile
+bayes-allfile=YES:bayesallfile
+bayes-all-posteriors=YES:bayesallposterior
+bayes-proposals= THETA METROPOLIS-HASTINGS Sampler
+bayes-proposals= MIG SLICE Sampler
+bayes-proposals= DIVERGENCE METROPOLIS-HASTINGS Sampler
+bayes-proposals= DIVERGENCESTD METROPOLIS-HASTINGS Sampler
+bayes-priors= THETA WEXPPRIOR: 0.0 0.001 0.1000000 0.01000 
+bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000 100
+bayes-priors= SPLIT * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-priors= SPLITSTD * *  WEXPPRIOR: 0.0 0.001 0.1000000 0.01000
+bayes-hyperpriors=NO
+long-chains=1
+long-inc=100
+long-sample=30000
+burn-in=10000
+auto-tune=YES:0.440000
+assign=NO
+heating=YES:1:{1.000000,1.500000,3.000000,1000000.000000}
+heated-swap=YES
+moving-steps=NO
+gelman-convergence=No
+replicate=NO
+end
+
+
+
+```
+
 #### Copy It Up
 
 Copy it up, and then make a total of 10 replicate copies of the folder.
@@ -1603,13 +1797,13 @@ likesPlot_letters <- likelist %>% bind_rows() %>%
                       labs(x = "Metapopulation Model", 
                       y = "Bezier Corrected Marginal Likelihood")
 
-ggsave("figures/final_figures/MarginalLikelihoodsPlot.pdf", likesPlot_letters)
+#ggsave("figures/final_figures/MarginalLikelihoodsPlot.pdf", likesPlot_letters)
 ```
 
 
 ## Rerun the three top models
 
-Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed on those three loci.
+Sigh. I figured out that I had a ridiculously high Ti:Tv rate ($\kappa$) for 3 loci that had K80 models. This *might* have affected the summed marginal likelihood of each model just a bit, and definitely could affect parameter estimation, so I am going to rerun the three top models (stepping.stone.KOd, stepping.stone.KO.D, stepping.stone.KO) using a new version of migrate that doesn't have bayesfile visualization issues, and with the ti:tv ratio fixed to 6 for those three loci.
 
 ## Final Model Selection Results
 
@@ -3130,8 +3324,9 @@ D61stats <- read.csv("./tables/stepping.stone.KOd/D_6_1.csv")
 D61stats
 ```
 
-Divergence time in coalescent units, following along on page 25 here. Assuming a 1 year generation time. @beerliPopulationGeneticInference2019
+Divergence time in coalescent units, following along on page 25 here.  @beerliPopulationGeneticInference2019
 
+Assuming a 1 year generation time, and 1.2e-8 mutation rate 
 ```{r}
 d <- 6.027578e-05
 t <- d / 1.2e-8
@@ -3139,6 +3334,310 @@ t <- d / 1.2e-8
 t
 ```
 Divergence time is estimated at `r t` years before present
+
+
+# Sanity Check
+
+## Simulations with very low gene flow
+
+So these results are intriguing in that they suggest that we could be getting quite low pairwise $F_{ST}$ values even when there is neglible gene flow between islands. However, it doesn't make sense that an equilbrium model could yield such low $F_{ST}$ without a non-equilibrium event preceeding it, such as a founder event (i.e. Hawaiian population being founded from elsewhere in the Indo-Pacific) I want to double check that the results are indeed consistent with low $F_{ST}$ so I am going to simulate the model (minus the anthropogenic gene flow between Oahu and Kure) with a founder event to see if our results are consistent.
+
+IBDsim [@lebloisIBDSimComputerProgram2009] did well for me in my previous Hawaii paper, so I am turning to it again, as it is able to simulate all the aspects that I need. I'm going to start with just doing 90 diploid samples of DNA under the Juke Cantor model to simulate the haplotype dataset used in migrate. 
+
+Here is the parmfile for a coalescentsimulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and an equivalent migration rate (as Migrate found this ratio close to 1). From the present, there are 15 demes of 50K effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At 999 generations, there is a founder event of 100 individuals in one deme, which, at 1,000 generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
+
+I have varied the simulations to test the effect of the age and size of the founder event as such:
+
+| [A]ge of Founder Event (generations) | Size of [F]ounding Population |
+|--------------------------------------|-------------------------------|
+| Infinite (true equilibrium)          | NA                            |
+| 1000                                 | 100                           |
+| 10000                                | 100                           |
+| 100000                               | 100                           |
+| 1000                                 | 1000                          |
+| 10000                                | 1000                          |
+| 100000                               | 1000                          |
+
+
+```{}
+%%%%%%%%%% SIMULATION PARAMETERS %%%%%%%
+Data_File_Name = stepstone_radseq
+GenePop_File_Extension = .gen
+Run_Number = 1
+Pause = Never
+Genepop = T
+Migrate = F
+Migraine_Settings = F
+Nexus_File_Format = F
+
+%%%%%%%%%% MARKERS PARAMETERS %%%%%%%%%
+Locus_Number = 100
+Mutation_Rate = 0.000006
+Mutation_Model = JC69
+MRCA_Sequence = TACTCTATATATTATGTTTGGTGTGTGATCTGGTTTAGTCGGGACTGCTTTGAGGCTCTTGATTCGAGCTGAACTTGGACAGCCAGGAGCTCTTTTAGGTGATGATCAACTTTATAATGTGATCGTCACTGCGCATGCATTTGTGATAATTTTTTTCTTGGTGATGCCTATGATGATTGGGGGATTCGGTAATTGGTTGGTTCCTTTAATGTTGGGGGCTCCTGATATGGCGTTCCCGCGGTTGAATAATATAAGTTTTTGGTTGCTTCCGCCTTCGTTGACTTTGTTGCTTGCTTCTTCTGCTGTTGAGAGTGGTGTAGGGACAGGTTGAACGGTTTATCCTCCTTTGTCTGGGAACTTAGCTCATGCTGGGGGTTCTGTGGATCTAGCTATCTTCTCGTTACACTTAGCTGGTGTATCTTCTATTTTAGGTGCTGTAAATTTTATTACTACGATCATTAATATGCGGTGACAGGGGATGCAATTTGAGCGGTTGCCTC
+Sequence_Size = 500
+Transition_Transversion_ratio = 2
+Equilibrium_Frequencies = 0.25 0.25 0.25 0.25
+Polymorphic_Loci_Only= False
+Ploidy = Diploid
+
+%%%%%%%%%% VARIOUS COMPUTATION OPTIONS %%%
+DiagnosticTables = Hexp, Fis, Seq_stats, Effective_Dispersal, Iterative_Statistics
+
+
+%%%%%%%%%% DEMOGRAPHIC OPTIONS %%%%%%%%
+NewDemographicPhaseAt=0
+Lattice_Boundaries = Absorbing
+Total_Range_Dispersal = True
+Dispersal_Distribution = SteppingStone
+Immigration_Control = Simple1Dproduct
+Total_Emigration_Rate = 0.000006
+Dist_max = 1
+Lattice_SizeX = 15
+Lattice_SizeY = 1
+Ind_Per_Pop = 50000
+Continuous_Deme_Size_Variation = Exponential
+Dens_Logistic_Growth_Rate = 0.3
+Continuous_Lattice_Size_Variation = Linear
+Lattice_Logistic_Growth_Rate = 0.3
+
+NewDemographicPhaseAt=999
+Lattice_SizeX = 1
+Lattice_SizeY = 1
+Ind_Per_Pop = 100
+
+NewDemographicPhaseAt=1000
+Lattice_SizeX = 1
+Lattice_SizeY = 1
+Ind_Per_Pop = 100000
+
+%%%%%%%%%% SAMPLE PARAMETERS %%%%%%%%
+%Sample_SizeX = 9
+%Sample_SizeY = 9
+Sample_Coordinates_X = 1 3 6 8 11 12 13 14 15
+Sample_Coordinates_Y = 1 1 1 1 1  1  1  1  1
+Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
+
+```
+
+Now read and plot the results
+
+```{r, warning=FALSE}
+
+#read in the empirical haplotype data as numbered haps
+haps <- read.genepop("IBD/ptuberculosa.haps.gen", quiet = T)
+#fst_haps <- mat_pw_fst(haps)
+fst_haps <- genet.dist(genind2hierfstat(haps), method = "Nei87")
+fst_haps <- fst_haps / (1-fst_haps)
+stats_haps <- basic.stats(haps)
+
+sims <- list()
+for(sim in list.files("IBDsim", pattern = "^F", include.dirs=T, full.names = T)){
+  simname <- sim %>% str_match("F\\d+_A.+") %>% as.character()
+  sims[simname] <- read.genepop(file.path(sim,"stepstone_radseq.gen"),
+                                ncode = 3,  quiet = T)
+}
+
+# use map() to loop over all the genepop objects and calculate Fst 
+locus_fsts <- sims %>% map(\(x) basic.stats(genind2hierfstat(x)))
+locus_fsts$Observed <- stats_haps
+
+fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping=aes(x=Fst),binwidth = 0.01) + xlim(0,1))
+
+cowplot::plot_grid(plotlist = fst_hists, labels = names(fst_hists))
+
+
+
+```
+
+So basically, there is no realistic founder event scenario that leads to $F_{ST}$ values as low as what we observe. 
+
+### Check IBD
+
+```{r, warning=FALSE}
+#create a "geographic" distance matrix                  
+sim_geo_points <- matrix(c(1,1,3,1,6,1,8,1,11,1,12,1,13,1,14,1,15,1),ncol = 2, byrow = T)
+sim_geo_dists <- pointDistance(sim_geo_points,lonlat=F) %>% as.dist()
+
+# re-load the geographic distances and convert to distance matrix
+geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
+geo.dist <- as.dist(geo.dist.mat)
+
+# (WC Theta is not working for reasons I can't figure out, so using Nei 87)
+fsts <- sims %>% map(\(x) genet.dist(genind2hierfstat(x), method = "Nei87"))
+
+ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x))) + 
+                             geom_point(aes(x = Lattice_Dist, y = Fst)) + ylim(0,1))
+
+ibd_plots$Observed <- tibble(Geog_Dist = geo.dist, Fst = fst_haps) %>%  ggplot() + 
+                              geom_point(aes(x = Geog_Dist, y = Fst)) + ylim(0,1)
+
+cowplot::plot_grid(plotlist = ibd_plots, labels = names(ibd_plots))
+#sim_dists.df <-  bind_cols(fst = as.dist(sim_haps_fst), distance = as.dist(sim_geo_dists))
+
+#mantelt_sims <- mantel.randtest(as.dist(sim_haps_fst),as.dist(sim_geo_dists), nrepet = 10000)
+#lmodel_sims <- lm(fst ~ distance , sim_dists.df)
+
+```
+
+## Re-run Stepping.Stone.KOd with larger priors
+
+I have re-run the Stepping.Stone.KOd model with expanded M prior, expanded sampling window, and ensuring that larger values are explored by starting in the middle of the prior. Also tried to get it to output a histogram of migration events but that doesn't seem to have worked.
+
+
+Changes to parmfile
+```{}
+bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 1000000 10000
+theta=PRIOR:50
+
+mig-histogram=MIGRATIONEVENTSONLY:0.00001:mighistogram.txt
+
+```
+
+### Read in the posterior and make a labeling key
+
+```{r, eval = F}
+#
+Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run5/rep1/stepping.stone.KOd/bayesallfile"
+      
+
+#read in the posterior for two replicates this may take 5 minutes
+posterior <- read.table(Dir, header=T) 
+
+posterior <- posterior %>% migrants.per.gen()
+                                 
+# read in a population key to translate numbers into names in figures
+popkey <- read_csv("popkey.csv")
+names(popkey$Pop) <- popkey$Index
+#make a new labeling key
+posterior_parameters <- names(posterior) %>% str_subset("Theta|M_|Nm_|D_|d_")
+
+parameter_key <- posterior_parameters %>% 
+                                  str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
+                                  str_replace("M_", "m/mu " ) %>% 
+                                  str_replace("Theta_", "theta ") %>% 
+                                  str_replace_all(popkey$Pop) %>% 
+                                  str_replace("Nm_", "4Nem ") 
+                                  
+
+names(parameter_key) <- posterior_parameters
+
+```
+
+### Check Convergence
+
+```{r, eval = F}
+
+#thin
+posterior$Steps <- as.numeric(posterior$Steps)
+posterior2 <- posterior %>% as_tibble() %>% filter(Steps%%500==0) %>% 
+                            dplyr::select(starts_with(c("Theta_", "M_", 
+                                        "Nm_","D_","d_")))
+
+posterior.mcmc <- mcmc(posterior2,end = 3000000,thin=500)
+posterior.ggs <- ggs(posteriors.mcmc, burnin = F)
+
+ggmcmc(posterior.ggs, param_page = 8)
+
+
+```
+
+
+#### Effective Sizes
+Effective sizes are good
+
+```{}
+effectiveSize(posterior.mcmc)
+
+   Theta_1    Theta_2    Theta_3    Theta_4    Theta_5    Theta_6    Theta_7    Theta_8    Theta_9      M_3_2      M_2_3      M_4_3      M_3_4 
+ 49337.815  10646.909   5125.929   4722.193   9552.176   4626.342   7675.959   7246.239  10490.718  38715.991   5248.512 606155.173 114465.448 
+     M_5_4      M_4_5      M_6_5      M_5_6      M_7_6      M_6_7      M_8_7      M_7_8      M_9_8      M_8_9     Nm_3_2     Nm_2_3     Nm_4_3 
+ 93326.272 158502.135 231502.904 135276.560 130166.133  77014.260  84461.711   6471.971  20463.577  10983.852  52598.200   4685.068 582050.268 
+    Nm_3_4     Nm_5_4     Nm_4_5     Nm_6_5     Nm_5_6     Nm_7_6     Nm_6_7     Nm_8_7     Nm_7_8     Nm_9_8     Nm_8_9      D_6_1 
+ 82934.776 125485.354 136584.397 205575.637 121067.103 168445.994  84396.049 121708.508  10313.493  20041.834  13056.593  53007.255 
+
+
+```
+
+Here is what M parameters look like. They are all in the realm of what I found - right around 1:1 with mutation rate.
+
+![M_parameters](./figures/ggmcmc-output_run5_Ms.jpg)
+
+### Comparison to Outfile
+And yet, this is what the outfile for this run shows
+
+
+```{}
+Locus Parameter        2.5%      25.0%    mode     75.0%   97.5%     median   mean
+-----------------------------------------------------------------------------------
+  All  M_3->2         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20403.54
+  All  M_2->3         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20401.98
+  All  M_4->3         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20401.99
+  All  M_3->4         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20401.99
+  All  M_5->4         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.00
+  All  M_4->5         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.00
+  All  M_6->5         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.03
+  All  M_5->6         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.03
+  All  M_7->6         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.08
+  All  M_6->7         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20401.99
+  All  M_8->7         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.02
+  All  M_7->8         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20405.28
+  All  M_9->8         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20402.92
+  All  M_8->9         19500.00 19500.00 20250.00 20500.00 21000.00 20750.00 20408.30
+
+```
+
+And the histograms generated across all loci are blank
+
+![Migrate Outfile Histograms](./figures/run5_outfilePDF_M_histograms.jpg)
+
+So, what is going on here?
+
+The outfile M estimates of M = 20,500 seem more reasonable as they translate to ~ `r 0.008 * 20500` effective migrants per generation.
+
+## Simulations with Nm = 150
+
+Let's see what that looks like in simulations (with Nm = 150, m = 50,000/150 = 0.003). All other parameters the same as above.
+
+```{r, warning=FALSE}
+
+sims <- list()
+for(sim in list.files("IBDsim", pattern = "^Nm", include.dirs=T, full.names = T)){
+  simname <- sim %>% str_match("F\\d+_A.+") %>% as.character()
+  sims[simname] <- read.genepop(file.path(sim,"stepstone_radseq.gen"),ncode = 3, quiet = T)
+  
+}
+
+# use map() to loop over all the genepop objects and calculate Fst 
+locus_fsts <- sims %>% map(\(x) basic.stats(genind2hierfstat(x)))
+locus_fsts$Observed <- stats_haps
+
+fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping=aes(x=Fst),binwidth = 0.01) + xlim(0,1))
+
+cowplot::plot_grid(plotlist = fst_hists, labels = names(fst_hists))
+
+
+```
+
+### Check IBD
+```{r, warning=FALSE}
+
+fsts <- sims %>% map(\(x) genet.dist(genind2hierfstat(x), method = "Nei87"))
+
+
+ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x))) + 
+                             geom_point(aes(x = Lattice_Dist, y = Fst)) + ylim(0,0.4))
+
+ibd_plots$Observed <- tibble(Geog_Dist = geo.dist, Fst = fst_haps) %>%  ggplot() + 
+                              geom_point(aes(x = Geog_Dist, y = Fst)) + ylim(0,0.4)
+
+cowplot::plot_grid(plotlist = ibd_plots, labels = names(ibd_plots))
+
+```
+That's more like it!
+
+So simulations are consistent with Nm = 150 (M > 20K) but I still don't understand the inconsistency between the raw output values for M ( M < 10) into `bayesallfile` and the summary found `outfile.txt` (M > 20K).
+
 
 # Literature Cited
 

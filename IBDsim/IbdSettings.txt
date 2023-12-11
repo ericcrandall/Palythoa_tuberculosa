@@ -1,0 +1,21 @@
+%%%%% SIMULATION PARAMETERS %%%%%%%%%%%%
+ Data_File_Name=Example
+ Run_Number=10
+ %%%%% MARKERS PARAMETERS %%%%%%%%%%%%%%%
+ Locus_Number=3
+ Mutation_Rate=0.001
+ Mutation_Model=SMM
+ Allelic_Lower_Bound=1
+ Allelic_Upper_Bound=200
+ %%%%%% SAMPLE PARAMETERS %%%%%%%%%%%%%%%
+ Sample_SizeX=2
+ Sample_SizeY=2
+ Min_Sample_CoordinateX=9
+ Min_Sample_CoordinateY=12
+ Ind_Per_Pop_Sampled=5
+ %%%%%%%% DEMOGRAPHIC PARAMETERS %%%%%%%%%%
+ Ind_Per_Pop=30
+ Lattice_SizeX=20
+ Lattice_SizeY=20
+ Dispersal_Distribution=stepping_stone
+ Total_Emigration_Rate=0.05

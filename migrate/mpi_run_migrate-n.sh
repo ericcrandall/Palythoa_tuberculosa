@@ -1,5 +1,5 @@
 #!
-for r in */
+for r in rep*/
 	do
 		cd $r
 		echo $r

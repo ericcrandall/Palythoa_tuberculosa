@@ -1,0 +1,2040 @@
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Palythoa tuberculosa - Hawaii                                    
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ +                                                                +
+ +   POPULATION SIZE, MIGRATION, DIVERGENCE, ASSIGNMENT, HISTORY  +
+ +   Bayesian inference using the structured coalescent           +
+ +                                                                +
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Compiled for a PARALLEL COMPUTER ARCHITECTURE
+  One master and 109 compute nodes are available.
+  PDF output enabled [Letter-size]
+  Version 5.0.4(git:Distribution-version)   [May-09-2022]
+  Program started at   Sat Dec 23 14:09:11 2023
+         finished at Sat Dec 23 14:36:23 2023
+                          
+
+
+Options in use:
+---------------
+
+Analysis strategy is BAYESIAN INFERENCE
+    - Population size estimation: Theta [Exponential Distribution]
+    - Geneflow estimation: Migration [Exponential Distribution]
+
+Proposal distribution:
+Parameter group          Proposal type
+-----------------------  -------------------
+Population size (Theta)  Metropolis sampling
+Migration rate      (M)  Metropolis sampling
+Divergence Time (D)  Metropolis sampling
+Divergence time spread (STD) Metropolis sampling
+Genealogy                Metropolis-Hastings
+
+
+Prior distribution (Proposal-delta will be tuned to acceptance frequency 0.440000):
+Parameter group            Prior type   Minimum    Mean(*)    Maximum    Delta      Bins   Updatefreq
+-------------------------  ------------ ---------- ---------- ---------- ---------- ------ -------
+Population size (Theta_1)   Exp window  0.000000   0.001000   0.100000   0.010000     500  0.12500
+Population size (Theta_2)   Exp window  0.000000   0.001000   0.100000   0.010000     500  0.12500
+Migration 2 to 1   (M)      Exp window  0.000100  1000.00000 10000000.0 10000.0000    500  0.12500
+Migration 1 to 2   (M)      Exp window  0.000100  1000.00000 10000000.0 10000.0000    500  0.12500
+
+Inheritance multipliers in use for Thetas (specified # 1)
+All inheritance multipliers are the same [1.000000]
+
+Pseudo-random number generator: Mersenne-Twister                                
+Random number seed (with internal timer)           1721149750
+
+Start parameters:
+   First genealogy was started using a random tree
+   Start parameter values were generated
+Connection matrix:
+m = average (average over a group of Thetas or M,
+s = symmetric migration M, S = symmetric 4Nm,
+0 = zero, and not estimated,
+* = migration free to vary, Thetas are on diagonal
+d = row population split off column population
+D = split and then migration
+   1 Pop_Kure       * * * * * * * * * 
+   1 Pop_P&H        * * * * * * * * * 
+   1 Pop_MaroRe     * * * * * * * * * 
+   1 Pop_FFS        * * * * * * * * * 
+   2 Pop_Kauai      * * * * * * * * * 
+   2 Pop_Oahu       * * * * * * * * * 
+   2 Pop_Moloka     * * * * * * * * * 
+   2 Pop_Maui       * * * * * * * * * 
+   2 Pop_BigIsl     * * * * * * * * * 
+
+
+
+Mutation rate is constant for all loci
+
+Markov chain settings:
+   Long chains (long-chains):                              1
+      Steps sampled (inc*samples*rep):               3000000
+      Steps recorded (sample*rep):                     30000
+   Combining over replicates:                              3
+   Static heating scheme
+      4 chains with  temperatures
+       1.00, 1.50, 3.00,1000000.00
+      Swapping interval is 1
+   Burn-in per replicate (samples*inc):               200000
+
+Print options:
+   Data file:                         ../../ptuberculosa.mig
+   Parameter file:                                  parmfile
+   Haplotyping is turned on:                              NO
+   Output file (ASCII text):                     outfile.txt
+   Output file (PDF):                            outfile.pdf
+   Posterior distribution:                         bayesfile
+   All values of Post.Dist:                     bayesallfile
+   Print data:                                            No
+   Print genealogies:                                     No
+
+Summary of data:
+Title:                         Palythoa tuberculosa - Hawaii
+Data file:                            ../../ptuberculosa.mig
+Datatype:                                     Haplotype data
+Number of loci:                                          109
+Mutationmodel:
+ Locus  Sublocus  Mutationmodel   Mutationmodel parameter
+-----------------------------------------------------------------
+     1         1 Felsenstein 81  [Basefreq:0.31 0.21 0.18 0.29]
+     2         1 Kimura          [Basefreq: =0.25, kappa=6.0000]
+     3         1 Jukes-Cantor    [Basefreq: =0.25]
+     4         1 Jukes-Cantor    [Basefreq: =0.25]
+     5         1 Felsenstein 81  [Basefreq:0.33 0.19 0.23 0.24]
+     6         1 Felsenstein 81  [Basefreq:0.26 0.20 0.19 0.35]
+     7         1 Felsenstein 81  [Basefreq:0.25 0.18 0.22 0.35]
+     8         1 Felsenstein 81  [Basefreq:0.27 0.19 0.18 0.36]
+     9         1 Jukes-Cantor    [Basefreq: =0.25]
+    10         1 Jukes-Cantor    [Basefreq: =0.25]
+    11         1 Jukes-Cantor    [Basefreq: =0.25]
+    12         1 Jukes-Cantor    [Basefreq: =0.25]
+    13         1 Felsenstein 81  [Basefreq:0.28 0.17 0.21 0.35]
+    14         1 Jukes-Cantor    [Basefreq: =0.25]
+    15         1 Jukes-Cantor    [Basefreq: =0.25]
+    16         1 Felsenstein 81  [Basefreq:0.32 0.14 0.27 0.27]
+    17         1 Felsenstein 81  [Basefreq:0.35 0.21 0.13 0.31]
+    18         1 Jukes-Cantor    [Basefreq: =0.25]
+    19         1 Felsenstein 81  [Basefreq:0.32 0.19 0.27 0.22]
+    20         1 Jukes-Cantor    [Basefreq: =0.25]
+    21         1 Jukes-Cantor    [Basefreq: =0.25]
+    22         1 Felsenstein 81  [Basefreq:0.32 0.18 0.18 0.31]
+    23         1 Felsenstein 81  [Basefreq:0.28 0.16 0.14 0.42]
+    24         1 Jukes-Cantor    [Basefreq: =0.25]
+    25         1 Jukes-Cantor    [Basefreq: =0.25]
+    26         1 Felsenstein 81  [Basefreq:0.35 0.22 0.27 0.16]
+    27         1 Felsenstein 81  [Basefreq:0.26 0.27 0.16 0.31]
+    28         1 Felsenstein 81  [Basefreq:0.33 0.26 0.21 0.19]
+    29         1 Felsenstein 81  [Basefreq:0.36 0.23 0.19 0.22]
+    30         1 Felsenstein 81  [Basefreq:0.32 0.14 0.25 0.28]
+    31         1 Jukes-Cantor    [Basefreq: =0.25]
+    32         1 Felsenstein 81  [Basefreq:0.28 0.22 0.17 0.33]
+    33         1 Felsenstein 81  [Basefreq:0.35 0.15 0.20 0.30]
+    34         1 Jukes-Cantor    [Basefreq: =0.25]
+    35         1 Felsenstein 81  [Basefreq:0.35 0.14 0.17 0.33]
+    36         1 Jukes-Cantor    [Basefreq: =0.25]
+    37         1 Jukes-Cantor    [Basefreq: =0.25]
+    38         1 Felsenstein 81  [Basefreq:0.40 0.21 0.24 0.14]
+    39         1 Felsenstein 81  [Basefreq:0.37 0.22 0.20 0.21]
+    40         1 Felsenstein 81  [Basefreq:0.30 0.19 0.18 0.32]
+    41         1 Jukes-Cantor    [Basefreq: =0.25]
+    42         1 Felsenstein 81  [Basefreq:0.34 0.19 0.15 0.32]
+    43         1 Felsenstein 81  [Basefreq:0.29 0.15 0.25 0.31]
+    44         1 Felsenstein 81  [Basefreq:0.27 0.18 0.18 0.37]
+    45         1 Jukes-Cantor    [Basefreq: =0.25]
+    46         1 Felsenstein 81  [Basefreq:0.38 0.19 0.30 0.13]
+    47         1 Jukes-Cantor    [Basefreq: =0.25]
+    48         1 Felsenstein 81  [Basefreq:0.24 0.28 0.33 0.15]
+    49         1 Jukes-Cantor    [Basefreq: =0.25]
+    50         1 Jukes-Cantor    [Basefreq: =0.25]
+    51         1 Jukes-Cantor    [Basefreq: =0.25]
+    52         1 Felsenstein 81  [Basefreq:0.32 0.12 0.24 0.32]
+    53         1 Jukes-Cantor    [Basefreq: =0.25]
+    54         1 Jukes-Cantor    [Basefreq: =0.25]
+    55         1 Felsenstein 81  [Basefreq:0.36 0.18 0.27 0.19]
+    56         1 Jukes-Cantor    [Basefreq: =0.25]
+    57         1 Felsenstein 81  [Basefreq:0.20 0.23 0.18 0.39]
+    58         1 Jukes-Cantor    [Basefreq: =0.25]
+    59         1 Felsenstein 81  [Basefreq:0.28 0.20 0.17 0.36]
+    60         1 Felsenstein 81  [Basefreq:0.36 0.21 0.16 0.28]
+    61         1 Felsenstein 81  [Basefreq:0.35 0.22 0.18 0.25]
+    62         1 Jukes-Cantor    [Basefreq: =0.25]
+    63         1 Jukes-Cantor    [Basefreq: =0.25]
+    64         1 Jukes-Cantor    [Basefreq: =0.25]
+    65         1 Jukes-Cantor    [Basefreq: =0.25]
+    66         1 Jukes-Cantor    [Basefreq: =0.25]
+    67         1 Jukes-Cantor    [Basefreq: =0.25]
+    68         1 Felsenstein 81  [Basefreq:0.21 0.21 0.25 0.33]
+    69         1 Felsenstein 81  [Basefreq:0.20 0.22 0.21 0.37]
+    70         1 Felsenstein 81  [Basefreq:0.21 0.19 0.22 0.38]
+    71         1 Felsenstein 81  [Basefreq:0.30 0.23 0.14 0.33]
+    72         1 Jukes-Cantor    [Basefreq: =0.25]
+    73         1 Jukes-Cantor    [Basefreq: =0.25]
+    74         1 Jukes-Cantor    [Basefreq: =0.25]
+    75         1 Jukes-Cantor    [Basefreq: =0.25]
+    76         1 Kimura          [Basefreq: =0.25, kappa=6.0000]
+    77         1 Jukes-Cantor    [Basefreq: =0.25]
+    78         1 Jukes-Cantor    [Basefreq: =0.25]
+    79         1 Jukes-Cantor    [Basefreq: =0.25]
+    80         1 Jukes-Cantor    [Basefreq: =0.25]
+    81         1 Jukes-Cantor    [Basefreq: =0.25]
+    82         1 Kimura          [Basefreq: =0.25, kappa=6.0000]
+    83         1 Jukes-Cantor    [Basefreq: =0.25]
+    84         1 HKY             [Bf:0.34 0.19 0.16 0.31, kappa=6.000]
+    85         1 Jukes-Cantor    [Basefreq: =0.25]
+    86         1 Felsenstein 81  [Basefreq:0.22 0.33 0.25 0.20]
+    87         1 Felsenstein 81  [Basefreq:0.30 0.18 0.19 0.32]
+    88         1 Jukes-Cantor    [Basefreq: =0.25]
+    89         1 Felsenstein 81  [Basefreq:0.35 0.18 0.13 0.34]
+    90         1 Jukes-Cantor    [Basefreq: =0.25]
+    91         1 Jukes-Cantor    [Basefreq: =0.25]
+    92         1 Felsenstein 81  [Basefreq:0.22 0.20 0.22 0.36]
+    93         1 Jukes-Cantor    [Basefreq: =0.25]
+    94         1 Jukes-Cantor    [Basefreq: =0.25]
+    95         1 Felsenstein 81  [Basefreq:0.25 0.21 0.20 0.35]
+    96         1 Jukes-Cantor    [Basefreq: =0.25]
+    97         1 Jukes-Cantor    [Basefreq: =0.25]
+    98         1 Felsenstein 81  [Basefreq:0.20 0.23 0.22 0.34]
+    99         1 Jukes-Cantor    [Basefreq: =0.25]
+   100         1 Kimura          [Basefreq: =0.25, kappa=6.0000]
+   101         1 Felsenstein 81  [Basefreq:0.30 0.18 0.20 0.32]
+   102         1 Felsenstein 81  [Basefreq:0.32 0.15 0.24 0.29]
+   103         1 Jukes-Cantor    [Basefreq: =0.25]
+   104         1 Felsenstein 81  [Basefreq:0.29 0.17 0.24 0.30]
+   105         1 Jukes-Cantor    [Basefreq: =0.25]
+   106         1 Kimura          [Basefreq: =0.25, kappa=6.0000]
+   107         1 Jukes-Cantor    [Basefreq: =0.25]
+   108         1 Felsenstein 81  [Basefreq:0.39 0.19 0.12 0.30]
+   109         1 Jukes-Cantor    [Basefreq: =0.25]
+
+
+Sites per locus
+---------------
+Locus    Sites
+     1     411
+     2     388
+     3     472
+     4     468
+     5     499
+     6     516
+     7     496
+     8     337
+     9     512
+    10     618
+    11     387
+    12     394
+    13     500
+    14     726
+    15     479
+    16     338
+    17     382
+    18     316
+    19     659
+    20     478
+    21     446
+    22     353
+    23     397
+    24     729
+    25     269
+    26     413
+    27     463
+    28     741
+    29     701
+    30     370
+    31     725
+    32     470
+    33     335
+    34     261
+    35     433
+    36     328
+    37     313
+    38     314
+    39     678
+    40     455
+    41     338
+    42     462
+    43     784
+    44     325
+    45     489
+    46     370
+    47     316
+    48     505
+    49     437
+    50     264
+    51     340
+    52     345
+    53     369
+    54     433
+    55     273
+    56     469
+    57     275
+    58     409
+    59     471
+    60     379
+    61     621
+    62     473
+    63     579
+    64     302
+    65     634
+    66     782
+    67     454
+    68     541
+    69     411
+    70     534
+    71     349
+    72     399
+    73     242
+    74     505
+    75     398
+    76     308
+    77     469
+    78     338
+    79     429
+    80     433
+    81     395
+    82     376
+    83     473
+    84     524
+    85     427
+    86     650
+    87     428
+    88     419
+    89     194
+    90     699
+    91     621
+    92     515
+    93     494
+    94     502
+    95     305
+    96     382
+    97     338
+    98     572
+    99     324
+   100     439
+   101     596
+   102     337
+   103     374
+   104     487
+   105     366
+   106     317
+   107     399
+   108     333
+   109     347
+
+Population                   Locus   Gene copies    
+----------------------------------------------------
+  1 Pop_Kure                     1        20
+  1                              2        20
+  1                              3        20
+  1                              4        20
+  1                              5        20
+  1                              6        20
+  1                              7        20
+  1                              8        20
+  1                              9        20
+  1                             10        20
+  1                             11        20
+  1                             12        20
+  1                             13        20
+  1                             14        20
+  1                             15        20
+  1                             16        20
+  1                             17        20
+  1                             18        20
+  1                             19        20
+  1                             20        20
+  1                             21        20
+  1                             22        20
+  1                             23        20
+  1                             24        20
+  1                             25        20
+  1                             26        20
+  1                             27        20
+  1                             28        20
+  1                             29        20
+  1                             30        20
+  1                             31        20
+  1                             32        20
+  1                             33        20
+  1                             34        20
+  1                             35        20
+  1                             36        20
+  1                             37        20
+  1                             38        20
+  1                             39        20
+  1                             40        20
+  1                             41        20
+  1                             42        20
+  1                             43        20
+  1                             44        20
+  1                             45        20
+  1                             46        20
+  1                             47        20
+  1                             48        20
+  1                             49        20
+  1                             50        20
+  1                             51        20
+  1                             52        20
+  1                             53        20
+  1                             54        20
+  1                             55        20
+  1                             56        20
+  1                             57        20
+  1                             58        20
+  1                             59        20
+  1                             60        20
+  1                             61        20
+  1                             62        20
+  1                             63        20
+  1                             64        20
+  1                             65        20
+  1                             66        20
+  1                             67        20
+  1                             68        20
+  1                             69        20
+  1                             70        20
+  1                             71        20
+  1                             72        20
+  1                             73        20
+  1                             74        20
+  1                             75        20
+  1                             76        20
+  1                             77        20
+  1                             78        20
+  1                             79        20
+  1                             80        20
+  1                             81        20
+  1                             82        20
+  1                             83        20
+  1                             84        20
+  1                             85        20
+  1                             86        20
+  1                             87        20
+  1                             88        20
+  1                             89        20
+  1                             90        20
+  1                             91        20
+  1                             92        20
+  1                             93        20
+  1                             94        20
+  1                             95        20
+  1                             96        20
+  1                             97        20
+  1                             98        20
+  1                             99        20
+  1                            100        20
+  1                            101        20
+  1                            102        20
+  1                            103        20
+  1                            104        20
+  1                            105        20
+  1                            106        20
+  1                            107        20
+  1                            108        20
+  1                            109        20
+  1 Pop_P&H                      1         8
+  1                              2         8
+  1                              3         8
+  1                              4         8
+  1                              5         8
+  1                              6         8
+  1                              7         8
+  1                              8         8
+  1                              9         8
+  1                             10         8
+  1                             11         8
+  1                             12         8
+  1                             13         8
+  1                             14         8
+  1                             15         8
+  1                             16         8
+  1                             17         8
+  1                             18         8
+  1                             19         8
+  1                             20         8
+  1                             21         8
+  1                             22         8
+  1                             23         8
+  1                             24         8
+  1                             25         8
+  1                             26         8
+  1                             27         8
+  1                             28         8
+  1                             29         8
+  1                             30         8
+  1                             31         8
+  1                             32         8
+  1                             33         8
+  1                             34         8
+  1                             35         8
+  1                             36         8
+  1                             37         8
+  1                             38         8
+  1                             39         8
+  1                             40         8
+  1                             41         8
+  1                             42         8
+  1                             43         8
+  1                             44         8
+  1                             45         8
+  1                             46         8
+  1                             47         8
+  1                             48         8
+  1                             49         8
+  1                             50         8
+  1                             51         8
+  1                             52         8
+  1                             53         8
+  1                             54         8
+  1                             55         8
+  1                             56         8
+  1                             57         8
+  1                             58         8
+  1                             59         8
+  1                             60         8
+  1                             61         8
+  1                             62         8
+  1                             63         8
+  1                             64         8
+  1                             65         8
+  1                             66         8
+  1                             67         8
+  1                             68         8
+  1                             69         8
+  1                             70         8
+  1                             71         8
+  1                             72         8
+  1                             73         8
+  1                             74         8
+  1                             75         8
+  1                             76         8
+  1                             77         8
+  1                             78         8
+  1                             79         8
+  1                             80         8
+  1                             81         8
+  1                             82         8
+  1                             83         8
+  1                             84         8
+  1                             85         8
+  1                             86         8
+  1                             87         8
+  1                             88         8
+  1                             89         8
+  1                             90         8
+  1                             91         8
+  1                             92         8
+  1                             93         8
+  1                             94         8
+  1                             95         8
+  1                             96         8
+  1                             97         8
+  1                             98         8
+  1                             99         8
+  1                            100         8
+  1                            101         8
+  1                            102         8
+  1                            103         8
+  1                            104         8
+  1                            105         8
+  1                            106         8
+  1                            107         8
+  1                            108         8
+  1                            109         8
+  1 Pop_MaroReef                 1        10
+  1                              2        10
+  1                              3        10
+  1                              4        10
+  1                              5        10
+  1                              6        10
+  1                              7        10
+  1                              8        10
+  1                              9        10
+  1                             10        10
+  1                             11        10
+  1                             12        10
+  1                             13        10
+  1                             14        10
+  1                             15        10
+  1                             16        10
+  1                             17        10
+  1                             18        10
+  1                             19        10
+  1                             20        10
+  1                             21        10
+  1                             22        10
+  1                             23        10
+  1                             24        10
+  1                             25        10
+  1                             26        10
+  1                             27        10
+  1                             28        10
+  1                             29        10
+  1                             30        10
+  1                             31        10
+  1                             32        10
+  1                             33        10
+  1                             34        10
+  1                             35        10
+  1                             36        10
+  1                             37        10
+  1                             38        10
+  1                             39        10
+  1                             40        10
+  1                             41        10
+  1                             42        10
+  1                             43        10
+  1                             44        10
+  1                             45        10
+  1                             46        10
+  1                             47        10
+  1                             48        10
+  1                             49        10
+  1                             50        10
+  1                             51        10
+  1                             52        10
+  1                             53        10
+  1                             54        10
+  1                             55        10
+  1                             56        10
+  1                             57        10
+  1                             58        10
+  1                             59        10
+  1                             60        10
+  1                             61        10
+  1                             62        10
+  1                             63        10
+  1                             64        10
+  1                             65        10
+  1                             66        10
+  1                             67        10
+  1                             68        10
+  1                             69        10
+  1                             70        10
+  1                             71        10
+  1                             72        10
+  1                             73        10
+  1                             74        10
+  1                             75        10
+  1                             76        10
+  1                             77        10
+  1                             78        10
+  1                             79        10
+  1                             80        10
+  1                             81        10
+  1                             82        10
+  1                             83        10
+  1                             84        10
+  1                             85        10
+  1                             86        10
+  1                             87        10
+  1                             88        10
+  1                             89        10
+  1                             90        10
+  1                             91        10
+  1                             92        10
+  1                             93        10
+  1                             94        10
+  1                             95        10
+  1                             96        10
+  1                             97        10
+  1                             98        10
+  1                             99        10
+  1                            100        10
+  1                            101        10
+  1                            102        10
+  1                            103        10
+  1                            104        10
+  1                            105        10
+  1                            106        10
+  1                            107        10
+  1                            108        10
+  1                            109        10
+  1 Pop_FFS                      1        18
+  1                              2        18
+  1                              3        18
+  1                              4        18
+  1                              5        18
+  1                              6        18
+  1                              7        18
+  1                              8        18
+  1                              9        18
+  1                             10        18
+  1                             11        18
+  1                             12        18
+  1                             13        18
+  1                             14        18
+  1                             15        18
+  1                             16        18
+  1                             17        18
+  1                             18        18
+  1                             19        18
+  1                             20        18
+  1                             21        18
+  1                             22        18
+  1                             23        18
+  1                             24        18
+  1                             25        18
+  1                             26        18
+  1                             27        18
+  1                             28        18
+  1                             29        18
+  1                             30        18
+  1                             31        18
+  1                             32        18
+  1                             33        18
+  1                             34        18
+  1                             35        18
+  1                             36        18
+  1                             37        18
+  1                             38        18
+  1                             39        18
+  1                             40        18
+  1                             41        18
+  1                             42        18
+  1                             43        18
+  1                             44        18
+  1                             45        18
+  1                             46        18
+  1                             47        18
+  1                             48        18
+  1                             49        18
+  1                             50        18
+  1                             51        18
+  1                             52        18
+  1                             53        18
+  1                             54        18
+  1                             55        18
+  1                             56        18
+  1                             57        18
+  1                             58        18
+  1                             59        18
+  1                             60        18
+  1                             61        18
+  1                             62        18
+  1                             63        18
+  1                             64        18
+  1                             65        18
+  1                             66        18
+  1                             67        18
+  1                             68        18
+  1                             69        18
+  1                             70        18
+  1                             71        18
+  1                             72        18
+  1                             73        18
+  1                             74        18
+  1                             75        18
+  1                             76        18
+  1                             77        18
+  1                             78        18
+  1                             79        18
+  1                             80        18
+  1                             81        18
+  1                             82        18
+  1                             83        18
+  1                             84        18
+  1                             85        18
+  1                             86        18
+  1                             87        18
+  1                             88        18
+  1                             89        18
+  1                             90        18
+  1                             91        18
+  1                             92        18
+  1                             93        18
+  1                             94        18
+  1                             95        18
+  1                             96        18
+  1                             97        18
+  1                             98        18
+  1                             99        18
+  1                            100        18
+  1                            101        18
+  1                            102        18
+  1                            103        18
+  1                            104        18
+  1                            105        18
+  1                            106        18
+  1                            107        18
+  1                            108        18
+  1                            109        18
+  2 Pop_Kauai                    1        30
+  2                              2        30
+  2                              3        30
+  2                              4        30
+  2                              5        30
+  2                              6        30
+  2                              7        30
+  2                              8        30
+  2                              9        30
+  2                             10        30
+  2                             11        30
+  2                             12        30
+  2                             13        30
+  2                             14        30
+  2                             15        30
+  2                             16        30
+  2                             17        30
+  2                             18        30
+  2                             19        30
+  2                             20        30
+  2                             21        30
+  2                             22        30
+  2                             23        30
+  2                             24        30
+  2                             25        30
+  2                             26        30
+  2                             27        30
+  2                             28        30
+  2                             29        30
+  2                             30        30
+  2                             31        30
+  2                             32        30
+  2                             33        30
+  2                             34        30
+  2                             35        30
+  2                             36        30
+  2                             37        30
+  2                             38        30
+  2                             39        30
+  2                             40        30
+  2                             41        30
+  2                             42        30
+  2                             43        30
+  2                             44        30
+  2                             45        30
+  2                             46        30
+  2                             47        30
+  2                             48        30
+  2                             49        30
+  2                             50        30
+  2                             51        30
+  2                             52        30
+  2                             53        30
+  2                             54        30
+  2                             55        30
+  2                             56        30
+  2                             57        30
+  2                             58        30
+  2                             59        30
+  2                             60        30
+  2                             61        30
+  2                             62        30
+  2                             63        30
+  2                             64        30
+  2                             65        30
+  2                             66        30
+  2                             67        30
+  2                             68        30
+  2                             69        30
+  2                             70        30
+  2                             71        30
+  2                             72        30
+  2                             73        30
+  2                             74        30
+  2                             75        30
+  2                             76        30
+  2                             77        30
+  2                             78        30
+  2                             79        30
+  2                             80        30
+  2                             81        30
+  2                             82        30
+  2                             83        30
+  2                             84        30
+  2                             85        30
+  2                             86        30
+  2                             87        30
+  2                             88        30
+  2                             89        30
+  2                             90        30
+  2                             91        30
+  2                             92        30
+  2                             93        30
+  2                             94        30
+  2                             95        30
+  2                             96        30
+  2                             97        30
+  2                             98        30
+  2                             99        30
+  2                            100        30
+  2                            101        30
+  2                            102        30
+  2                            103        30
+  2                            104        30
+  2                            105        30
+  2                            106        30
+  2                            107        30
+  2                            108        30
+  2                            109        30
+  2 Pop_Oahu                     1        20
+  2                              2        20
+  2                              3        20
+  2                              4        20
+  2                              5        20
+  2                              6        20
+  2                              7        20
+  2                              8        20
+  2                              9        20
+  2                             10        20
+  2                             11        20
+  2                             12        20
+  2                             13        20
+  2                             14        20
+  2                             15        20
+  2                             16        20
+  2                             17        20
+  2                             18        20
+  2                             19        20
+  2                             20        20
+  2                             21        20
+  2                             22        20
+  2                             23        20
+  2                             24        20
+  2                             25        20
+  2                             26        20
+  2                             27        20
+  2                             28        20
+  2                             29        20
+  2                             30        20
+  2                             31        20
+  2                             32        20
+  2                             33        20
+  2                             34        20
+  2                             35        20
+  2                             36        20
+  2                             37        20
+  2                             38        20
+  2                             39        20
+  2                             40        20
+  2                             41        20
+  2                             42        20
+  2                             43        20
+  2                             44        20
+  2                             45        20
+  2                             46        20
+  2                             47        20
+  2                             48        20
+  2                             49        20
+  2                             50        20
+  2                             51        20
+  2                             52        20
+  2                             53        20
+  2                             54        20
+  2                             55        20
+  2                             56        20
+  2                             57        20
+  2                             58        20
+  2                             59        20
+  2                             60        20
+  2                             61        20
+  2                             62        20
+  2                             63        20
+  2                             64        20
+  2                             65        20
+  2                             66        20
+  2                             67        20
+  2                             68        20
+  2                             69        20
+  2                             70        20
+  2                             71        20
+  2                             72        20
+  2                             73        20
+  2                             74        20
+  2                             75        20
+  2                             76        20
+  2                             77        20
+  2                             78        20
+  2                             79        20
+  2                             80        20
+  2                             81        20
+  2                             82        20
+  2                             83        20
+  2                             84        20
+  2                             85        20
+  2                             86        20
+  2                             87        20
+  2                             88        20
+  2                             89        20
+  2                             90        20
+  2                             91        20
+  2                             92        20
+  2                             93        20
+  2                             94        20
+  2                             95        20
+  2                             96        20
+  2                             97        20
+  2                             98        20
+  2                             99        20
+  2                            100        20
+  2                            101        20
+  2                            102        20
+  2                            103        20
+  2                            104        20
+  2                            105        20
+  2                            106        20
+  2                            107        20
+  2                            108        20
+  2                            109        20
+  2 Pop_Molokai                  1        20
+  2                              2        20
+  2                              3        20
+  2                              4        20
+  2                              5        20
+  2                              6        20
+  2                              7        20
+  2                              8        20
+  2                              9        20
+  2                             10        20
+  2                             11        20
+  2                             12        20
+  2                             13        20
+  2                             14        20
+  2                             15        20
+  2                             16        20
+  2                             17        20
+  2                             18        20
+  2                             19        20
+  2                             20        20
+  2                             21        20
+  2                             22        20
+  2                             23        20
+  2                             24        20
+  2                             25        20
+  2                             26        20
+  2                             27        20
+  2                             28        20
+  2                             29        20
+  2                             30        20
+  2                             31        20
+  2                             32        20
+  2                             33        20
+  2                             34        20
+  2                             35        20
+  2                             36        20
+  2                             37        20
+  2                             38        20
+  2                             39        20
+  2                             40        20
+  2                             41        20
+  2                             42        20
+  2                             43        20
+  2                             44        20
+  2                             45        20
+  2                             46        20
+  2                             47        20
+  2                             48        20
+  2                             49        20
+  2                             50        20
+  2                             51        20
+  2                             52        20
+  2                             53        20
+  2                             54        20
+  2                             55        20
+  2                             56        20
+  2                             57        20
+  2                             58        20
+  2                             59        20
+  2                             60        20
+  2                             61        20
+  2                             62        20
+  2                             63        20
+  2                             64        20
+  2                             65        20
+  2                             66        20
+  2                             67        20
+  2                             68        20
+  2                             69        20
+  2                             70        20
+  2                             71        20
+  2                             72        20
+  2                             73        20
+  2                             74        20
+  2                             75        20
+  2                             76        20
+  2                             77        20
+  2                             78        20
+  2                             79        20
+  2                             80        20
+  2                             81        20
+  2                             82        20
+  2                             83        20
+  2                             84        20
+  2                             85        20
+  2                             86        20
+  2                             87        20
+  2                             88        20
+  2                             89        20
+  2                             90        20
+  2                             91        20
+  2                             92        20
+  2                             93        20
+  2                             94        20
+  2                             95        20
+  2                             96        20
+  2                             97        20
+  2                             98        20
+  2                             99        20
+  2                            100        20
+  2                            101        20
+  2                            102        20
+  2                            103        20
+  2                            104        20
+  2                            105        20
+  2                            106        20
+  2                            107        20
+  2                            108        20
+  2                            109        20
+  2 Pop_Maui                     1        20
+  2                              2        20
+  2                              3        20
+  2                              4        20
+  2                              5        20
+  2                              6        20
+  2                              7        20
+  2                              8        20
+  2                              9        20
+  2                             10        20
+  2                             11        20
+  2                             12        20
+  2                             13        20
+  2                             14        20
+  2                             15        20
+  2                             16        20
+  2                             17        20
+  2                             18        20
+  2                             19        20
+  2                             20        20
+  2                             21        20
+  2                             22        20
+  2                             23        20
+  2                             24        20
+  2                             25        20
+  2                             26        20
+  2                             27        20
+  2                             28        20
+  2                             29        20
+  2                             30        20
+  2                             31        20
+  2                             32        20
+  2                             33        20
+  2                             34        20
+  2                             35        20
+  2                             36        20
+  2                             37        20
+  2                             38        20
+  2                             39        20
+  2                             40        20
+  2                             41        20
+  2                             42        20
+  2                             43        20
+  2                             44        20
+  2                             45        20
+  2                             46        20
+  2                             47        20
+  2                             48        20
+  2                             49        20
+  2                             50        20
+  2                             51        20
+  2                             52        20
+  2                             53        20
+  2                             54        20
+  2                             55        20
+  2                             56        20
+  2                             57        20
+  2                             58        20
+  2                             59        20
+  2                             60        20
+  2                             61        20
+  2                             62        20
+  2                             63        20
+  2                             64        20
+  2                             65        20
+  2                             66        20
+  2                             67        20
+  2                             68        20
+  2                             69        20
+  2                             70        20
+  2                             71        20
+  2                             72        20
+  2                             73        20
+  2                             74        20
+  2                             75        20
+  2                             76        20
+  2                             77        20
+  2                             78        20
+  2                             79        20
+  2                             80        20
+  2                             81        20
+  2                             82        20
+  2                             83        20
+  2                             84        20
+  2                             85        20
+  2                             86        20
+  2                             87        20
+  2                             88        20
+  2                             89        20
+  2                             90        20
+  2                             91        20
+  2                             92        20
+  2                             93        20
+  2                             94        20
+  2                             95        20
+  2                             96        20
+  2                             97        20
+  2                             98        20
+  2                             99        20
+  2                            100        20
+  2                            101        20
+  2                            102        20
+  2                            103        20
+  2                            104        20
+  2                            105        20
+  2                            106        20
+  2                            107        20
+  2                            108        20
+  2                            109        20
+  2 Pop_BigIsland                1        34
+  2                              2        34
+  2                              3        34
+  2                              4        34
+  2                              5        34
+  2                              6        34
+  2                              7        34
+  2                              8        34
+  2                              9        34
+  2                             10        34
+  2                             11        34
+  2                             12        34
+  2                             13        34
+  2                             14        34
+  2                             15        34
+  2                             16        34
+  2                             17        34
+  2                             18        34
+  2                             19        34
+  2                             20        34
+  2                             21        34
+  2                             22        34
+  2                             23        34
+  2                             24        34
+  2                             25        34
+  2                             26        34
+  2                             27        34
+  2                             28        34
+  2                             29        34
+  2                             30        34
+  2                             31        34
+  2                             32        34
+  2                             33        34
+  2                             34        34
+  2                             35        34
+  2                             36        34
+  2                             37        34
+  2                             38        34
+  2                             39        34
+  2                             40        34
+  2                             41        34
+  2                             42        34
+  2                             43        34
+  2                             44        34
+  2                             45        34
+  2                             46        34
+  2                             47        34
+  2                             48        34
+  2                             49        34
+  2                             50        34
+  2                             51        34
+  2                             52        34
+  2                             53        34
+  2                             54        34
+  2                             55        34
+  2                             56        34
+  2                             57        34
+  2                             58        34
+  2                             59        34
+  2                             60        34
+  2                             61        34
+  2                             62        34
+  2                             63        34
+  2                             64        34
+  2                             65        34
+  2                             66        34
+  2                             67        34
+  2                             68        34
+  2                             69        34
+  2                             70        34
+  2                             71        34
+  2                             72        34
+  2                             73        34
+  2                             74        34
+  2                             75        34
+  2                             76        34
+  2                             77        34
+  2                             78        34
+  2                             79        34
+  2                             80        34
+  2                             81        34
+  2                             82        34
+  2                             83        34
+  2                             84        34
+  2                             85        34
+  2                             86        34
+  2                             87        34
+  2                             88        34
+  2                             89        34
+  2                             90        34
+  2                             91        34
+  2                             92        34
+  2                             93        34
+  2                             94        34
+  2                             95        34
+  2                             96        34
+  2                             97        34
+  2                             98        34
+  2                             99        34
+  2                            100        34
+  2                            101        34
+  2                            102        34
+  2                            103        34
+  2                            104        34
+  2                            105        34
+  2                            106        34
+  2                            107        34
+  2                            108        34
+  2                            109        34
+    Total of all populations     1       180
+                                 2       180
+                                 3       180
+                                 4       180
+                                 5       180
+                                 6       180
+                                 7       180
+                                 8       180
+                                 9       180
+                                10       180
+                                11       180
+                                12       180
+                                13       180
+                                14       180
+                                15       180
+                                16       180
+                                17       180
+                                18       180
+                                19       180
+                                20       180
+                                21       180
+                                22       180
+                                23       180
+                                24       180
+                                25       180
+                                26       180
+                                27       180
+                                28       180
+                                29       180
+                                30       180
+                                31       180
+                                32       180
+                                33       180
+                                34       180
+                                35       180
+                                36       180
+                                37       180
+                                38       180
+                                39       180
+                                40       180
+                                41       180
+                                42       180
+                                43       180
+                                44       180
+                                45       180
+                                46       180
+                                47       180
+                                48       180
+                                49       180
+                                50       180
+                                51       180
+                                52       180
+                                53       180
+                                54       180
+                                55       180
+                                56       180
+                                57       180
+                                58       180
+                                59       180
+                                60       180
+                                61       180
+                                62       180
+                                63       180
+                                64       180
+                                65       180
+                                66       180
+                                67       180
+                                68       180
+                                69       180
+                                70       180
+                                71       180
+                                72       180
+                                73       180
+                                74       180
+                                75       180
+                                76       180
+                                77       180
+                                78       180
+                                79       180
+                                80       180
+                                81       180
+                                82       180
+                                83       180
+                                84       180
+                                85       180
+                                86       180
+                                87       180
+                                88       180
+                                89       180
+                                90       180
+                                91       180
+                                92       180
+                                93       180
+                                94       180
+                                95       180
+                                96       180
+                                97       180
+                                98       180
+                                99       180
+                               100       180
+                               101       180
+                               102       180
+                               103       180
+                               104       180
+                               105       180
+                               106       180
+                               107       180
+                               108       180
+                               109       180
+
+
+
+
+Bayesian estimates
+==================
+
+Locus Parameter        2.5%      25.0%    mode     75.0%   97.5%     median   mean
+-----------------------------------------------------------------------------------
+    1  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00384
+    1  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01040  0.00650  0.00626
+    1  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   559.83
+    1  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   465.88
+    2  Theta_1         0.00000  0.00220  0.00410  0.00560  0.00780  0.00430  0.00406
+    2  Theta_2         0.00140  0.00420  0.00610  0.00780  0.01040  0.00630  0.00608
+    2  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   582.22
+    2  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   465.14
+    3  Theta_1         0.00060  0.00320  0.00510  0.00680  0.00920  0.00530  0.00508
+    3  Theta_2         0.00280  0.00560  0.00770  0.00940  0.01220  0.00790  0.00769
+    3  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   467.93
+    3  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   403.83
+    4  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00385
+    4  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01040  0.00630  0.00614
+    4  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   566.26
+    4  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   451.50
+    5  Theta_1         0.00120  0.00400  0.00610  0.00780  0.01060  0.00630  0.00612
+    5  Theta_2         0.00380  0.00680  0.00870  0.01040  0.01320  0.00890  0.00862
+    5  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   873.96
+    5  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   381.89
+    6  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00376
+    6  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01040  0.00630  0.00618
+    6  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   550.26
+    6  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   471.99
+    7  Theta_1         0.00100  0.00360  0.00550  0.00720  0.00980  0.00570  0.00553
+    7  Theta_2         0.00340  0.00620  0.00830  0.01000  0.01300  0.00850  0.00828
+    7  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   477.70
+    7  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   411.00
+    8  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00398
+    8  Theta_2         0.00160  0.00440  0.00630  0.00800  0.01060  0.00650  0.00625
+    8  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   545.39
+    8  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   452.83
+    9  Theta_1         0.00140  0.00420  0.00610  0.00800  0.01080  0.00630  0.00613
+    9  Theta_2         0.00640  0.00940  0.01170  0.01340  0.01660  0.01170  0.01159
+    9  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00  1144.03
+    9  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   162.19
+   10  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00366
+   10  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01020  0.00630  0.00607
+   10  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.23
+   10  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   493.23
+   11  Theta_1         0.00120  0.00400  0.00590  0.00760  0.01040  0.00610  0.00600
+   11  Theta_2         0.00500  0.00780  0.00970  0.01140  0.01420  0.00990  0.00964
+   11  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   507.52
+   11  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   351.27
+   12  Theta_1         0.00000  0.00220  0.00410  0.00560  0.00780  0.00430  0.00408
+   12  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00606
+   12  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   575.61
+   12  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   440.06
+   13  Theta_1         0.00040  0.00280  0.00470  0.00640  0.00900  0.00510  0.00480
+   13  Theta_2         0.00200  0.00480  0.00670  0.00840  0.01120  0.00690  0.00673
+   13  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   527.93
+   13  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   410.76
+   14  Theta_1         0.00000  0.00180  0.00350  0.00520  0.00700  0.00390  0.00356
+   14  Theta_2         0.00160  0.00400  0.00590  0.00760  0.01000  0.00610  0.00595
+   14  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   555.92
+   14  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   500.29
+   15  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00386
+   15  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00617
+   15  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   553.24
+   15  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   459.54
+   16  Theta_1         0.00000  0.00240  0.00410  0.00580  0.00800  0.00430  0.00412
+   16  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01060  0.00630  0.00616
+   16  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   589.13
+   16  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   421.42
+   17  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00390
+   17  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00624
+   17  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   540.56
+   17  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   466.76
+   18  Theta_1         0.00060  0.00320  0.00510  0.00680  0.00920  0.00530  0.00504
+   18  Theta_2         0.00220  0.00500  0.00690  0.00860  0.01140  0.00710  0.00700
+   18  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   563.31
+   18  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   354.65
+   19  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00363
+   19  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01020  0.00630  0.00605
+   19  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   555.96
+   19  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   491.17
+   20  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00740  0.00410  0.00382
+   20  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01020  0.00630  0.00610
+   20  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   550.32
+   20  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   472.11
+   21  Theta_1         0.00020  0.00260  0.00450  0.00620  0.00860  0.00470  0.00448
+   21  Theta_2         0.00140  0.00420  0.00610  0.00780  0.01060  0.00630  0.00618
+   21  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   625.47
+   21  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   384.33
+   22  Theta_1         0.00160  0.00420  0.00610  0.00780  0.01060  0.00630  0.00612
+   22  Theta_2         0.00740  0.01060  0.01250  0.01440  0.01740  0.01270  0.01249
+   22  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   208.91
+   22  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   603.97
+   23  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00388
+   23  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00628
+   23  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   546.48
+   23  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   457.12
+   24  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00373
+   24  Theta_2         0.00140  0.00380  0.00590  0.00740  0.01000  0.00610  0.00580
+   24  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   590.92
+   24  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   458.70
+   25  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00760  0.00430  0.00394
+   25  Theta_2         0.00220  0.00480  0.00670  0.00840  0.01120  0.00690  0.00679
+   25  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   533.47
+   25  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   462.11
+   26  Theta_1         0.00140  0.00420  0.00630  0.00800  0.01100  0.00650  0.00630
+   26  Theta_2         0.00660  0.00920  0.01110  0.01280  0.01560  0.01130  0.01117
+   26  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   750.95
+   26  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   353.77
+   27  Theta_1         0.00200  0.00500  0.00710  0.00880  0.01200  0.00730  0.00705
+   27  Theta_2         0.00680  0.00920  0.01110  0.01280  0.01540  0.01130  0.01107
+   27  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   955.91
+   27  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   240.07
+   28  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00396
+   28  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00614
+   28  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   538.90
+   28  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   470.15
+   29  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00368
+   29  Theta_2         0.00160  0.00400  0.00590  0.00760  0.01020  0.00610  0.00593
+   29  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   565.20
+   29  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   474.76
+   30  Theta_1         0.00100  0.00360  0.00550  0.00720  0.01000  0.00570  0.00556
+   30  Theta_2         0.00300  0.00580  0.00770  0.00940  0.01220  0.00790  0.00778
+   30  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   686.06
+   30  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   341.12
+   31  Theta_1         0.00000  0.00180  0.00350  0.00520  0.00700  0.00390  0.00356
+   31  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01020  0.00630  0.00603
+   31  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   557.72
+   31  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   500.20
+   32  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00378
+   32  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01040  0.00650  0.00622
+   32  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   542.50
+   32  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   480.21
+   33  Theta_1         0.00220  0.00500  0.00710  0.00880  0.01200  0.00730  0.00717
+   33  Theta_2         0.00700  0.01000  0.01190  0.01380  0.01680  0.01210  0.01190
+   33  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   530.82
+   33  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   508.94
+   34  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00400
+   34  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01080  0.00670  0.00647
+   34  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   548.36
+   34  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   442.61
+   35  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00380
+   35  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01060  0.00670  0.00642
+   35  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   550.44
+   35  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   473.53
+   36  Theta_1         0.00020  0.00260  0.00450  0.00620  0.00860  0.00490  0.00457
+   36  Theta_2         0.00180  0.00460  0.00650  0.00820  0.01100  0.00670  0.00654
+   36  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   548.80
+   36  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   463.27
+   37  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00396
+   37  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00620
+   37  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.40
+   37  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   452.79
+   38  Theta_1         0.00220  0.00480  0.00690  0.00860  0.01160  0.00710  0.00692
+   38  Theta_2         0.00700  0.00940  0.01130  0.01300  0.01560  0.01150  0.01126
+   38  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   533.33
+   38  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   395.86
+   39  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00366
+   39  Theta_2         0.00140  0.00400  0.00590  0.00760  0.01020  0.00610  0.00596
+   39  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   549.04
+   39  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   480.11
+   40  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00384
+   40  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00618
+   40  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   561.46
+   40  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   455.51
+   41  Theta_1         0.00140  0.00420  0.00610  0.00780  0.01040  0.00630  0.00609
+   41  Theta_2         0.00380  0.00700  0.00910  0.01100  0.01400  0.00930  0.00909
+   41  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   454.78
+   41  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   351.39
+   42  Theta_1         0.00180  0.00460  0.00650  0.00840  0.01120  0.00690  0.00665
+   42  Theta_2         0.00720  0.00980  0.01170  0.01340  0.01600  0.01190  0.01180
+   42  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   703.27
+   42  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   390.75
+   43  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00377
+   43  Theta_2         0.00140  0.00400  0.00590  0.00760  0.01000  0.00610  0.00584
+   43  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   585.43
+   43  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   466.31
+   44  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00396
+   44  Theta_2         0.00160  0.00420  0.00630  0.00780  0.01040  0.00650  0.00621
+   44  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   540.09
+   44  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   455.85
+   45  Theta_1         0.00140  0.00400  0.00590  0.00760  0.01040  0.00610  0.00601
+   45  Theta_2         0.00720  0.01000  0.01190  0.01360  0.01640  0.01210  0.01197
+   45  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   314.77
+   45  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   595.84
+   46  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00389
+   46  Theta_2         0.00180  0.00440  0.00650  0.00800  0.01060  0.00670  0.00641
+   46  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   544.72
+   46  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   468.64
+   47  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00396
+   47  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01080  0.00650  0.00632
+   47  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   559.03
+   47  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   445.86
+   48  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00375
+   48  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01040  0.00630  0.00615
+   48  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.75
+   48  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   475.64
+   49  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00740  0.00410  0.00382
+   49  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00638
+   49  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   538.34
+   49  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   487.52
+   50  Theta_1         0.00040  0.00300  0.00490  0.00660  0.00900  0.00510  0.00487
+   50  Theta_2         0.00220  0.00500  0.00690  0.00860  0.01140  0.00710  0.00684
+   50  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   508.84
+   50  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   366.09
+   51  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00390
+   51  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00638
+   51  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   552.37
+   51  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   458.16
+   52  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00387
+   52  Theta_2         0.00220  0.00460  0.00650  0.00820  0.01080  0.00670  0.00659
+   52  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   538.81
+   52  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   461.81
+   53  Theta_1         0.00200  0.00500  0.00710  0.00900  0.01240  0.00730  0.00727
+   53  Theta_2         0.00620  0.00900  0.01110  0.01280  0.01560  0.01110  0.01095
+   53  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   750.52
+   53  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   309.55
+   54  Theta_1         0.00100  0.00380  0.00570  0.00740  0.01000  0.00590  0.00566
+   54  Theta_2         0.00280  0.00560  0.00770  0.00940  0.01240  0.00790  0.00763
+   54  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   559.27
+   54  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   348.80
+   55  Theta_1         0.00180  0.00460  0.00670  0.00840  0.01120  0.00690  0.00667
+   55  Theta_2         0.00520  0.00820  0.01030  0.01220  0.01540  0.01050  0.01027
+   55  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   363.31
+   55  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   450.71
+   56  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00394
+   56  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00613
+   56  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.48
+   56  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   447.28
+   57  Theta_1         0.00060  0.00300  0.00490  0.00660  0.00920  0.00530  0.00500
+   57  Theta_2         0.00200  0.00480  0.00690  0.00860  0.01140  0.00710  0.00687
+   57  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   517.63
+   57  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   360.66
+   58  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00740  0.00410  0.00383
+   58  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00616
+   58  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   546.26
+   58  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   462.58
+   59  Theta_1         0.00120  0.00380  0.00570  0.00740  0.01000  0.00590  0.00577
+   59  Theta_2         0.00400  0.00680  0.00870  0.01040  0.01320  0.00890  0.00873
+   59  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   539.52
+   59  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   327.32
+   60  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00387
+   60  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00634
+   60  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   562.93
+   60  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   441.84
+   61  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00378
+   61  Theta_2         0.00140  0.00400  0.00590  0.00760  0.01000  0.00610  0.00587
+   61  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   563.67
+   61  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   483.31
+   62  Theta_1         0.00000  0.00220  0.00410  0.00560  0.00780  0.00430  0.00404
+   62  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00604
+   62  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   571.96
+   62  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   441.87
+   63  Theta_1         0.00180  0.00480  0.00670  0.00860  0.01160  0.00690  0.00678
+   63  Theta_2         0.00660  0.00940  0.01130  0.01320  0.01580  0.01150  0.01138
+   63  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00  1185.68
+   63  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   436.62
+   64  Theta_1         0.00060  0.00300  0.00490  0.00660  0.00920  0.00510  0.00496
+   64  Theta_2         0.00220  0.00500  0.00690  0.00880  0.01160  0.00710  0.00700
+   64  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   512.83
+   64  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   388.99
+   65  Theta_1         0.00000  0.00240  0.00410  0.00580  0.00800  0.00450  0.00418
+   65  Theta_2         0.00200  0.00420  0.00610  0.00780  0.00980  0.00630  0.00601
+   65  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   615.21
+   65  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   429.42
+   66  Theta_1         0.00000  0.00180  0.00350  0.00520  0.00700  0.00390  0.00355
+   66  Theta_2         0.00140  0.00400  0.00590  0.00760  0.01000  0.00610  0.00593
+   66  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   562.94
+   66  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   511.02
+   67  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00378
+   67  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00620
+   67  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   559.24
+   67  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   463.43
+   68  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00720  0.00410  0.00371
+   68  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01040  0.00650  0.00625
+   68  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   570.92
+   68  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   481.75
+   69  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00379
+   69  Theta_2         0.00200  0.00440  0.00630  0.00800  0.01060  0.00650  0.00640
+   69  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   546.13
+   69  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   470.27
+   70  Theta_1         0.00080  0.00320  0.00510  0.00680  0.00940  0.00530  0.00519
+   70  Theta_2         0.00280  0.00580  0.00770  0.00960  0.01240  0.00790  0.00778
+   70  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   534.94
+   70  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   379.66
+   71  Theta_1         0.00180  0.00460  0.00650  0.00820  0.01080  0.00670  0.00645
+   71  Theta_2         0.00460  0.00720  0.00910  0.01080  0.01340  0.00930  0.00903
+   71  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   568.11
+   71  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   268.35
+   72  Theta_1         0.00220  0.00500  0.00690  0.00880  0.01160  0.00710  0.00700
+   72  Theta_2         0.00740  0.00980  0.01170  0.01340  0.01600  0.01190  0.01162
+   72  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   821.43
+   72  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   415.41
+   73  Theta_1         0.00220  0.00500  0.00690  0.00880  0.01180  0.00730  0.00703
+   73  Theta_2         0.00680  0.00980  0.01170  0.01360  0.01660  0.01190  0.01174
+   73  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   697.92
+   73  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   277.73
+   74  Theta_1         0.00020  0.00240  0.00430  0.00580  0.00820  0.00450  0.00427
+   74  Theta_2         0.00180  0.00460  0.00650  0.00820  0.01080  0.00670  0.00643
+   74  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   525.32
+   74  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   428.25
+   75  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00386
+   75  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00637
+   75  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   557.77
+   75  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   447.61
+   76  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00760  0.00410  0.00392
+   76  Theta_2         0.00140  0.00420  0.00610  0.00780  0.01040  0.00630  0.00606
+   76  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   574.24
+   76  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   473.24
+   77  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00375
+   77  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01060  0.00670  0.00641
+   77  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   559.04
+   77  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   476.15
+   78  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00394
+   78  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01080  0.00670  0.00645
+   78  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   570.06
+   78  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   448.05
+   79  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00379
+   79  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00627
+   79  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   553.12
+   79  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   476.70
+   80  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00400
+   80  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00605
+   80  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   565.99
+   80  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   456.70
+   81  Theta_1         0.00240  0.00520  0.00730  0.00900  0.01200  0.00750  0.00724
+   81  Theta_2         0.00620  0.00900  0.01090  0.01260  0.01500  0.01110  0.01086
+   81  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   650.80
+   81  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   335.58
+   82  Theta_1         0.00020  0.00260  0.00430  0.00600  0.00840  0.00470  0.00439
+   82  Theta_2         0.00180  0.00460  0.00650  0.00840  0.01120  0.00690  0.00662
+   82  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   532.40
+   82  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   435.75
+   83  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00390
+   83  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00611
+   83  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   570.33
+   83  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   446.98
+   84  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00374
+   84  Theta_2         0.00120  0.00380  0.00570  0.00740  0.01000  0.00590  0.00576
+   84  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   647.46
+   84  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   455.00
+   85  Theta_1         0.00240  0.00520  0.00710  0.00900  0.01200  0.00750  0.00724
+   85  Theta_2         0.00600  0.00880  0.01070  0.01240  0.01520  0.01090  0.01068
+   85  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   793.07
+   85  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   293.37
+   86  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00361
+   86  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01040  0.00630  0.00616
+   86  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   550.67
+   86  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   502.40
+   87  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00740  0.00410  0.00382
+   87  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00629
+   87  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.54
+   87  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   471.38
+   88  Theta_1         0.00120  0.00400  0.00590  0.00760  0.01020  0.00610  0.00586
+   88  Theta_2         0.00440  0.00720  0.00910  0.01080  0.01360  0.00930  0.00904
+   88  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   422.70
+   88  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   422.77
+   89  Theta_1         0.00000  0.00240  0.00430  0.00580  0.00800  0.00450  0.00422
+   89  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01080  0.00650  0.00637
+   89  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   545.67
+   89  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   415.95
+   90  Theta_1         0.00040  0.00300  0.00490  0.00660  0.00900  0.00510  0.00483
+   90  Theta_2         0.00240  0.00520  0.00730  0.00900  0.01180  0.00750  0.00723
+   90  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   722.06
+   90  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   394.14
+   91  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00386
+   91  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00609
+   91  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   568.03
+   91  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   475.30
+   92  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00720  0.00410  0.00371
+   92  Theta_2         0.00180  0.00420  0.00610  0.00780  0.01040  0.00630  0.00619
+   92  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   552.62
+   92  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   475.21
+   93  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00720  0.00410  0.00373
+   93  Theta_2         0.00200  0.00440  0.00630  0.00800  0.01060  0.00650  0.00633
+   93  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   551.96
+   93  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   485.67
+   94  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00370
+   94  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01040  0.00650  0.00621
+   94  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   560.13
+   94  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   469.77
+   95  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00385
+   95  Theta_2         0.00220  0.00480  0.00670  0.00840  0.01100  0.00690  0.00664
+   95  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   547.74
+   95  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   458.30
+   96  Theta_1         0.00000  0.00240  0.00430  0.00580  0.00820  0.00450  0.00429
+   96  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01060  0.00630  0.00619
+   96  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   548.12
+   96  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   431.01
+   97  Theta_1         0.00020  0.00240  0.00430  0.00580  0.00820  0.00450  0.00429
+   97  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00606
+   97  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   608.21
+   97  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   403.95
+   98  Theta_1         0.00000  0.00200  0.00370  0.00540  0.00740  0.00410  0.00379
+   98  Theta_2         0.00160  0.00420  0.00610  0.00780  0.01040  0.00630  0.00606
+   98  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   537.58
+   98  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   488.38
+   99  Theta_1         0.00180  0.00460  0.00650  0.00820  0.01100  0.00670  0.00659
+   99  Theta_2         0.00680  0.00940  0.01130  0.01300  0.01560  0.01150  0.01120
+   99  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   737.05
+   99  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   295.53
+  100  Theta_1         0.00000  0.00220  0.00410  0.00560  0.00780  0.00430  0.00407
+  100  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01080  0.00650  0.00639
+  100  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   555.07
+  100  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   474.13
+  101  Theta_1         0.00000  0.00180  0.00370  0.00520  0.00720  0.00390  0.00365
+  101  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01040  0.00650  0.00623
+  101  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   549.95
+  101  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   481.09
+  102  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00760  0.00410  0.00393
+  102  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01080  0.00670  0.00651
+  102  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   553.76
+  102  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   446.23
+  103  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00385
+  103  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00630
+  103  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   542.17
+  103  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   467.17
+  104  Theta_1         0.00260  0.00520  0.00730  0.00900  0.01200  0.00750  0.00732
+  104  Theta_2         0.00640  0.00900  0.01090  0.01260  0.01520  0.01110  0.01090
+  104  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   891.35
+  104  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   462.76
+  105  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00760  0.00410  0.00385
+  105  Theta_2         0.00200  0.00440  0.00630  0.00800  0.01060  0.00650  0.00640
+  105  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   551.94
+  105  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   472.67
+  106  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00395
+  106  Theta_2         0.00140  0.00400  0.00590  0.00760  0.01040  0.00610  0.00594
+  106  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   547.10
+  106  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   475.27
+  107  Theta_1         0.00000  0.00200  0.00390  0.00540  0.00740  0.00410  0.00380
+  107  Theta_2         0.00200  0.00440  0.00630  0.00800  0.01060  0.00650  0.00639
+  107  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   556.00
+  107  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   460.70
+  108  Theta_1         0.00000  0.00220  0.00390  0.00560  0.00780  0.00430  0.00399
+  108  Theta_2         0.00200  0.00460  0.00650  0.00820  0.01080  0.00670  0.00649
+  108  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   550.05
+  108  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   461.52
+  109  Theta_1         0.00000  0.00220  0.00410  0.00560  0.00780  0.00430  0.00407
+  109  Theta_2         0.00180  0.00440  0.00630  0.00800  0.01060  0.00650  0.00623
+  109  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00   552.84
+  109  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00   444.27
+  All  Theta_1         0.00160  0.00360  0.00550  0.00700  0.00900  0.00570  0.00541
+  All  Theta_2         0.00440  0.00640  0.00830  0.00980  0.01200  0.00850  0.00823
+  All  M_2->1             0.00     0.00 50000.00 160000.00 380000.00 170000.00 10000.00
+  All  M_1->2             0.00     0.00 50000.00 160000.00 380000.00 170000.00 10000.00
+-----------------------------------------------------------------------------------
+
+
+
+Log-Probability of the data given the model (marginal likelihood = log(P(D|thisModel))
+--------------------------------------------------------------------
+[Use this value for Bayes factor calculations:
+BF = Exp[log(P(D|thisModel) - log(P(D|otherModel)]
+shows the support for thisModel]
+
+
+
+Locus          TI(1a)       BTI(1b)         HS(2)
+-------------------------------------------------
+      1       -590.95       -585.01       -589.37
+      2       -639.22       -632.50       -632.31
+      3       -708.57       -701.47       -698.15
+      4       -687.01       -680.09       -684.82
+      5       -770.92       -763.03       -751.98
+      6       -731.75       -724.39       -729.82
+      7       -761.63       -753.95       -748.87
+      8       -490.76       -485.77       -488.81
+      9       -925.47       -840.28       -768.20
+     10       -890.93       -882.01       -888.95
+     11       -591.76       -586.08       -576.29
+     12       -591.08       -585.07       -588.60
+     13       -747.07       -739.40       -738.54
+     14      -1033.18      -1022.87      -1031.36
+     15       -703.96       -696.86       -701.77
+     16       -492.83       -487.79       -490.26
+     17       -545.65       -540.12       -543.64
+     18       -501.26       -496.04       -494.06
+     19       -931.59       -922.29       -929.94
+     20       -697.49       -690.46       -695.36
+     21       -683.24       -676.07       -677.45
+     22       -622.70       -614.67       -596.91
+     23       -541.91       -536.46       -540.41
+     24      -1072.78      -1062.00      -1069.49
+     25       -383.96       -380.11       -383.19
+     26       -641.44       -633.20       -603.38
+     27       -753.18       -743.60       -707.81
+     28      -1060.46      -1049.81      -1054.95
+     29       -990.10       -980.19       -988.02
+     30       -542.45       -537.04       -531.47
+     31      -1031.57      -1021.26      -1029.72
+     32       -669.84       -663.12       -668.14
+     33       -543.44       -536.81       -512.44
+     34       -381.63       -377.77       -380.35
+     35       -589.74       -583.85       -588.68
+     36       -504.03       -498.83       -498.49
+     37       -466.43       -461.69       -464.50
+     38       -518.34       -508.32       -472.22
+     39       -967.30       -957.58       -964.69
+     40       -659.87       -653.21       -657.75
+     41       -541.26       -534.69       -527.46
+     42       -744.89       -736.25       -712.46
+     43      -1110.73      -1099.55      -1107.43
+     44       -473.07       -468.26       -471.11
+     45       -777.93       -768.78       -740.85
+     46       -512.17       -507.02       -510.77
+     47       -468.43       -463.66       -466.50
+     48       -713.27       -706.12       -711.52
+     49       -631.95       -625.60       -630.25
+     50       -401.81       -397.72       -395.59
+     51       -491.53       -486.58       -490.09
+     52       -475.30       -470.55       -474.40
+     53       -599.18       -592.15       -569.60
+     54       -708.52       -701.09       -698.00
+     55       -466.15       -456.35       -446.08
+     56       -699.00       -691.93       -696.40
+     57       -409.58       -405.43       -403.20
+     58       -607.54       -601.40       -605.50
+     59       -692.71       -685.96       -678.69
+     60       -538.40       -532.98       -536.92
+     61       -904.27       -895.15       -901.27
+     62       -715.63       -708.34       -712.48
+     63      -1047.50      -1010.33       -925.41
+     64       -480.51       -475.42       -473.20
+     65       -952.39       -942.67       -946.82
+     66      -1109.71      -1098.61      -1107.59
+     67       -660.81       -654.17       -659.12
+     68       -763.93       -756.29       -762.50
+     69       -574.01       -568.26       -572.92
+     70       -778.23       -770.57       -767.53
+     71       -543.24       -537.68       -526.84
+     72       -749.05       -738.59       -682.09
+     73       -408.28       -401.08       -372.14
+     74       -743.02       -735.53       -737.08
+     75       -581.22       -575.38       -579.68
+     76       -490.18       -485.12       -485.48
+     77       -665.42       -658.77       -664.20
+     78       -493.53       -488.57       -492.18
+     79       -619.18       -612.96       -617.56
+     80       -656.22       -649.51       -653.02
+     81       -650.85       -643.47       -615.03
+     82       -632.11       -625.48       -622.44
+     83       -696.75       -689.73       -694.56
+     84       -795.25       -787.06       -786.60
+     85       -725.46       -713.42       -696.81
+     86       -918.81       -909.63       -917.16
+     87       -610.48       -604.34       -608.83
+     88       -690.38       -683.05       -675.75
+     89       -286.61       -283.65       -284.96
+     90      -1029.34      -1019.00      -1017.96
+     91       -901.60       -892.55       -898.16
+     92       -733.72       -726.37       -732.00
+     93       -699.77       -692.78       -698.47
+     94       -729.14       -721.82       -727.36
+     95       -430.38       -426.08       -429.55
+     96       -602.78       -596.46       -598.38
+     97       -523.96       -518.52       -520.23
+     98       -838.99       -830.51       -835.94
+     99       -527.93       -518.63       -489.70
+    100       -706.52       -699.19       -697.27
+    101       -836.55       -828.20       -835.05
+    102       -481.50       -476.65       -480.15
+    103       -539.67       -534.24       -538.13
+    104       -831.90       -822.87       -796.11
+    105       -525.44       -520.18       -524.40
+    106       -495.88       -490.70       -491.05
+    107       -568.50       -562.81       -567.43
+    108       -457.67       -453.07       -456.39
+    109       -523.16       -517.84       -520.78
+---------------------------------------------------------------
+  All       -70253.41     -69379.56     -69838.88
+[Scaling factor = 2394.896636]
+
+
+(1a) TI: Thermodynamic integration: log(Prob(D|Model)): Good approximation with many temperatures
+(1b) BTI: Bezier-approximated Thermodynamic integration: when using few temperatures USE THIS!
+(2)  HS: Harmonic mean approximation: Overestimates the marginal likelihood, poor variance
+
+
+
+MCMC run characteristics
+========================
+
+
+
+
+Acceptance ratios for all parameters and the genealogies
+---------------------------------------------------------------------
+
+Parameter           Accepted changes               Ratio
+Theta_1                1205666/40871040          0.02950
+Theta_2                 159614/40876336          0.00390
+M_2->1                13179279/40884725          0.32235
+M_1->2                10690675/40880486          0.26151
+Genealogies           147734805/163487413           0.90365
+
+
+
+Autocorrelation for all parameters and the genealogies
+-------------------------------------------------------------------
+
+Parameter           Autocorrelation           Effective Sample size
+Theta_1                   0.764                455924.759
+Theta_2                   0.950                 85205.438
+M_2->1                    0.504               1150336.106
+M_1->2                    0.537               1045448.296
+Genealogies               0.675                652365.831
+(*) averaged over loci.
+
+
+
+Temperatures during the run using the standard heating scheme
+===========================================================================
+
+Chain Temperature               log(marginal likelihood)  log(mL_steppingstone)
+    1    1.00000          -655.31829   636.18091
+    2    1.00000          -659.64065   421.47252
+    3    1.00000          -670.02419   215.95346
+    4    1.00000          -684.34563    11.61806

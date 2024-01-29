@@ -1349,7 +1349,7 @@ population-relabel={1 2 3 4 5 6 7 8 9}
 								
 								
 #Stepping-Stone with a Kure-Oahu connection (stepping.stone.KO)								
-population-relabel={1 2 3 4 5 1 7 8 9}								
+population-relabel={1 2 3 4 5 6 7 8 9}								
 custom-migration=	
 	Pop_Kure 	                *	*	0	0	0	0	*	0	0
 	Pop_P&H	                  *	*	0	0	0	0	0	0	0
@@ -1420,7 +1420,7 @@ Stepping.stone.KO.oneway
 ```{}
 #Stepping-Stone with a *one way* Kure-Oahu ongoing gene flow connection 
 # (stepping.stone.KO.oneway)								
-population-relabel={1 2 3 4 5 1 7 8 9}								
+population-relabel={1 2 3 4 5 6 7 8 9}								
 custom-migration={
 *	*	0	0	0	*	0	0	0
 *	*	*	0	0	0	0	0	0
@@ -1447,7 +1447,7 @@ Equilibrium Gene Flow, but divergence with gene flow from Oahu to Kure
 
 #Stepping-Stone with a *one way* Kure-Oahu divergence with gene flow 
 # (stepping.stone.KO.divmig)								
-population-relabel={1 2 3 4 5 1 7 8 9}								
+population-relabel={1 2 3 4 5 6 7 8 9}								
 custom-migration=	
 	Pop_Kure 	                *	0	0	0	0	0	D	0	0
 	Pop_P&H	                  0	*	0	0	0	0	0	0	0
@@ -1468,7 +1468,7 @@ Equilibrium Gene Flow, but divergence without gene flow from Oahu to Kure
 ```{}
 #Stepping-Stone with a *one way* Kure-Oahu divergence without gene flow 
 # (stepping.stone.KO.div)	
-population-relabel={1 2 3 4 5 1 7 8 9}								
+population-relabel={1 2 3 4 5 6 7 8 9}								
 custom-migration=	
 	Pop_Kure 	                *	0	0	0	0	0	d	0	0
 	Pop_P&H	                  0	*	0	0	0	0	0	0	0
@@ -3638,6 +3638,111 @@ That's more like it!
 
 So simulations are consistent with Nm = 150 (M > 20K) but I still don't understand the inconsistency between the raw output values for M ( M < 10) into `bayesallfile` and the summary found `outfile.txt` (M > 20K).
 
+# Re-Running
+
+So I went back and forth with Peter about this, and it seems to have to do with an issue with models with a "d" or "D" divergence parameter in them. Somehow they are maybe causing an "underflow" that affects all m/mu parameters. What's more this seems to only happen on AMD chips, according to Peter. Anyway, it is a bug, and now I need to re-run all of the models.
+
+I also have changed the sampler for migration parameters to Metropolis-Hastings, widened the migration prior, and had it start from the middle of the migration prior. All changes to the parmfiles are noted here:
+
+## Migrate parmfile revisions
+```
+migration=PRIOR:50
+bayes-proposals= MIG METROPOLIS-HASTINGS Sampler
+bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000000 10000
+#for models with Divergence between Oahu and Kure
+bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-7 1.63e-6 1.0-7 
+bayes-priors= SPLITSTD * * WEXPPRIOR: 0.0 2e-7 2e-6 1.0e-7
+# this corresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
+```
+
+I ran all the models for 5 replicates during the month of January. The runs would have been completed much sooner, but Kinilau went down due to power failures many times during this period.
+
+## Copy it Down
+
+```{bash}
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@kinilau.tobolab.org:~/run6 ./final
+```
+
+## Final Model Selection Results
+
+### Model Marginal Likelihoods
+
+```{r likelihoods4, message=F, results='hide'}
+
+runDir <-"~/github/Palythoa_tuberculosa/migrate/run6/final/"
+
+likelist2 <- list()
+for(r in 1:10){
+  rep = paste0("rep",r)
+  print(rep)
+  likelist2[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+}
+
+# Model selection for each replicate...
+likelist2 %>% map(bfcalcs)
+```
+The final model marginal likelihood estimates based on the mean of 10 replicates:
+
+```{r}
+like2.df <-  likelist2 %>% bind_rows() %>% group_by(model)
+
+means2 <- like2.df %>% summarize(bezier.corrected = mean(bezier.corrected))
+  
+
+final_model2 <- bfcalcs(means2)
+
+final_model2
+```
+
+#### T-Test
+
+The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
+
+```{r eval = F}
+top.choice <- final_model2$model[which(final_model2$choice ==1)]
+second.choice <- final_model2$model[which(final_model2$choice ==2)]
+
+TS <- permTS(like2.df$bezier.corrected[which(like2.df$model == top.choice)],
+       like2.df$bezier.corrected[which(like2.df$model == second.choice)],
+       alternative = "greater")
+
+TS
+
+```
+
+#### Figures
+
+And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
+
+```{r}
+
+models <- c("SS: Islands, O2K Colonization with GF", 
+            "SS: Islands, O2K Colonization without GF")
+
+model_letters2 <- c("L","M")
+
+likesPlot2 <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>% 
+              group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+              scale_x_discrete(labels = models) +
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood") +
+              ylim(-50000,-45000)
+likesPlot2
+
+likesPlot2_letters <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>%
+              group_by(model) %>% 
+              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
+              geom_violin(draw_quantiles = 0.5) +
+              scale_x_discrete(labels = model_letters2) +
+              labs(x = "Metapopulation Model", 
+                   y = "Bezier Corrected Marginal Likelihood") +
+              ylim(-50000,-45000)
+
+
+```
 
 # Literature Cited
 

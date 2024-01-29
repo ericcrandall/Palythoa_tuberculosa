@@ -1,5 +1,5 @@
 #!
-for r in */
+for r in rep*/
 	do
 		cd $r
 		echo $r
@@ -10,7 +10,7 @@ for r in */
 				cd $m
 				  echo $m
 				  date
-				  mpirun -np 32 ~/migrate-4.4.4/src/migrate-n-mpi parmfile
+				  mpirun -np 110 --hostfile ~/hosts ~/migrate-5.0.4/src/migrate-n-mpi parmfile
 				  sleep 1
 				cd ..
 			  done

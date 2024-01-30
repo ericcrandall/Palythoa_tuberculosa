@@ -1427,7 +1427,7 @@ custom-migration={
 0	*	*	*	0	0	0	0	0
 0	0	*	*	*	0	0	0	0
 0	0	0	*	*	*	0	0	0
-*	0	0	0	*	*	*	0	0
+0	0	0	0	*	*	*	0	0
 0	0	0	0	0	*	*	*	0
 0	0	0	0	0	0	*	*	*
 0	0	0	0	0	0	0	*	*
@@ -3663,7 +3663,7 @@ I ran all the models for 5 replicates during the month of January. The runs woul
 rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@kinilau.tobolab.org:~/run6 ./final
 ```
 
-## Final Model Selection Results
+##  Model Selection Results
 
 ### Model Marginal Likelihoods
 
@@ -3672,7 +3672,7 @@ rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@kinilau.tobolab.org:
 runDir <-"~/github/Palythoa_tuberculosa/migrate/run6/final/"
 
 likelist2 <- list()
-for(r in 1:10){
+for(r in 1:5){
   rep = paste0("rep",r)
   print(rep)
   likelist2[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
@@ -3681,7 +3681,7 @@ for(r in 1:10){
 # Model selection for each replicate...
 likelist2 %>% map(bfcalcs)
 ```
-The final model marginal likelihood estimates based on the mean of 10 replicates:
+The final model marginal likelihood estimates based on the mean of 5 replicates:
 
 ```{r}
 like2.df <-  likelist2 %>% bind_rows() %>% group_by(model)
@@ -3696,7 +3696,7 @@ final_model2
 
 #### T-Test
 
-The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The difference between the top two models is significant.  `r emoji("happy")`
+The best model by far is now stepping.stone.oneway....
 
 ```{r eval = F}
 top.choice <- final_model2$model[which(final_model2$choice ==1)]
@@ -3715,6 +3715,17 @@ TS
 And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
 
 ```{r}
+models <- c("N-Island", "NWHI vs. MHI","Panmixia", "SS: Islands",
+            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
+            "SS: Islands, OK 2way", 
+            "SS: Islands, O2K Colonization with GF",
+            "SS: Islands, O2K Colonization without GF",
+            "SS: Islands, Oneway",
+            "Seq Div: No GF","Seq Div: GF",
+            "Seq Div: GF, O2K Colonization without GF")
+
+model_letters <- c("B", "C"," A", "D","G", "H", "L", "M", "E", "I","J","K")
+model_letters <- rep(model_letters,5)
 
 models <- c("SS: Islands, O2K Colonization with GF", 
             "SS: Islands, O2K Colonization without GF")

@@ -1416,20 +1416,19 @@ There is an intriguing result of nearly one-way gene flow from Oahu to Kure. Als
 
 ### What about one way gene flow?
 
-Stepping.stone.KO.oneway
+Stepping.stone.oneway
 ```{}
-#Stepping-Stone with a *one way* Kure-Oahu ongoing gene flow connection 
-# (stepping.stone.KO.oneway)								
+# (stepping.stone.oneway)								
 population-relabel={1 2 3 4 5 6 7 8 9}								
 custom-migration={
-*	*	0	0	0	*	0	0	0
-*	*	*	0	0	0	0	0	0
-0	*	*	*	0	0	0	0	0
-0	0	*	*	*	0	0	0	0
-0	0	0	*	*	*	0	0	0
-0	0	0	0	*	*	*	0	0
-0	0	0	0	0	*	*	*	0
-0	0	0	0	0	0	*	*	*
+*	*	0	0	0	0	0	0	0
+*	*	0	0	0	0	0	0	0
+0	*	*	0	0	0	0	0	0
+0	0	*	*	0	0	0	0	0
+0	0	0	*	*	0	0	0	0
+0	0	0	0	*	*	0	0	0
+0	0	0	0	0	*	*	0	0
+0	0	0	0	0	0	*	*	0
 0	0	0	0	0	0	0	*	*
 }
 

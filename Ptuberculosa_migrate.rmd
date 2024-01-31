@@ -3653,6 +3653,24 @@ bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-7 1.63e-6 1.0-7
 bayes-priors= SPLITSTD * * WEXPPRIOR: 0.0 2e-7 2e-6 1.0e-7
 # this corresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
 ```
+Here's my reasoning for the above:
+Midway - discovered by Westerners in 1859. Naval activity increased in 1941.
+
+```{r, eval =F}
+mulo = 1e-9
+generationtime = 1
+muhi = 1e-8
+
+max_age = 2022-1859=> 163
+
+max_split = max_age * (muhi /generationtime)
+mean_split = 80 * muhi
+sd_split = 20 * muhi
+```
+
+So, a maximum splitting time of `r max_split`, with a mean of `r mean_split` and pick an sd of `r sd_split`
+
+
 
 I ran all the models for 5 replicates during the month of January. The runs would have been completed much sooner, but Kinilau went down due to power failures many times during this period.
 

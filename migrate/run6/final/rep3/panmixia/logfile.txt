@@ -8,7 +8,7 @@
   One master and 109 compute nodes are available.
   PDF output enabled [Letter-size]
   Version 5.0.4(git:Distribution-version)   [May-09-2022]
-  Program started at   Mon Jan  8 16:45:25 2024
+  Program started at   Fri Feb  2 06:19:06 2024
 
 
 
@@ -38,13 +38,13 @@ Genealogy                Metropolis-Hastings
 Prior distribution (Proposal-delta will be tuned to acceptance frequency 0.440000):
 Parameter group            Prior type   Minimum    Mean(*)    Maximum    Delta      Bins   Updatefreq
 -------------------------  ------------ ---------- ---------- ---------- ---------- ------ -------
-Population size (Theta_1)   Exp window  0.000000   0.001000   0.100000   0.010000     500  0.50000
+Population size (Theta_1)   Exp window  0.000000   0.001000   0.100000   0.010000    2000  0.50000
 
 Inheritance multipliers in use for Thetas (specified # 1)
 All inheritance multipliers are the same [1.000000]
 
 Pseudo-random number generator: Mersenne-Twister                                
-Random number seed (with internal timer)           3722178342
+Random number seed (with internal timer)           1459076439
 
 Start parameters:
    First genealogy was started using a random tree
@@ -91,985 +91,985 @@ Print options:
    All values of Post.Dist:                     bayesallfile
    Print data:                                            No
    Print genealogies:                                     No
-[  4] 16:45:34   Burn-in of 200000 steps (Locus: 4/109, Replicate: 1/3) 
-[ 42] 16:45:35   Burn-in of 200000 steps (Locus: 42/109, Replicate: 1/3) 
-[ 36] 16:45:35   Burn-in of 200000 steps (Locus: 36/109, Replicate: 1/3) 
-[  1] 16:45:35   Burn-in of 200000 steps (Locus: 1/109, Replicate: 1/3) 
-[ 74] 16:45:35   Burn-in of 200000 steps (Locus: 74/109, Replicate: 1/3) 
-[ 77] 16:45:35   Burn-in of 200000 steps (Locus: 77/109, Replicate: 1/3) 
-[ 44] 16:45:35   Burn-in of 200000 steps (Locus: 44/109, Replicate: 1/3) 
-[ 10] 16:45:35   Burn-in of 200000 steps (Locus: 10/109, Replicate: 1/3) 
-[100] 16:45:35   Burn-in of 200000 steps (Locus: 100/109, Replicate: 1/3) 
-[101] 16:45:35   Burn-in of 200000 steps (Locus: 101/109, Replicate: 1/3) 
-[ 15] 16:45:35   Burn-in of 200000 steps (Locus: 15/109, Replicate: 1/3) 
-[105] 16:45:35   Burn-in of 200000 steps (Locus: 105/109, Replicate: 1/3) 
-[ 60] 16:45:35   Burn-in of 200000 steps (Locus: 60/109, Replicate: 1/3) 
-[109] 16:45:35   Burn-in of 200000 steps (Locus: 109/109, Replicate: 1/3) 
-[ 24] 16:45:35   Burn-in of 200000 steps (Locus: 24/109, Replicate: 1/3) 
-[ 27] 16:45:35   Burn-in of 200000 steps (Locus: 27/109, Replicate: 1/3) 
-[ 80] 16:45:35   Burn-in of 200000 steps (Locus: 80/109, Replicate: 1/3) 
-[ 20] 16:45:35   Burn-in of 200000 steps (Locus: 20/109, Replicate: 1/3) 
-[ 97] 16:45:35   Burn-in of 200000 steps (Locus: 97/109, Replicate: 1/3) 
-[ 46] 16:45:36   Burn-in of 200000 steps (Locus: 46/109, Replicate: 1/3) 
-[ 26] 16:45:36   Burn-in of 200000 steps (Locus: 26/109, Replicate: 1/3) 
-[ 47] 16:45:36   Burn-in of 200000 steps (Locus: 47/109, Replicate: 1/3) 
-[  8] 16:45:36   Burn-in of 200000 steps (Locus: 8/109, Replicate: 1/3) 
-[ 11] 16:45:36   Burn-in of 200000 steps (Locus: 11/109, Replicate: 1/3) 
-[ 84] 16:45:36   Burn-in of 200000 steps (Locus: 84/109, Replicate: 1/3) 
-[  2] 16:45:36   Burn-in of 200000 steps (Locus: 2/109, Replicate: 1/3) 
-[  5] 16:45:36   Burn-in of 200000 steps (Locus: 5/109, Replicate: 1/3) 
-[ 34] 16:45:36   Burn-in of 200000 steps (Locus: 34/109, Replicate: 1/3) 
-[ 14] 16:45:36   Burn-in of 200000 steps (Locus: 14/109, Replicate: 1/3) 
-[ 35] 16:45:36   Burn-in of 200000 steps (Locus: 35/109, Replicate: 1/3) 
-[ 65] 16:45:36   Burn-in of 200000 steps (Locus: 65/109, Replicate: 1/3) 
-[ 66] 16:45:36   Burn-in of 200000 steps (Locus: 66/109, Replicate: 1/3) 
-[ 83] 16:45:36   Burn-in of 200000 steps (Locus: 83/109, Replicate: 1/3) 
-[ 92] 16:45:36   Burn-in of 200000 steps (Locus: 92/109, Replicate: 1/3) 
-[ 93] 16:45:36   Burn-in of 200000 steps (Locus: 93/109, Replicate: 1/3) 
-[  6] 16:45:36   Burn-in of 200000 steps (Locus: 6/109, Replicate: 1/3) 
-[  7] 16:45:36   Burn-in of 200000 steps (Locus: 7/109, Replicate: 1/3) 
-[ 37] 16:45:36   Burn-in of 200000 steps (Locus: 37/109, Replicate: 1/3) 
-[ 38] 16:45:36   Burn-in of 200000 steps (Locus: 38/109, Replicate: 1/3) 
-[ 45] 16:45:36   Burn-in of 200000 steps (Locus: 45/109, Replicate: 1/3) 
-[ 56] 16:45:36   Burn-in of 200000 steps (Locus: 56/109, Replicate: 1/3) 
-[ 58] 16:45:36   Burn-in of 200000 steps (Locus: 58/109, Replicate: 1/3) 
-[ 67] 16:45:36   Burn-in of 200000 steps (Locus: 67/109, Replicate: 1/3) 
-[ 68] 16:45:36   Burn-in of 200000 steps (Locus: 68/109, Replicate: 1/3) 
-[ 72] 16:45:36   Burn-in of 200000 steps (Locus: 72/109, Replicate: 1/3) 
-[ 73] 16:45:36   Burn-in of 200000 steps (Locus: 73/109, Replicate: 1/3) 
-[ 78] 16:45:36   Burn-in of 200000 steps (Locus: 78/109, Replicate: 1/3) 
-[ 82] 16:45:36   Burn-in of 200000 steps (Locus: 82/109, Replicate: 1/3) 
-[ 88] 16:45:36   Burn-in of 200000 steps (Locus: 88/109, Replicate: 1/3) 
-[ 95] 16:45:36   Burn-in of 200000 steps (Locus: 95/109, Replicate: 1/3) 
-[ 99] 16:45:36   Burn-in of 200000 steps (Locus: 99/109, Replicate: 1/3) 
-[104] 16:45:36   Burn-in of 200000 steps (Locus: 104/109, Replicate: 1/3) 
-[  3] 16:45:36   Burn-in of 200000 steps (Locus: 3/109, Replicate: 1/3) 
-[  9] 16:45:36   Burn-in of 200000 steps (Locus: 9/109, Replicate: 1/3) 
-[ 28] 16:45:36   Burn-in of 200000 steps (Locus: 28/109, Replicate: 1/3) 
-[ 32] 16:45:36   Burn-in of 200000 steps (Locus: 32/109, Replicate: 1/3) 
-[ 33] 16:45:36   Burn-in of 200000 steps (Locus: 33/109, Replicate: 1/3) 
-[ 39] 16:45:36   Burn-in of 200000 steps (Locus: 39/109, Replicate: 1/3) 
-[ 40] 16:45:36   Burn-in of 200000 steps (Locus: 40/109, Replicate: 1/3) 
-[ 41] 16:45:36   Burn-in of 200000 steps (Locus: 41/109, Replicate: 1/3) 
-[ 43] 16:45:36   Burn-in of 200000 steps (Locus: 43/109, Replicate: 1/3) 
-[ 49] 16:45:36   Burn-in of 200000 steps (Locus: 49/109, Replicate: 1/3) 
-[ 53] 16:45:36   Burn-in of 200000 steps (Locus: 53/109, Replicate: 1/3) 
-[ 54] 16:45:36   Burn-in of 200000 steps (Locus: 54/109, Replicate: 1/3) 
-[ 57] 16:45:36   Burn-in of 200000 steps (Locus: 57/109, Replicate: 1/3) 
-[ 61] 16:45:36   Burn-in of 200000 steps (Locus: 61/109, Replicate: 1/3) 
-[ 62] 16:45:36   Burn-in of 200000 steps (Locus: 62/109, Replicate: 1/3) 
-[ 63] 16:45:36   Burn-in of 200000 steps (Locus: 63/109, Replicate: 1/3) 
-[ 69] 16:45:36   Burn-in of 200000 steps (Locus: 69/109, Replicate: 1/3) 
-[ 70] 16:45:36   Burn-in of 200000 steps (Locus: 70/109, Replicate: 1/3) 
-[ 71] 16:45:36   Burn-in of 200000 steps (Locus: 71/109, Replicate: 1/3) 
-[ 75] 16:45:36   Burn-in of 200000 steps (Locus: 75/109, Replicate: 1/3) 
-[ 76] 16:45:36   Burn-in of 200000 steps (Locus: 76/109, Replicate: 1/3) 
-[ 79] 16:45:36   Burn-in of 200000 steps (Locus: 79/109, Replicate: 1/3) 
-[ 81] 16:45:36   Burn-in of 200000 steps (Locus: 81/109, Replicate: 1/3) 
-[ 85] 16:45:36   Burn-in of 200000 steps (Locus: 85/109, Replicate: 1/3) 
-[ 86] 16:45:36   Burn-in of 200000 steps (Locus: 86/109, Replicate: 1/3) 
-[ 87] 16:45:36   Burn-in of 200000 steps (Locus: 87/109, Replicate: 1/3) 
-[ 94] 16:45:36   Burn-in of 200000 steps (Locus: 94/109, Replicate: 1/3) 
-[ 98] 16:45:36   Burn-in of 200000 steps (Locus: 98/109, Replicate: 1/3) 
-[102] 16:45:36   Burn-in of 200000 steps (Locus: 102/109, Replicate: 1/3) 
-[106] 16:45:36   Burn-in of 200000 steps (Locus: 106/109, Replicate: 1/3) 
-[107] 16:45:36   Burn-in of 200000 steps (Locus: 107/109, Replicate: 1/3) 
-[ 18] 16:45:36   Burn-in of 200000 steps (Locus: 18/109, Replicate: 1/3) 
-[ 12] 16:45:36   Burn-in of 200000 steps (Locus: 12/109, Replicate: 1/3) 
-[ 13] 16:45:36   Burn-in of 200000 steps (Locus: 13/109, Replicate: 1/3) 
-[ 23] 16:45:36   Burn-in of 200000 steps (Locus: 23/109, Replicate: 1/3) 
-[ 17] 16:45:36   Burn-in of 200000 steps (Locus: 17/109, Replicate: 1/3) 
-[ 16] 16:45:36   Burn-in of 200000 steps (Locus: 16/109, Replicate: 1/3) 
-[ 22] 16:45:36   Burn-in of 200000 steps (Locus: 22/109, Replicate: 1/3) 
-[ 21] 16:45:36   Burn-in of 200000 steps (Locus: 21/109, Replicate: 1/3) 
-[ 25] 16:45:36   Burn-in of 200000 steps (Locus: 25/109, Replicate: 1/3) 
-[ 29] 16:45:36   Burn-in of 200000 steps (Locus: 29/109, Replicate: 1/3) 
-[ 48] 16:45:36   Burn-in of 200000 steps (Locus: 48/109, Replicate: 1/3) 
-[ 50] 16:45:36   Burn-in of 200000 steps (Locus: 50/109, Replicate: 1/3) 
-[ 64] 16:45:36   Burn-in of 200000 steps (Locus: 64/109, Replicate: 1/3) 
-[ 51] 16:45:36   Burn-in of 200000 steps (Locus: 51/109, Replicate: 1/3) 
-[ 52] 16:45:36   Burn-in of 200000 steps (Locus: 52/109, Replicate: 1/3) 
-[ 59] 16:45:36   Burn-in of 200000 steps (Locus: 59/109, Replicate: 1/3) 
-[ 55] 16:45:36   Burn-in of 200000 steps (Locus: 55/109, Replicate: 1/3) 
-[108] 16:45:36   Burn-in of 200000 steps (Locus: 108/109, Replicate: 1/3) 
-[ 90] 16:45:36   Burn-in of 200000 steps (Locus: 90/109, Replicate: 1/3) 
-[ 91] 16:45:36   Burn-in of 200000 steps (Locus: 91/109, Replicate: 1/3) 
-[ 30] 16:45:36   Burn-in of 200000 steps (Locus: 30/109, Replicate: 1/3) 
-[ 96] 16:45:36   Burn-in of 200000 steps (Locus: 96/109, Replicate: 1/3) 
-[103] 16:45:36   Burn-in of 200000 steps (Locus: 103/109, Replicate: 1/3) 
-[ 19] 16:45:36   Burn-in of 200000 steps (Locus: 19/109, Replicate: 1/3) 
-[ 31] 16:45:36   Burn-in of 200000 steps (Locus: 31/109, Replicate: 1/3) 
-[ 89] 16:45:36   Burn-in of 200000 steps (Locus: 89/109, Replicate: 1/3) 
-[ 27] 16:50:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(39435,116,851)
-                           Param = { 0.01332}
-[ 27] 16:50:22   Burn-in of 200000 steps (Locus: 27/109, Replicate: 2/3) 
-[105] 16:50:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127468,129522,130294)
-                           Param = { 0.01034}
-[105] 16:50:24   Burn-in of 200000 steps (Locus: 105/109, Replicate: 2/3) 
-[ 10] 16:50:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.94,0.97,1.00) Swap(112602,115262,118346)
-                           Param = { 0.009263}
-[ 10] 16:50:25   Burn-in of 200000 steps (Locus: 10/109, Replicate: 2/3) 
-[ 20] 16:50:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.97,1.00) Swap(108987,109718,109601)
-                           Param = { 0.007264}
-[ 20] 16:50:26   Burn-in of 200000 steps (Locus: 20/109, Replicate: 2/3) 
-[ 77] 16:50:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(122973,125484,127316)
-                           Param = { 0.009299}
-[ 77] 16:50:27   Burn-in of 200000 steps (Locus: 77/109, Replicate: 2/3) 
-[ 15] 16:50:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108539,109149,110012)
-                           Param = { 0.00637}
-[ 15] 16:50:29   Burn-in of 200000 steps (Locus: 15/109, Replicate: 2/3) 
-[  4] 16:50:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108111,110390,110912)
-                           Param = { 0.007487}
-[  4] 16:50:29   Burn-in of 200000 steps (Locus: 4/109, Replicate: 2/3) 
-[109] 16:50:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(104244,103457,102727)
-                           Param = { 0.008089}
-[109] 16:50:33   Burn-in of 200000 steps (Locus: 109/109, Replicate: 2/3) 
-[  1] 16:50:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(116350,117504,119278)
-                           Param = { 0.00892}
-[  1] 16:50:42   Burn-in of 200000 steps (Locus: 1/109, Replicate: 2/3) 
-[100] 16:50:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(49233,64808,77553)
-                           Param = { 0.006884}
-[100] 16:50:52   Burn-in of 200000 steps (Locus: 100/109, Replicate: 2/3) 
-[ 74] 16:50:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(58291,88367,103906)
-                           Param = { 0.00821}
-[ 74] 16:50:53   Burn-in of 200000 steps (Locus: 74/109, Replicate: 2/3) 
-[ 36] 16:51:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(53852,66765,84201)
-                           Param = { 0.01047}
-[ 36] 16:51:08   Burn-in of 200000 steps (Locus: 36/109, Replicate: 2/3) 
-[ 60] 16:51:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(117918,118364,118915)
-                           Param = { 0.008541}
-[ 60] 16:51:19   Burn-in of 200000 steps (Locus: 60/109, Replicate: 2/3) 
-[ 67] 16:51:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115616,117809,118813)
-                           Param = { 0.009037}
-[ 67] 16:51:20   Burn-in of 200000 steps (Locus: 67/109, Replicate: 2/3) 
-[ 83] 16:51:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109104,110338,109443)
-                           Param = { 0.01009}
-[ 83] 16:51:24   Burn-in of 200000 steps (Locus: 83/109, Replicate: 2/3) 
-[ 80] 16:51:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(96131,95525,93139)
-                           Param = { 0.008219}
-[ 80] 16:51:24   Burn-in of 200000 steps (Locus: 80/109, Replicate: 2/3) 
-[101] 16:51:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(119421,122269,125023)
-                           Param = { 0.009395}
-[101] 16:51:28   Burn-in of 200000 steps (Locus: 101/109, Replicate: 2/3) 
-[ 73] 16:51:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.88,0.94,1.00) Swap(73023,1289,649)
-                           Param = { 0.01277}
-[ 73] 16:51:30   Burn-in of 200000 steps (Locus: 73/109, Replicate: 2/3) 
-[104] 16:51:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(25931,2495,7841)
-                           Param = { 0.01439}
-[104] 16:51:31   Burn-in of 200000 steps (Locus: 104/109, Replicate: 2/3) 
-[103] 16:51:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117984,118904,119214)
-                           Param = { 0.009111}
-[103] 16:51:36   Burn-in of 200000 steps (Locus: 103/109, Replicate: 2/3) 
-[ 51] 16:51:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(119788,120562,119835)
-                           Param = { 0.005609}
-[ 51] 16:51:46   Burn-in of 200000 steps (Locus: 51/109, Replicate: 2/3) 
-[ 44] 16:51:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(113800,112324,111027)
-                           Param = { 0.007638}
-[ 44] 16:51:51   Burn-in of 200000 steps (Locus: 44/109, Replicate: 2/3) 
-[ 42] 16:51:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.88,0.95,1.00) Swap(36063,2427,4550)
-                           Param = { 0.01275}
-[ 42] 16:51:53   Burn-in of 200000 steps (Locus: 42/109, Replicate: 2/3) 
-[  9] 16:51:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.55,0.56,0.63,1.00) Swap(42183,66,0)
-                           Param = { 0.01237}
-[  9] 16:51:56   Burn-in of 200000 steps (Locus: 9/109, Replicate: 2/3) 
-[ 24] 16:51:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(97518,100463,103100)
-                           Param = { 0.00787}
-[ 24] 16:51:56   Burn-in of 200000 steps (Locus: 24/109, Replicate: 2/3) 
-[ 88] 16:52:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.92,0.97,1.00) Swap(59449,16745,31693)
-                           Param = { 0.01186}
-[ 88] 16:52:31   Burn-in of 200000 steps (Locus: 88/109, Replicate: 2/3) 
-[ 23] 16:52:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(118522,119450,119263)
-                           Param = { 0.008444}
-[ 23] 16:52:33   Burn-in of 200000 steps (Locus: 23/109, Replicate: 2/3) 
-[ 33] 16:52:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.96,1.00) Swap(39685,1934,6337)
-                           Param = { 0.01347}
-[ 33] 16:52:33   Burn-in of 200000 steps (Locus: 33/109, Replicate: 2/3) 
-[ 70] 16:52:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.98,1.00) Swap(66892,27896,83248)
-                           Param = { 0.01201}
-[ 70] 16:52:36   Burn-in of 200000 steps (Locus: 70/109, Replicate: 2/3) 
-[  7] 16:52:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(65810,18053,61380)
-                           Param = { 0.01215}
-[  7] 16:52:38   Burn-in of 200000 steps (Locus: 7/109, Replicate: 2/3) 
-[ 63] 16:52:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.60,0.64,0.76,1.00) Swap(35310,0,0)
-                           Param = { 0.01475}
-[ 63] 16:52:40   Burn-in of 200000 steps (Locus: 63/109, Replicate: 2/3) 
-[ 82] 16:52:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(44978,57354,68283)
-                           Param = { 0.00823}
-[ 82] 16:52:41   Burn-in of 200000 steps (Locus: 82/109, Replicate: 2/3) 
-[ 55] 16:52:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.96,1.00) Swap(42298,30982,183)
+[  1] 06:19:15   Burn-in of 200000 steps (Locus: 1/109, Replicate: 1/3) 
+[  8] 06:19:15   Burn-in of 200000 steps (Locus: 8/109, Replicate: 1/3) 
+[ 24] 06:19:15   Burn-in of 200000 steps (Locus: 24/109, Replicate: 1/3) 
+[ 23] 06:19:15   Burn-in of 200000 steps (Locus: 23/109, Replicate: 1/3) 
+[ 26] 06:19:15   Burn-in of 200000 steps (Locus: 26/109, Replicate: 1/3) 
+[ 10] 06:19:15   Burn-in of 200000 steps (Locus: 10/109, Replicate: 1/3) 
+[ 41] 06:19:15   Burn-in of 200000 steps (Locus: 41/109, Replicate: 1/3) 
+[ 43] 06:19:15   Burn-in of 200000 steps (Locus: 43/109, Replicate: 1/3) 
+[ 81] 06:19:15   Burn-in of 200000 steps (Locus: 81/109, Replicate: 1/3) 
+[ 13] 06:19:15   Burn-in of 200000 steps (Locus: 13/109, Replicate: 1/3) 
+[ 90] 06:19:15   Burn-in of 200000 steps (Locus: 90/109, Replicate: 1/3) 
+[108] 06:19:15   Burn-in of 200000 steps (Locus: 108/109, Replicate: 1/3) 
+[ 74] 06:19:15   Burn-in of 200000 steps (Locus: 74/109, Replicate: 1/3) 
+[ 93] 06:19:15   Burn-in of 200000 steps (Locus: 93/109, Replicate: 1/3) 
+[ 44] 06:19:16   Burn-in of 200000 steps (Locus: 44/109, Replicate: 1/3) 
+[ 84] 06:19:16   Burn-in of 200000 steps (Locus: 84/109, Replicate: 1/3) 
+[ 28] 06:19:16   Burn-in of 200000 steps (Locus: 28/109, Replicate: 1/3) 
+[ 73] 06:19:16   Burn-in of 200000 steps (Locus: 73/109, Replicate: 1/3) 
+[ 20] 06:19:16   Burn-in of 200000 steps (Locus: 20/109, Replicate: 1/3) 
+[ 37] 06:19:16   Burn-in of 200000 steps (Locus: 37/109, Replicate: 1/3) 
+[103] 06:19:16   Burn-in of 200000 steps (Locus: 103/109, Replicate: 1/3) 
+[109] 06:19:16   Burn-in of 200000 steps (Locus: 109/109, Replicate: 1/3) 
+[ 54] 06:19:16   Burn-in of 200000 steps (Locus: 54/109, Replicate: 1/3) 
+[ 22] 06:19:16   Burn-in of 200000 steps (Locus: 22/109, Replicate: 1/3) 
+[ 63] 06:19:16   Burn-in of 200000 steps (Locus: 63/109, Replicate: 1/3) 
+[102] 06:19:16   Burn-in of 200000 steps (Locus: 102/109, Replicate: 1/3) 
+[ 75] 06:19:16   Burn-in of 200000 steps (Locus: 75/109, Replicate: 1/3) 
+[ 99] 06:19:16   Burn-in of 200000 steps (Locus: 99/109, Replicate: 1/3) 
+[ 11] 06:19:16   Burn-in of 200000 steps (Locus: 11/109, Replicate: 1/3) 
+[ 18] 06:19:16   Burn-in of 200000 steps (Locus: 18/109, Replicate: 1/3) 
+[ 59] 06:19:16   Burn-in of 200000 steps (Locus: 59/109, Replicate: 1/3) 
+[ 89] 06:19:16   Burn-in of 200000 steps (Locus: 89/109, Replicate: 1/3) 
+[ 25] 06:19:16   Burn-in of 200000 steps (Locus: 25/109, Replicate: 1/3) 
+[ 36] 06:19:16   Burn-in of 200000 steps (Locus: 36/109, Replicate: 1/3) 
+[ 67] 06:19:16   Burn-in of 200000 steps (Locus: 67/109, Replicate: 1/3) 
+[  2] 06:19:16   Burn-in of 200000 steps (Locus: 2/109, Replicate: 1/3) 
+[  3] 06:19:16   Burn-in of 200000 steps (Locus: 3/109, Replicate: 1/3) 
+[ 16] 06:19:16   Burn-in of 200000 steps (Locus: 16/109, Replicate: 1/3) 
+[ 17] 06:19:16   Burn-in of 200000 steps (Locus: 17/109, Replicate: 1/3) 
+[ 33] 06:19:16   Burn-in of 200000 steps (Locus: 33/109, Replicate: 1/3) 
+[ 39] 06:19:16   Burn-in of 200000 steps (Locus: 39/109, Replicate: 1/3) 
+[ 45] 06:19:16   Burn-in of 200000 steps (Locus: 45/109, Replicate: 1/3) 
+[ 46] 06:19:16   Burn-in of 200000 steps (Locus: 46/109, Replicate: 1/3) 
+[ 50] 06:19:16   Burn-in of 200000 steps (Locus: 50/109, Replicate: 1/3) 
+[ 58] 06:19:16   Burn-in of 200000 steps (Locus: 58/109, Replicate: 1/3) 
+[  9] 06:19:16   Burn-in of 200000 steps (Locus: 9/109, Replicate: 1/3) 
+[ 14] 06:19:16   Burn-in of 200000 steps (Locus: 14/109, Replicate: 1/3) 
+[ 21] 06:19:16   Burn-in of 200000 steps (Locus: 21/109, Replicate: 1/3) 
+[ 35] 06:19:16   Burn-in of 200000 steps (Locus: 35/109, Replicate: 1/3) 
+[ 52] 06:19:16   Burn-in of 200000 steps (Locus: 52/109, Replicate: 1/3) 
+[ 55] 06:19:16   Burn-in of 200000 steps (Locus: 55/109, Replicate: 1/3) 
+[ 65] 06:19:16   Burn-in of 200000 steps (Locus: 65/109, Replicate: 1/3) 
+[ 66] 06:19:16   Burn-in of 200000 steps (Locus: 66/109, Replicate: 1/3) 
+[ 83] 06:19:16   Burn-in of 200000 steps (Locus: 83/109, Replicate: 1/3) 
+[ 94] 06:19:16   Burn-in of 200000 steps (Locus: 94/109, Replicate: 1/3) 
+[  6] 06:19:16   Burn-in of 200000 steps (Locus: 6/109, Replicate: 1/3) 
+[ 19] 06:19:16   Burn-in of 200000 steps (Locus: 19/109, Replicate: 1/3) 
+[ 29] 06:19:16   Burn-in of 200000 steps (Locus: 29/109, Replicate: 1/3) 
+[ 30] 06:19:16   Burn-in of 200000 steps (Locus: 30/109, Replicate: 1/3) 
+[ 31] 06:19:16   Burn-in of 200000 steps (Locus: 31/109, Replicate: 1/3) 
+[ 32] 06:19:16   Burn-in of 200000 steps (Locus: 32/109, Replicate: 1/3) 
+[ 34] 06:19:16   Burn-in of 200000 steps (Locus: 34/109, Replicate: 1/3) 
+[ 38] 06:19:16   Burn-in of 200000 steps (Locus: 38/109, Replicate: 1/3) 
+[ 40] 06:19:16   Burn-in of 200000 steps (Locus: 40/109, Replicate: 1/3) 
+[ 48] 06:19:16   Burn-in of 200000 steps (Locus: 48/109, Replicate: 1/3) 
+[ 51] 06:19:16   Burn-in of 200000 steps (Locus: 51/109, Replicate: 1/3) 
+[ 53] 06:19:16   Burn-in of 200000 steps (Locus: 53/109, Replicate: 1/3) 
+[ 61] 06:19:16   Burn-in of 200000 steps (Locus: 61/109, Replicate: 1/3) 
+[ 62] 06:19:16   Burn-in of 200000 steps (Locus: 62/109, Replicate: 1/3) 
+[ 68] 06:19:16   Burn-in of 200000 steps (Locus: 68/109, Replicate: 1/3) 
+[ 69] 06:19:16   Burn-in of 200000 steps (Locus: 69/109, Replicate: 1/3) 
+[ 72] 06:19:16   Burn-in of 200000 steps (Locus: 72/109, Replicate: 1/3) 
+[ 79] 06:19:16   Burn-in of 200000 steps (Locus: 79/109, Replicate: 1/3) 
+[ 80] 06:19:16   Burn-in of 200000 steps (Locus: 80/109, Replicate: 1/3) 
+[ 82] 06:19:16   Burn-in of 200000 steps (Locus: 82/109, Replicate: 1/3) 
+[ 86] 06:19:16   Burn-in of 200000 steps (Locus: 86/109, Replicate: 1/3) 
+[ 92] 06:19:16   Burn-in of 200000 steps (Locus: 92/109, Replicate: 1/3) 
+[ 95] 06:19:16   Burn-in of 200000 steps (Locus: 95/109, Replicate: 1/3) 
+[ 96] 06:19:16   Burn-in of 200000 steps (Locus: 96/109, Replicate: 1/3) 
+[ 97] 06:19:16   Burn-in of 200000 steps (Locus: 97/109, Replicate: 1/3) 
+[ 98] 06:19:16   Burn-in of 200000 steps (Locus: 98/109, Replicate: 1/3) 
+[104] 06:19:16   Burn-in of 200000 steps (Locus: 104/109, Replicate: 1/3) 
+[101] 06:19:16   Burn-in of 200000 steps (Locus: 101/109, Replicate: 1/3) 
+[  5] 06:19:16   Burn-in of 200000 steps (Locus: 5/109, Replicate: 1/3) 
+[106] 06:19:16   Burn-in of 200000 steps (Locus: 106/109, Replicate: 1/3) 
+[  4] 06:19:16   Burn-in of 200000 steps (Locus: 4/109, Replicate: 1/3) 
+[107] 06:19:16   Burn-in of 200000 steps (Locus: 107/109, Replicate: 1/3) 
+[  7] 06:19:16   Burn-in of 200000 steps (Locus: 7/109, Replicate: 1/3) 
+[ 56] 06:19:16   Burn-in of 200000 steps (Locus: 56/109, Replicate: 1/3) 
+[ 27] 06:19:16   Burn-in of 200000 steps (Locus: 27/109, Replicate: 1/3) 
+[ 78] 06:19:16   Burn-in of 200000 steps (Locus: 78/109, Replicate: 1/3) 
+[ 60] 06:19:16   Burn-in of 200000 steps (Locus: 60/109, Replicate: 1/3) 
+[ 15] 06:19:16   Burn-in of 200000 steps (Locus: 15/109, Replicate: 1/3) 
+[ 64] 06:19:16   Burn-in of 200000 steps (Locus: 64/109, Replicate: 1/3) 
+[ 47] 06:19:16   Burn-in of 200000 steps (Locus: 47/109, Replicate: 1/3) 
+[ 70] 06:19:16   Burn-in of 200000 steps (Locus: 70/109, Replicate: 1/3) 
+[ 91] 06:19:16   Burn-in of 200000 steps (Locus: 91/109, Replicate: 1/3) 
+[ 57] 06:19:16   Burn-in of 200000 steps (Locus: 57/109, Replicate: 1/3) 
+[ 88] 06:19:16   Burn-in of 200000 steps (Locus: 88/109, Replicate: 1/3) 
+[ 87] 06:19:16   Burn-in of 200000 steps (Locus: 87/109, Replicate: 1/3) 
+[ 77] 06:19:16   Burn-in of 200000 steps (Locus: 77/109, Replicate: 1/3) 
+[ 71] 06:19:16   Burn-in of 200000 steps (Locus: 71/109, Replicate: 1/3) 
+[105] 06:19:16   Burn-in of 200000 steps (Locus: 105/109, Replicate: 1/3) 
+[100] 06:19:16   Burn-in of 200000 steps (Locus: 100/109, Replicate: 1/3) 
+[ 12] 06:19:16   Burn-in of 200000 steps (Locus: 12/109, Replicate: 1/3) 
+[ 85] 06:19:16   Burn-in of 200000 steps (Locus: 85/109, Replicate: 1/3) 
+[ 49] 06:19:16   Burn-in of 200000 steps (Locus: 49/109, Replicate: 1/3) 
+[ 42] 06:19:16   Burn-in of 200000 steps (Locus: 42/109, Replicate: 1/3) 
+[ 76] 06:19:16   Burn-in of 200000 steps (Locus: 76/109, Replicate: 1/3) 
+[ 41] 06:23:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(56071,41277,15575)
+                           Param = { 0.009462}
+[ 41] 06:23:26   Burn-in of 200000 steps (Locus: 41/109, Replicate: 2/3) 
+[ 57] 06:23:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(70097,59356,91969)
+                           Param = { 0.008851}
+[ 57] 06:23:32   Burn-in of 200000 steps (Locus: 57/109, Replicate: 2/3) 
+[ 17] 06:23:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111121,110230,109085)
+                           Param = { 0.009183}
+[ 17] 06:23:33   Burn-in of 200000 steps (Locus: 17/109, Replicate: 2/3) 
+[  1] 06:23:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117953,119498,119969)
+                           Param = { 0.005122}
+[  1] 06:23:40   Burn-in of 200000 steps (Locus: 1/109, Replicate: 2/3) 
+[ 51] 06:23:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119711,120169,119412)
+                           Param = { 0.006594}
+[ 51] 06:23:41   Burn-in of 200000 steps (Locus: 51/109, Replicate: 2/3) 
+[ 93] 06:23:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123897,125616,127243)
+                           Param = { 0.007824}
+[ 93] 06:23:44   Burn-in of 200000 steps (Locus: 93/109, Replicate: 2/3) 
+[ 24] 06:23:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(97923,99676,103594)
+                           Param = { 0.006806}
+[ 24] 06:23:46   Burn-in of 200000 steps (Locus: 24/109, Replicate: 2/3) 
+[ 23] 06:23:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119272,119597,120043)
+                           Param = { 0.008986}
+[ 23] 06:23:50   Burn-in of 200000 steps (Locus: 23/109, Replicate: 2/3) 
+[102] 06:23:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(120462,121717,121122)
+                           Param = { 0.008358}
+[102] 06:23:56   Burn-in of 200000 steps (Locus: 102/109, Replicate: 2/3) 
+[  9] 06:23:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.55,0.56,0.63,1.00) Swap(32222,70,0)
+                           Param = { 0.01464}
+[  9] 06:23:56   Burn-in of 200000 steps (Locus: 9/109, Replicate: 2/3) 
+[ 75] 06:24:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(116714,118347,119699)
+                           Param = { 0.006289}
+[ 75] 06:24:02   Burn-in of 200000 steps (Locus: 75/109, Replicate: 2/3) 
+[ 56] 06:24:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(102233,102071,101494)
+                           Param = { 0.008317}
+[ 56] 06:24:03   Burn-in of 200000 steps (Locus: 56/109, Replicate: 2/3) 
+[ 43] 06:24:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(96104,102149,104209)
+                           Param = { 0.006857}
+[ 43] 06:24:05   Burn-in of 200000 steps (Locus: 43/109, Replicate: 2/3) 
+[ 81] 06:24:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.96,1.00) Swap(28037,1535,7570)
                            Param = { 0.01256}
-[ 55] 16:52:47   Burn-in of 200000 steps (Locus: 55/109, Replicate: 2/3) 
-[ 26] 16:52:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.86,0.94,1.00) Swap(63588,834,1745)
-                           Param = { 0.01517}
-[ 26] 16:52:51   Burn-in of 200000 steps (Locus: 26/109, Replicate: 2/3) 
-[ 18] 16:52:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(64718,50126,74199)
-                           Param = { 0.008575}
-[ 18] 16:52:53   Burn-in of 200000 steps (Locus: 18/109, Replicate: 2/3) 
-[ 31] 16:52:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(115842,120131,123072)
-                           Param = { 0.007489}
-[ 31] 16:52:53   Burn-in of 200000 steps (Locus: 31/109, Replicate: 2/3) 
-[ 84] 16:52:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(38313,72790,90696)
-                           Param = { 0.006906}
-[ 84] 16:52:54   Burn-in of 200000 steps (Locus: 84/109, Replicate: 2/3) 
-[ 19] 16:52:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(116747,120882,124586)
-                           Param = { 0.01031}
-[ 19] 16:52:54   Burn-in of 200000 steps (Locus: 19/109, Replicate: 2/3) 
-[ 93] 16:52:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(122593,123785,126925)
-                           Param = { 0.007872}
-[ 93] 16:52:55   Burn-in of 200000 steps (Locus: 93/109, Replicate: 2/3) 
-[ 14] 16:52:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(116864,119946,123267)
-                           Param = { 0.007872}
-[ 38] 16:52:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.82,0.85,0.92,1.00) Swap(56833,641,169)
-                           Param = { 0.01418}
-[ 14] 16:52:56   Burn-in of 200000 steps (Locus: 14/109, Replicate: 2/3) 
-[ 38] 16:52:56   Burn-in of 200000 steps (Locus: 38/109, Replicate: 2/3) 
-[ 35] 16:52:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126773,128301,129216)
-                           Param = { 0.00936}
-[ 35] 16:52:56   Burn-in of 200000 steps (Locus: 35/109, Replicate: 2/3) 
-[ 30] 16:52:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(82983,20245,81727)
-                           Param = { 0.007644}
-[ 30] 16:52:58   Burn-in of 200000 steps (Locus: 30/109, Replicate: 2/3) 
-[ 91] 16:52:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(56700,93245,106150)
-                           Param = { 0.008721}
-[107] 16:52:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126966,128356,129335)
-                           Param = { 0.009783}
-[ 95] 16:52:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(132231,131939,133091)
-                           Param = { 0.009608}
-[ 91] 16:52:58   Burn-in of 200000 steps (Locus: 91/109, Replicate: 2/3) 
-[107] 16:52:58   Burn-in of 200000 steps (Locus: 107/109, Replicate: 2/3) 
-[ 95] 16:52:58   Burn-in of 200000 steps (Locus: 95/109, Replicate: 2/3) 
-[ 32] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116445,118181,118342)
-                           Param = { 0.007245}
-[ 45] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.86,0.95,1.00) Swap(27647,1157,6138)
-                           Param = { 0.01759}
-[ 32] 16:52:59   Burn-in of 200000 steps (Locus: 32/109, Replicate: 2/3) 
-[ 45] 16:52:59   Burn-in of 200000 steps (Locus: 45/109, Replicate: 2/3) 
-[ 78] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119648,120328,119921)
-                           Param = { 0.006571}
-[ 78] 16:52:59   Burn-in of 200000 steps (Locus: 78/109, Replicate: 2/3) 
-[102] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(119903,120103,120413)
-                           Param = { 0.006378}
-[102] 16:52:59   Burn-in of 200000 steps (Locus: 102/109, Replicate: 2/3) 
-[ 97] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(89211,88443,81022)
-                           Param = { 0.007815}
-[ 99] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.93,1.00) Swap(62098,833,307)
-                           Param = { 0.0157}
-[ 97] 16:52:59   Burn-in of 200000 steps (Locus: 97/109, Replicate: 2/3) 
-[ 94] 16:52:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115468,118042,119709)
-                           Param = { 0.008248}
-[ 99] 16:52:59   Burn-in of 200000 steps (Locus: 99/109, Replicate: 2/3) 
-[ 94] 16:53:00   Burn-in of 200000 steps (Locus: 94/109, Replicate: 2/3) 
-[ 46] 16:53:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120386,120338,120586)
-                           Param = { 0.007857}
-[ 52] 16:53:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(129828,129835,130937)
-                           Param = { 0.008624}
-[ 46] 16:53:00   Burn-in of 200000 steps (Locus: 46/109, Replicate: 2/3) 
-[ 52] 16:53:00   Burn-in of 200000 steps (Locus: 52/109, Replicate: 2/3) 
-[ 34] 16:53:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(122335,122093,120075)
-                           Param = { 0.009013}
-[ 34] 16:53:01   Burn-in of 200000 steps (Locus: 34/109, Replicate: 2/3) 
-[ 39] 16:53:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(104524,107222,110351)
-                           Param = { 0.007537}
-[ 39] 16:53:01   Burn-in of 200000 steps (Locus: 39/109, Replicate: 2/3) 
-[108] 16:53:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(120636,120917,121058)
-                           Param = { 0.007887}
-[108] 16:53:02   Burn-in of 200000 steps (Locus: 108/109, Replicate: 2/3) 
-[ 92] 16:53:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116515,118454,119944)
-                           Param = { 0.008684}
-[ 11] 16:53:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.98,1.00) Swap(71849,10223,55675)
-                           Param = { 0.01204}
-[ 92] 16:53:02   Burn-in of 200000 steps (Locus: 92/109, Replicate: 2/3) 
-[ 11] 16:53:02   Burn-in of 200000 steps (Locus: 11/109, Replicate: 2/3) 
-[ 29] 16:53:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(109304,112957,116262)
-                           Param = { 0.008339}
-[ 29] 16:53:02   Burn-in of 200000 steps (Locus: 29/109, Replicate: 2/3) 
-[ 66] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.96,1.00) Swap(114825,118180,121667)
-                           Param = { 0.006839}
-[  3] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.98,1.00) Swap(53805,33900,81934)
-                           Param = { 0.009868}
-[ 66] 16:53:03   Burn-in of 200000 steps (Locus: 66/109, Replicate: 2/3) 
-[ 90] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(57889,35211,87495)
-                           Param = { 0.006881}
-[  3] 16:53:03   Burn-in of 200000 steps (Locus: 3/109, Replicate: 2/3) 
-[ 40] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109431,110222,109886)
-                           Param = { 0.007383}
-[ 90] 16:53:03   Burn-in of 200000 steps (Locus: 90/109, Replicate: 2/3) 
-[ 40] 16:53:03   Burn-in of 200000 steps (Locus: 40/109, Replicate: 2/3) 
-[ 47] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(112672,112153,109802)
-                           Param = { 0.008731}
-[ 58] 16:53:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(110174,111159,111184)
-                           Param = { 0.01008}
-[ 47] 16:53:03   Burn-in of 200000 steps (Locus: 47/109, Replicate: 2/3) 
-[ 58] 16:53:03   Burn-in of 200000 steps (Locus: 58/109, Replicate: 2/3) 
-[ 86] 16:53:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(118468,121009,124030)
-                           Param = { 0.007167}
-[ 86] 16:53:04   Burn-in of 200000 steps (Locus: 86/109, Replicate: 2/3) 
-[ 61] 16:53:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(98678,101705,103335)
-                           Param = { 0.00964}
-[ 61] 16:53:05   Burn-in of 200000 steps (Locus: 61/109, Replicate: 2/3) 
-[ 68] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(119746,122505,125745)
-                           Param = { 0.00853}
-[ 68] 16:53:05   Burn-in of 200000 steps (Locus: 68/109, Replicate: 2/3) 
-[  8] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(110841,110749,109613)
-                           Param = { 0.005149}
-[  8] 16:53:05   Burn-in of 200000 steps (Locus: 8/109, Replicate: 2/3) 
-[ 25] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.98,0.99,1.00) Swap(132903,133540,133610)
-                           Param = { 0.01013}
-[ 81] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.96,1.00) Swap(25166,1609,7305)
-                           Param = { 0.01297}
-[ 25] 16:53:05   Burn-in of 200000 steps (Locus: 25/109, Replicate: 2/3) 
-[ 81] 16:53:05   Burn-in of 200000 steps (Locus: 81/109, Replicate: 2/3) 
-[ 89] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(114801,111480,107039)
-                           Param = { 0.006773}
-[ 89] 16:53:05   Burn-in of 200000 steps (Locus: 89/109, Replicate: 2/3) 
-[ 69] 16:53:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(125653,127748,129495)
-                           Param = { 0.009893}
-[ 56] 16:53:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(102599,101476,101160)
-                           Param = { 0.009534}
-[ 69] 16:53:06   Burn-in of 200000 steps (Locus: 69/109, Replicate: 2/3) 
-[ 56] 16:53:06   Burn-in of 200000 steps (Locus: 56/109, Replicate: 2/3) 
-[ 41] 16:53:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(59847,27746,17531)
-                           Param = { 0.01221}
-[ 41] 16:53:06   Burn-in of 200000 steps (Locus: 41/109, Replicate: 2/3) 
-[ 21] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(67014,69647,65311)
-                           Param = { 0.008592}
-[106] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(58050,77273,85051)
-                           Param = { 0.00558}
-[ 21] 16:53:07   Burn-in of 200000 steps (Locus: 21/109, Replicate: 2/3) 
-[106] 16:53:07   Burn-in of 200000 steps (Locus: 106/109, Replicate: 2/3) 
-[ 17] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(110999,111319,110695)
-                           Param = { 0.008128}
-[ 17] 16:53:07   Burn-in of 200000 steps (Locus: 17/109, Replicate: 2/3) 
-[ 64] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(58830,59849,66746)
-                           Param = { 0.007441}
-[ 87] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116522,117797,118553)
-                           Param = { 0.007312}
-[ 48] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116080,118222,120387)
-                           Param = { 0.007128}
-[ 64] 16:53:07   Burn-in of 200000 steps (Locus: 64/109, Replicate: 2/3) 
-[ 87] 16:53:07   Burn-in of 200000 steps (Locus: 87/109, Replicate: 2/3) 
-[ 48] 16:53:07   Burn-in of 200000 steps (Locus: 48/109, Replicate: 2/3) 
-[ 28] 16:53:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(60288,93492,106194)
-                           Param = { 0.008766}
-[ 43] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(97734,100611,104244)
-                           Param = { 0.008737}
-[ 28] 16:53:08   Burn-in of 200000 steps (Locus: 28/109, Replicate: 2/3) 
-[ 43] 16:53:08   Burn-in of 200000 steps (Locus: 43/109, Replicate: 2/3) 
-[ 53] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.95,1.00) Swap(49208,5265,3571)
-                           Param = { 0.01401}
-[  6] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(114099,116510,118403)
-                           Param = { 0.006467}
-[ 13] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(53987,57121,74219)
-                           Param = { 0.0071}
-[ 53] 16:53:08   Burn-in of 200000 steps (Locus: 53/109, Replicate: 2/3) 
-[ 62] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(95884,95434,93187)
-                           Param = { 0.007888}
-[  6] 16:53:08   Burn-in of 200000 steps (Locus: 6/109, Replicate: 2/3) 
-[ 65] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(58113,75798,80660)
-                           Param = { 0.006002}
-[ 13] 16:53:08   Burn-in of 200000 steps (Locus: 13/109, Replicate: 2/3) 
-[ 79] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116523,117673,118297)
-                           Param = { 0.008287}
-[ 62] 16:53:08   Burn-in of 200000 steps (Locus: 62/109, Replicate: 2/3) 
-[ 59] 16:53:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(57863,15028,65894)
-                           Param = { 0.0102}
-[ 65] 16:53:08   Burn-in of 200000 steps (Locus: 65/109, Replicate: 2/3) 
-[ 79] 16:53:08   Burn-in of 200000 steps (Locus: 79/109, Replicate: 2/3) 
-[ 59] 16:53:08   Burn-in of 200000 steps (Locus: 59/109, Replicate: 2/3) 
-[ 49] 16:53:09   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(117242,117967,119474)
-                           Param = { 0.008828}
-[ 49] 16:53:09   Burn-in of 200000 steps (Locus: 49/109, Replicate: 2/3) 
-[ 16] 16:53:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(99624,103328,98395)
-                           Param = { 0.008579}
-[ 75] 16:53:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117533,118720,118292)
-                           Param = { 0.007185}
-[ 16] 16:53:10   Burn-in of 200000 steps (Locus: 16/109, Replicate: 2/3) 
-[ 75] 16:53:10   Burn-in of 200000 steps (Locus: 75/109, Replicate: 2/3) 
-[ 76] 16:53:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(53663,82913,93738)
-                           Param = { 0.01005}
-[ 76] 16:53:12   Burn-in of 200000 steps (Locus: 76/109, Replicate: 2/3) 
-[ 50] 16:53:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(77909,56392,90211)
-                           Param = { 0.006928}
-[ 50] 16:53:12   Burn-in of 200000 steps (Locus: 50/109, Replicate: 2/3) 
-[ 37] 16:53:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(113940,110101,108400)
-                           Param = { 0.009279}
-[ 37] 16:53:12   Burn-in of 200000 steps (Locus: 37/109, Replicate: 2/3) 
-[ 57] 16:53:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(81373,51014,90754)
-                           Param = { 0.009954}
-[ 57] 16:53:13   Burn-in of 200000 steps (Locus: 57/109, Replicate: 2/3) 
-[ 12] 16:53:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(104397,103180,101536)
-                           Param = { 0.005846}
-[ 12] 16:53:13   Burn-in of 200000 steps (Locus: 12/109, Replicate: 2/3) 
-[ 98] 16:53:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(99942,100488,101074)
-                           Param = { 0.01049}
-[ 98] 16:53:14   Burn-in of 200000 steps (Locus: 98/109, Replicate: 2/3) 
-[  5] 16:53:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(44420,18664,57113)
-                           Param = { 0.00868}
-[  5] 16:53:14   Burn-in of 200000 steps (Locus: 5/109, Replicate: 2/3) 
-[ 96] 16:53:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(86442,83094,72653)
-                           Param = { 0.008597}
-[ 96] 16:53:15   Burn-in of 200000 steps (Locus: 96/109, Replicate: 2/3) 
-[ 71] 16:53:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.98,1.00) Swap(66595,5643,45064)
-                           Param = { 0.01369}
-[ 71] 16:53:17   Burn-in of 200000 steps (Locus: 71/109, Replicate: 2/3) 
-[  2] 16:53:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(52658,63675,69953)
-                           Param = { 0.008182}
-[  2] 16:53:19   Burn-in of 200000 steps (Locus: 2/109, Replicate: 2/3) 
-[ 85] 16:53:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(25870,8576,321)
-                           Param = { 0.01176}
-[ 85] 16:53:20   Burn-in of 200000 steps (Locus: 85/109, Replicate: 2/3) 
-[ 72] 16:53:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.78,0.82,0.92,1.00) Swap(23659,0,136)
-                           Param = { 0.01559}
-[ 72] 16:53:21   Burn-in of 200000 steps (Locus: 72/109, Replicate: 2/3) 
-[ 54] 16:53:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(61575,31960,48977)
-                           Param = { 0.01035}
-[ 54] 16:53:24   Burn-in of 200000 steps (Locus: 54/109, Replicate: 2/3) 
-[ 22] 16:53:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.90,0.96,1.00) Swap(48319,5259,5269)
-                           Param = { 0.01428}
-[ 22] 16:53:31   Burn-in of 200000 steps (Locus: 22/109, Replicate: 2/3) 
-[ 27] 16:55:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(37340,574,1059)
-                           Param = { 0.01408}
-[ 27] 16:55:17   Burn-in of 200000 steps (Locus: 27/109, Replicate: 3/3) 
-[105] 16:55:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127205,128182,129132)
-                           Param = { 0.007411}
-[105] 16:55:20   Burn-in of 200000 steps (Locus: 105/109, Replicate: 3/3) 
-[ 10] 16:55:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(113236,115415,118179)
-                           Param = { 0.006907}
-[ 10] 16:55:22   Burn-in of 200000 steps (Locus: 10/109, Replicate: 3/3) 
-[ 77] 16:55:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123822,126672,127666)
-                           Param = { 0.008196}
-[ 77] 16:55:24   Burn-in of 200000 steps (Locus: 77/109, Replicate: 3/3) 
-[ 20] 16:55:25   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109653,109625,110118)
-                           Param = { 0.006962}
-[ 20] 16:55:26   Burn-in of 200000 steps (Locus: 20/109, Replicate: 3/3) 
-[ 15] 16:55:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(106832,109207,110084)
-                           Param = { 0.01248}
-[ 15] 16:55:29   Burn-in of 200000 steps (Locus: 15/109, Replicate: 3/3) 
-[  4] 16:55:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(107145,110284,109910)
-                           Param = { 0.006704}
-[  4] 16:55:31   Burn-in of 200000 steps (Locus: 4/109, Replicate: 3/3) 
-[109] 16:55:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(105357,105082,102587)
-                           Param = { 0.008189}
-[109] 16:55:39   Burn-in of 200000 steps (Locus: 109/109, Replicate: 3/3) 
-[ 67] 16:56:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116326,118111,119049)
-                           Param = { 0.007705}
-[ 67] 16:56:21   Burn-in of 200000 steps (Locus: 67/109, Replicate: 3/3) 
-[ 73] 16:56:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.94,1.00) Swap(75497,1792,532)
-                           Param = { 0.01454}
-[ 73] 16:56:26   Burn-in of 200000 steps (Locus: 73/109, Replicate: 3/3) 
-[ 83] 16:56:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(107890,108271,109703)
-                           Param = { 0.006715}
-[ 36] 16:56:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(62749,62678,83624)
-                           Param = { 0.01075}
-[ 83] 16:56:29   Burn-in of 200000 steps (Locus: 83/109, Replicate: 3/3) 
-[ 36] 16:56:29   Burn-in of 200000 steps (Locus: 36/109, Replicate: 3/3) 
-[  1] 16:57:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(118633,119213,119425)
-                           Param = { 0.007918}
-[  1] 16:57:04   Burn-in of 200000 steps (Locus: 1/109, Replicate: 3/3) 
-[ 60] 16:57:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119555,119729,120584)
-                           Param = { 0.008715}
-[ 60] 16:57:12   Burn-in of 200000 steps (Locus: 60/109, Replicate: 3/3) 
-[ 70] 16:57:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.98,1.00) Swap(53326,33063,81436)
-                           Param = { 0.009981}
-[ 70] 16:57:39   Burn-in of 200000 steps (Locus: 70/109, Replicate: 3/3) 
-[ 23] 16:57:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119764,120470,120936)
-                           Param = { 0.009034}
-[ 23] 16:57:40   Burn-in of 200000 steps (Locus: 23/109, Replicate: 3/3) 
-[ 33] 16:57:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(45577,2199,5888)
-                           Param = { 0.01245}
-[ 33] 16:57:41   Burn-in of 200000 steps (Locus: 33/109, Replicate: 3/3) 
-[ 74] 16:57:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(59371,89338,102464)
-                           Param = { 0.007979}
-[ 74] 16:57:51   Burn-in of 200000 steps (Locus: 74/109, Replicate: 3/3) 
-[ 51] 16:57:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119986,120124,120376)
-                           Param = { 0.009327}
-[ 51] 16:57:53   Burn-in of 200000 steps (Locus: 51/109, Replicate: 3/3) 
-[100] 16:58:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(50454,66153,79022)
-                           Param = { 0.00837}
-[100] 16:58:03   Burn-in of 200000 steps (Locus: 100/109, Replicate: 3/3) 
-[  9] 16:58:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.54,0.56,0.63,1.00) Swap(37227,18,0)
+[  8] 06:24:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(113554,111127,108498)
+                           Param = { 0.008305}
+[ 81] 06:24:08   Burn-in of 200000 steps (Locus: 81/109, Replicate: 2/3) 
+[  8] 06:24:08   Burn-in of 200000 steps (Locus: 8/109, Replicate: 2/3) 
+[ 73] 06:24:09   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.88,0.94,1.00) Swap(62117,1571,616)
                            Param = { 0.01329}
-[  9] 16:58:34   Burn-in of 200000 steps (Locus: 9/109, Replicate: 3/3) 
-[103] 16:58:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119098,119129,119668)
-                           Param = { 0.008196}
-[103] 16:58:42   Burn-in of 200000 steps (Locus: 103/109, Replicate: 3/3) 
-[ 82] 16:59:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.93,0.96,1.00) Swap(44828,61526,68439)
-                           Param = { 0.006329}
-[101] 16:59:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(120745,122885,124993)
-                           Param = { 0.009124}
-[ 82] 16:59:06   Burn-in of 200000 steps (Locus: 82/109, Replicate: 3/3) 
-[101] 16:59:06   Burn-in of 200000 steps (Locus: 101/109, Replicate: 3/3) 
-[ 43] 16:59:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(98506,100834,103519)
-                           Param = { 0.008656}
-[ 43] 16:59:07   Burn-in of 200000 steps (Locus: 43/109, Replicate: 3/3) 
-[ 80] 16:59:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(97998,94195,92819)
-                           Param = { 0.007945}
-[ 80] 16:59:21   Burn-in of 200000 steps (Locus: 80/109, Replicate: 3/3) 
-[ 18] 16:59:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(69824,47848,72391)
-                           Param = { 0.007858}
-[ 18] 16:59:28   Burn-in of 200000 steps (Locus: 18/109, Replicate: 3/3) 
-[  7] 16:59:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(41698,33078,62648)
-                           Param = { 0.009055}
-[  7] 16:59:34   Burn-in of 200000 steps (Locus: 7/109, Replicate: 3/3) 
-[104] 16:59:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(20992,2775,7415)
-                           Param = { 0.01291}
-[104] 16:59:37   Burn-in of 200000 steps (Locus: 104/109, Replicate: 3/3) 
-[ 44] 16:59:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111864,110518,110290)
-                           Param = { 0.007578}
-[ 44] 16:59:51   Burn-in of 200000 steps (Locus: 44/109, Replicate: 3/3) 
-[ 24] 16:59:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(97598,100713,102861)
-                           Param = { 0.007871}
-[ 63] 16:59:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.61,0.63,0.76,1.00) Swap(14003,0,0)
-                           Param = { 0.01131}
-[ 24] 16:59:56   Burn-in of 200000 steps (Locus: 24/109, Replicate: 3/3) 
-[ 63] 16:59:56   Burn-in of 200000 steps (Locus: 63/109, Replicate: 3/3) 
-[ 42] 17:00:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(42907,2162,4695)
-                           Param = { 0.01406}
-[ 42] 17:00:01   Burn-in of 200000 steps (Locus: 42/109, Replicate: 3/3) 
-[ 26] 17:00:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.86,0.94,1.00) Swap(30166,2249,2037)
-                           Param = { 0.01473}
-[ 26] 17:00:19   Burn-in of 200000 steps (Locus: 26/109, Replicate: 3/3) 
-[ 31] 17:00:25   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(115399,118883,122366)
-                           Param = { 0.007982}
-[ 31] 17:00:25   Burn-in of 200000 steps (Locus: 31/109, Replicate: 3/3) 
-[ 19] 17:00:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(118094,121407,124541)
-                           Param = { 0.009302}
-[ 19] 17:00:26   Burn-in of 200000 steps (Locus: 19/109, Replicate: 3/3) 
-[ 85] 17:00:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.89,0.95,1.00) Swap(25208,9711,93)
+[ 73] 06:24:09   Burn-in of 200000 steps (Locus: 73/109, Replicate: 2/3) 
+[ 13] 06:24:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(51867,60121,74125)
+                           Param = { 0.009223}
+[ 13] 06:24:10   Burn-in of 200000 steps (Locus: 13/109, Replicate: 2/3) 
+[ 98] 06:24:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(99891,100167,102758)
+                           Param = { 0.00686}
+[ 98] 06:24:11   Burn-in of 200000 steps (Locus: 98/109, Replicate: 2/3) 
+[ 80] 06:24:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(98366,95946,92735)
+                           Param = { 0.004897}
+[ 80] 06:24:11   Burn-in of 200000 steps (Locus: 80/109, Replicate: 2/3) 
+[ 14] 06:24:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(116642,120482,123754)
+                           Param = { 0.01007}
+[ 14] 06:24:13   Burn-in of 200000 steps (Locus: 14/109, Replicate: 2/3) 
+[ 26] 06:24:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.94,1.00) Swap(44650,1486,2281)
+                           Param = { 0.0113}
+[ 26] 06:24:13   Burn-in of 200000 steps (Locus: 26/109, Replicate: 2/3) 
+[101] 06:24:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(119316,122934,124687)
+                           Param = { 0.007933}
+[101] 06:24:14   Burn-in of 200000 steps (Locus: 101/109, Replicate: 2/3) 
+[ 87] 06:24:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117160,118704,118857)
+                           Param = { 0.008512}
+[ 87] 06:24:15   Burn-in of 200000 steps (Locus: 87/109, Replicate: 2/3) 
+[ 29] 06:24:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(109973,112662,116726)
+                           Param = { 0.006678}
+[ 29] 06:24:16   Burn-in of 200000 steps (Locus: 29/109, Replicate: 2/3) 
+[ 22] 06:24:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.90,0.96,1.00) Swap(48679,5229,5455)
+                           Param = { 0.0146}
+[ 22] 06:24:16   Burn-in of 200000 steps (Locus: 22/109, Replicate: 2/3) 
+[ 69] 06:24:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126145,127784,129449)
+                           Param = { 0.008374}
+[ 69] 06:24:18   Burn-in of 200000 steps (Locus: 69/109, Replicate: 2/3) 
+[ 54] 06:24:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(63250,30102,45404)
+                           Param = { 0.0101}
+[ 54] 06:24:19   Burn-in of 200000 steps (Locus: 54/109, Replicate: 2/3) 
+[ 42] 06:24:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(38755,2303,3873)
+                           Param = { 0.01299}
+[ 42] 06:24:19   Burn-in of 200000 steps (Locus: 42/109, Replicate: 2/3) 
+[ 66] 06:24:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(113376,117852,121293)
+                           Param = { 0.008261}
+[ 66] 06:24:20   Burn-in of 200000 steps (Locus: 66/109, Replicate: 2/3) 
+[ 74] 06:24:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(53217,85982,102034)
+                           Param = { 0.006298}
+[ 74] 06:24:21   Burn-in of 200000 steps (Locus: 74/109, Replicate: 2/3) 
+[ 25] 06:24:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.98,0.99,1.00) Swap(132413,132825,133936)
+                           Param = { 0.008304}
+[ 25] 06:24:21   Burn-in of 200000 steps (Locus: 25/109, Replicate: 2/3) 
+[ 46] 06:24:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119139,119673,120031)
+                           Param = { 0.00464}
+[ 46] 06:24:21   Burn-in of 200000 steps (Locus: 46/109, Replicate: 2/3) 
+[  2] 06:24:23   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(55918,62470,69626)
+                           Param = { 0.006737}
+[  2] 06:24:23   Burn-in of 200000 steps (Locus: 2/109, Replicate: 2/3) 
+[ 34] 06:24:23   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(122279,122332,123121)
+                           Param = { 0.008734}
+[ 28] 06:24:23   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(66469,96882,107183)
+                           Param = { 0.008867}
+[ 34] 06:24:24   Burn-in of 200000 steps (Locus: 34/109, Replicate: 2/3) 
+[ 28] 06:24:24   Burn-in of 200000 steps (Locus: 28/109, Replicate: 2/3) 
+[ 70] 06:24:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(62579,31827,79972)
+                           Param = { 0.006828}
+[ 70] 06:24:24   Burn-in of 200000 steps (Locus: 70/109, Replicate: 2/3) 
+[  6] 06:24:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(114126,115762,117948)
+                           Param = { 0.00907}
+[ 68] 06:24:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(121954,124166,126107)
+                           Param = { 0.008745}
+[  6] 06:24:26   Burn-in of 200000 steps (Locus: 6/109, Replicate: 2/3) 
+[ 68] 06:24:26   Burn-in of 200000 steps (Locus: 68/109, Replicate: 2/3) 
+[ 49] 06:24:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116324,117678,119547)
+                           Param = { 0.008796}
+[ 49] 06:24:27   Burn-in of 200000 steps (Locus: 49/109, Replicate: 2/3) 
+[ 77] 06:24:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(124128,126925,126640)
+                           Param = { 0.008441}
+[ 90] 06:24:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(37679,50842,86532)
+                           Param = { 0.009161}
+[ 77] 06:24:28   Burn-in of 200000 steps (Locus: 77/109, Replicate: 2/3) 
+[ 90] 06:24:28   Burn-in of 200000 steps (Locus: 90/109, Replicate: 2/3) 
+[ 63] 06:24:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.60,0.63,0.75,1.00) Swap(31959,0,0)
+                           Param = { 0.01429}
+[ 63] 06:24:30   Burn-in of 200000 steps (Locus: 63/109, Replicate: 2/3) 
+[ 15] 06:24:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108864,108341,110933)
+                           Param = { 0.006735}
+[ 15] 06:24:31   Burn-in of 200000 steps (Locus: 15/109, Replicate: 2/3) 
+[ 12] 06:24:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(102931,102859,101347)
+                           Param = { 0.005561}
+[ 12] 06:24:31   Burn-in of 200000 steps (Locus: 12/109, Replicate: 2/3) 
+[ 78] 06:24:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(120431,120330,121124)
+                           Param = { 0.008584}
+[ 78] 06:24:33   Burn-in of 200000 steps (Locus: 78/109, Replicate: 2/3) 
+[ 10] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(113092,115758,117843)
+                           Param = { 0.008934}
+[ 53] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(70001,4267,3645)
+                           Param = { 0.0155}
+[ 10] 06:24:34   Burn-in of 200000 steps (Locus: 10/109, Replicate: 2/3) 
+[ 53] 06:24:34   Burn-in of 200000 steps (Locus: 53/109, Replicate: 2/3) 
+[ 40] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109279,108678,110219)
+                           Param = { 0.00814}
+[ 40] 06:24:34   Burn-in of 200000 steps (Locus: 40/109, Replicate: 2/3) 
+[ 92] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.97,1.00) Swap(115179,117936,119998)
+                           Param = { 0.01078}
+[ 94] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(114351,116648,118803)
+                           Param = { 0.008133}
+[106] 06:24:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(63887,79094,86836)
+                           Param = { 0.005974}
+[ 92] 06:24:34   Burn-in of 200000 steps (Locus: 92/109, Replicate: 2/3) 
+[ 94] 06:24:34   Burn-in of 200000 steps (Locus: 94/109, Replicate: 2/3) 
+[106] 06:24:34   Burn-in of 200000 steps (Locus: 106/109, Replicate: 2/3) 
+[ 59] 06:24:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.98,1.00) Swap(45861,14396,66589)
+                           Param = { 0.00847}
+[ 59] 06:24:35   Burn-in of 200000 steps (Locus: 59/109, Replicate: 2/3) 
+[ 84] 06:24:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(36397,70541,90075)
+                           Param = { 0.0078}
+[ 84] 06:24:36   Burn-in of 200000 steps (Locus: 84/109, Replicate: 2/3) 
+[ 19] 06:24:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(118278,121676,123932)
+                           Param = { 0.00867}
+[ 76] 06:24:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(57964,79677,93254)
+                           Param = { 0.0101}
+[ 19] 06:24:37   Burn-in of 200000 steps (Locus: 19/109, Replicate: 2/3) 
+[ 76] 06:24:37   Burn-in of 200000 steps (Locus: 76/109, Replicate: 2/3) 
+[  4] 06:24:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108819,108461,109784)
+                           Param = { 0.006568}
+[  4] 06:24:39   Burn-in of 200000 steps (Locus: 4/109, Replicate: 2/3) 
+[105] 06:24:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127508,128328,128642)
+                           Param = { 0.008031}
+[105] 06:24:39   Burn-in of 200000 steps (Locus: 105/109, Replicate: 2/3) 
+[ 86] 06:24:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(117770,120992,122905)
+                           Param = { 0.009688}
+[ 86] 06:24:39   Burn-in of 200000 steps (Locus: 86/109, Replicate: 2/3) 
+[100] 06:24:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(47059,66181,77163)
+                           Param = { 0.005517}
+[108] 06:24:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(121861,121290,120555)
+                           Param = { 0.01123}
+[100] 06:24:40   Burn-in of 200000 steps (Locus: 100/109, Replicate: 2/3) 
+[108] 06:24:40   Burn-in of 200000 steps (Locus: 108/109, Replicate: 2/3) 
+[ 27] 06:24:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(27579,861,831)
+                           Param = { 0.0128}
+[ 27] 06:24:41   Burn-in of 200000 steps (Locus: 27/109, Replicate: 2/3) 
+[ 61] 06:24:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(101403,103109,103790)
+                           Param = { 0.007523}
+[ 44] 06:24:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(111289,111220,109400)
+                           Param = { 0.006821}
+[ 61] 06:24:42   Burn-in of 200000 steps (Locus: 61/109, Replicate: 2/3) 
+[ 44] 06:24:42   Burn-in of 200000 steps (Locus: 44/109, Replicate: 2/3) 
+[ 52] 06:24:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(129983,131641,131137)
+                           Param = { 0.007655}
+[ 52] 06:24:43   Burn-in of 200000 steps (Locus: 52/109, Replicate: 2/3) 
+[ 45] 06:24:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(39942,610,6112)
+                           Param = { 0.01286}
+[ 45] 06:24:43   Burn-in of 200000 steps (Locus: 45/109, Replicate: 2/3) 
+[ 85] 06:24:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(28343,10820,278)
+                           Param = { 0.01316}
+[ 85] 06:24:44   Burn-in of 200000 steps (Locus: 85/109, Replicate: 2/3) 
+[ 67] 06:24:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116027,117084,118323)
+                           Param = { 0.007176}
+[ 67] 06:24:44   Burn-in of 200000 steps (Locus: 67/109, Replicate: 2/3) 
+[ 99] 06:24:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.93,1.00) Swap(76032,2177,242)
+                           Param = { 0.01563}
+[ 82] 06:24:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(47504,58995,68536)
+                           Param = { 0.007675}
+[ 99] 06:24:45   Burn-in of 200000 steps (Locus: 99/109, Replicate: 2/3) 
+[ 82] 06:24:45   Burn-in of 200000 steps (Locus: 82/109, Replicate: 2/3) 
+[ 50] 06:24:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(74895,61780,91492)
+                           Param = { 0.009927}
+[ 58] 06:24:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(111281,111833,110994)
+                           Param = { 0.006516}
+[ 50] 06:24:46   Burn-in of 200000 steps (Locus: 50/109, Replicate: 2/3) 
+[ 35] 06:24:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(125351,127914,129805)
+                           Param = { 0.009012}
+[ 58] 06:24:46   Burn-in of 200000 steps (Locus: 58/109, Replicate: 2/3) 
+[ 35] 06:24:46   Burn-in of 200000 steps (Locus: 35/109, Replicate: 2/3) 
+[ 31] 06:24:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(115242,119149,123460)
+                           Param = { 0.008354}
+[ 31] 06:24:47   Burn-in of 200000 steps (Locus: 31/109, Replicate: 2/3) 
+[  7] 06:24:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(57984,21370,62574)
+                           Param = { 0.01138}
+[  7] 06:24:48   Burn-in of 200000 steps (Locus: 7/109, Replicate: 2/3) 
+[ 91] 06:24:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(53742,91711,106256)
+                           Param = { 0.008455}
+[ 91] 06:24:49   Burn-in of 200000 steps (Locus: 91/109, Replicate: 2/3) 
+[ 48] 06:24:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(114089,117573,119961)
+                           Param = { 0.008001}
+[ 48] 06:24:49   Burn-in of 200000 steps (Locus: 48/109, Replicate: 2/3) 
+[ 21] 06:24:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(71822,69400,64665)
+                           Param = { 0.003382}
+[ 21] 06:24:49   Burn-in of 200000 steps (Locus: 21/109, Replicate: 2/3) 
+[109] 06:24:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(104610,104227,102323)
+                           Param = { 0.005971}
+[109] 06:24:50   Burn-in of 200000 steps (Locus: 109/109, Replicate: 2/3) 
+[ 39] 06:24:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(106298,107339,109712)
+                           Param = { 0.007348}
+[ 39] 06:24:50   Burn-in of 200000 steps (Locus: 39/109, Replicate: 2/3) 
+[  5] 06:24:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(39642,18267,55732)
+                           Param = { 0.01408}
+[ 16] 06:24:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(100126,100285,97023)
+                           Param = { 0.008904}
+[ 37] 06:24:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111387,110961,109035)
+                           Param = { 0.00783}
+[ 47] 06:24:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(112667,111655,109085)
+                           Param = { 0.008526}
+[  5] 06:24:51   Burn-in of 200000 steps (Locus: 5/109, Replicate: 2/3) 
+[ 16] 06:24:51   Burn-in of 200000 steps (Locus: 16/109, Replicate: 2/3) 
+[ 37] 06:24:51   Burn-in of 200000 steps (Locus: 37/109, Replicate: 2/3) 
+[ 47] 06:24:51   Burn-in of 200000 steps (Locus: 47/109, Replicate: 2/3) 
+[  3] 06:24:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.98,1.00) Swap(53066,39292,80165)
+                           Param = { 0.006946}
+[  3] 06:24:52   Burn-in of 200000 steps (Locus: 3/109, Replicate: 2/3) 
+[ 32] 06:24:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115879,116834,118054)
+                           Param = { 0.01}
+[ 32] 06:24:52   Burn-in of 200000 steps (Locus: 32/109, Replicate: 2/3) 
+[ 71] 06:24:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.94,0.98,1.00) Swap(54194,10030,45974)
+                           Param = { 0.01437}
+[ 71] 06:24:52   Burn-in of 200000 steps (Locus: 71/109, Replicate: 2/3) 
+[ 96] 06:24:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(87403,81154,72583)
+                           Param = { 0.009524}
+[ 60] 06:24:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119166,120527,119834)
+                           Param = { 0.009807}
+[ 96] 06:24:53   Burn-in of 200000 steps (Locus: 96/109, Replicate: 2/3) 
+[ 60] 06:24:53   Burn-in of 200000 steps (Locus: 60/109, Replicate: 2/3) 
+[ 38] 06:24:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.85,0.92,1.00) Swap(50037,369,99)
+                           Param = { 0.01298}
+[ 20] 06:24:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109180,109293,110224)
+                           Param = { 0.009382}
+[ 38] 06:24:53   Burn-in of 200000 steps (Locus: 38/109, Replicate: 2/3) 
+[ 20] 06:24:53   Burn-in of 200000 steps (Locus: 20/109, Replicate: 2/3) 
+[ 95] 06:24:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(132093,131725,133288)
+                           Param = { 0.009201}
+[ 95] 06:24:53   Burn-in of 200000 steps (Locus: 95/109, Replicate: 2/3) 
+[ 62] 06:24:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(96894,95176,93914)
+                           Param = { 0.007443}
+[103] 06:24:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119282,119241,118502)
+                           Param = { 0.009925}
+[ 30] 06:24:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(68027,25147,83320)
+                           Param = { 0.004883}
+[ 79] 06:24:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116840,118876,118787)
+                           Param = { 0.007786}
+[ 62] 06:24:54   Burn-in of 200000 steps (Locus: 62/109, Replicate: 2/3) 
+[103] 06:24:54   Burn-in of 200000 steps (Locus: 103/109, Replicate: 2/3) 
+[ 30] 06:24:54   Burn-in of 200000 steps (Locus: 30/109, Replicate: 2/3) 
+[ 79] 06:24:55   Burn-in of 200000 steps (Locus: 79/109, Replicate: 2/3) 
+[107] 06:24:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126657,128077,128430)
+                           Param = { 0.008188}
+[ 88] 06:24:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(50381,18235,33774)
+                           Param = { 0.0128}
+[107] 06:24:55   Burn-in of 200000 steps (Locus: 107/109, Replicate: 2/3) 
+[ 88] 06:24:56   Burn-in of 200000 steps (Locus: 88/109, Replicate: 2/3) 
+[ 64] 06:24:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(55981,56402,65838)
+                           Param = { 0.009254}
+[ 11] 06:24:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.98,1.00) Swap(75573,14152,50471)
+                           Param = { 0.01093}
+[ 64] 06:24:56   Burn-in of 200000 steps (Locus: 64/109, Replicate: 2/3) 
+[ 11] 06:24:57   Burn-in of 200000 steps (Locus: 11/109, Replicate: 2/3) 
+[ 65] 06:24:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(57942,73264,79537)
+                           Param = { 0.006695}
+[ 36] 06:24:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(57659,65242,85478)
+                           Param = { 0.006217}
+[ 65] 06:24:57   Burn-in of 200000 steps (Locus: 65/109, Replicate: 2/3) 
+[ 36] 06:24:57   Burn-in of 200000 steps (Locus: 36/109, Replicate: 2/3) 
+[ 97] 06:24:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(85935,87107,81691)
+                           Param = { 0.00859}
+[ 97] 06:24:58   Burn-in of 200000 steps (Locus: 97/109, Replicate: 2/3) 
+[ 83] 06:25:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(107761,109460,109191)
+                           Param = { 0.007471}
+[ 83] 06:25:01   Burn-in of 200000 steps (Locus: 83/109, Replicate: 2/3) 
+[ 33] 06:25:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(55376,2981,4616)
+                           Param = { 0.01512}
+[ 33] 06:25:01   Burn-in of 200000 steps (Locus: 33/109, Replicate: 2/3) 
+[ 89] 06:25:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(115768,112240,107326)
+                           Param = { 0.007877}
+[ 89] 06:25:03   Burn-in of 200000 steps (Locus: 89/109, Replicate: 2/3) 
+[ 72] 06:25:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.78,0.82,0.92,1.00) Swap(14442,4,85)
+                           Param = { 0.01354}
+[ 72] 06:25:04   Burn-in of 200000 steps (Locus: 72/109, Replicate: 2/3) 
+[ 18] 06:25:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(68698,50370,74137)
+                           Param = { 0.01208}
+[ 18] 06:25:07   Burn-in of 200000 steps (Locus: 18/109, Replicate: 2/3) 
+[104] 06:25:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.88,0.95,1.00) Swap(28863,2523,7936)
+                           Param = { 0.01375}
+[104] 06:25:08   Burn-in of 200000 steps (Locus: 104/109, Replicate: 2/3) 
+[ 55] 06:25:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(39077,30629,424)
+                           Param = { 0.01234}
+[ 55] 06:25:12   Burn-in of 200000 steps (Locus: 55/109, Replicate: 2/3) 
+[ 51] 06:27:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120419,120482,120205)
+                           Param = { 0.007501}
+[ 51] 06:27:39   Burn-in of 200000 steps (Locus: 51/109, Replicate: 3/3) 
+[ 75] 06:28:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117308,119187,118919)
+                           Param = { 0.007919}
+[ 75] 06:28:05   Burn-in of 200000 steps (Locus: 75/109, Replicate: 3/3) 
+[102] 06:28:23   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120647,121650,120091)
+                           Param = { 0.007238}
+[102] 06:28:23   Burn-in of 200000 steps (Locus: 102/109, Replicate: 3/3) 
+[  9] 06:28:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.53,0.55,0.63,1.00) Swap(51111,22,0)
+                           Param = { 0.01593}
+[  9] 06:28:26   Burn-in of 200000 steps (Locus: 9/109, Replicate: 3/3) 
+[ 57] 06:28:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(67120,61087,91641)
+                           Param = { 0.00742}
+[ 57] 06:28:26   Burn-in of 200000 steps (Locus: 57/109, Replicate: 3/3) 
+[ 93] 06:28:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(122518,125090,126700)
+                           Param = { 0.00871}
+[ 93] 06:28:31   Burn-in of 200000 steps (Locus: 93/109, Replicate: 3/3) 
+[ 49] 06:28:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(117333,118387,119038)
+                           Param = { 0.00813}
+[ 49] 06:28:45   Burn-in of 200000 steps (Locus: 49/109, Replicate: 3/3) 
+[  2] 06:28:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(51995,64796,70803)
+                           Param = { 0.006552}
+[  2] 06:28:52   Burn-in of 200000 steps (Locus: 2/109, Replicate: 3/3) 
+[ 66] 06:28:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(114433,118623,121189)
+                           Param = { 0.007106}
+[ 66] 06:28:53   Burn-in of 200000 steps (Locus: 66/109, Replicate: 3/3) 
+[ 41] 06:28:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(71046,31031,18237)
                            Param = { 0.01443}
-[ 85] 17:00:28   Burn-in of 200000 steps (Locus: 85/109, Replicate: 3/3) 
-[ 38] 17:00:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.82,0.85,0.92,1.00) Swap(52086,534,136)
-                           Param = { 0.01594}
-[ 38] 17:00:28   Burn-in of 200000 steps (Locus: 38/109, Replicate: 3/3) 
-[ 14] 17:00:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(116373,119791,123671)
-                           Param = { 0.007121}
-[ 14] 17:00:29   Burn-in of 200000 steps (Locus: 14/109, Replicate: 3/3) 
-[ 93] 17:00:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(121954,124860,127296)
-                           Param = { 0.009044}
-[ 93] 17:00:30   Burn-in of 200000 steps (Locus: 93/109, Replicate: 3/3) 
-[ 84] 17:00:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(42235,73122,90171)
-                           Param = { 0.005911}
-[ 84] 17:00:30   Burn-in of 200000 steps (Locus: 84/109, Replicate: 3/3) 
-[107] 17:00:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(125833,127402,129091)
-                           Param = { 0.008653}
-[107] 17:00:31   Burn-in of 200000 steps (Locus: 107/109, Replicate: 3/3) 
-[ 35] 17:00:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127156,128740,129232)
-                           Param = { 0.008105}
-[ 35] 17:00:31   Burn-in of 200000 steps (Locus: 35/109, Replicate: 3/3) 
-[ 45] 17:00:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.87,0.95,1.00) Swap(46656,305,6017)
-                           Param = { 0.01318}
-[ 91] 17:00:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(58319,89555,106726)
-                           Param = { 0.00951}
-[ 45] 17:00:33   Burn-in of 200000 steps (Locus: 45/109, Replicate: 3/3) 
-[ 91] 17:00:33   Burn-in of 200000 steps (Locus: 91/109, Replicate: 3/3) 
-[ 30] 17:00:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(84516,21582,81877)
-                           Param = { 0.01016}
-[ 30] 17:00:34   Burn-in of 200000 steps (Locus: 30/109, Replicate: 3/3) 
-[ 95] 17:00:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(131162,132198,132575)
-                           Param = { 0.00815}
-[ 95] 17:00:36   Burn-in of 200000 steps (Locus: 95/109, Replicate: 3/3) 
-[ 59] 17:00:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.97,1.00) Swap(64720,9777,68213)
-                           Param = { 0.01098}
-[ 59] 17:00:36   Burn-in of 200000 steps (Locus: 59/109, Replicate: 3/3) 
-[ 99] 17:00:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.93,1.00) Swap(57941,1786,373)
-                           Param = { 0.01339}
-[ 99] 17:00:37   Burn-in of 200000 steps (Locus: 99/109, Replicate: 3/3) 
-[102] 17:00:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(120926,120431,120270)
-                           Param = { 0.008596}
-[102] 17:00:37   Burn-in of 200000 steps (Locus: 102/109, Replicate: 3/3) 
-[ 39] 17:00:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(105007,107664,110781)
-                           Param = { 0.00839}
-[ 39] 17:00:38   Burn-in of 200000 steps (Locus: 39/109, Replicate: 3/3) 
-[ 52] 17:00:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(129602,130684,131967)
-                           Param = { 0.009157}
-[ 52] 17:00:38   Burn-in of 200000 steps (Locus: 52/109, Replicate: 3/3) 
-[ 34] 17:00:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(121957,122532,121779)
-                           Param = { 0.008841}
-[ 34] 17:00:39   Burn-in of 200000 steps (Locus: 34/109, Replicate: 3/3) 
-[ 78] 17:00:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120582,119673,120692)
-                           Param = { 0.007733}
-[ 78] 17:00:40   Burn-in of 200000 steps (Locus: 78/109, Replicate: 3/3) 
-[ 94] 17:00:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(113829,116676,118696)
-                           Param = { 0.01103}
-[ 94] 17:00:40   Burn-in of 200000 steps (Locus: 94/109, Replicate: 3/3) 
-[ 29] 17:00:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(110299,113139,117098)
-                           Param = { 0.009266}
-[ 97] 17:00:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(86029,87933,80924)
-                           Param = { 0.008516}
-[ 29] 17:00:40   Burn-in of 200000 steps (Locus: 29/109, Replicate: 3/3) 
-[ 97] 17:00:41   Burn-in of 200000 steps (Locus: 97/109, Replicate: 3/3) 
-[108] 17:00:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(121296,121804,120529)
-                           Param = { 0.007189}
-[108] 17:00:41   Burn-in of 200000 steps (Locus: 108/109, Replicate: 3/3) 
-[ 46] 17:00:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(118430,120013,120381)
-                           Param = { 0.008566}
-[ 46] 17:00:41   Burn-in of 200000 steps (Locus: 46/109, Replicate: 3/3) 
-[ 11] 17:00:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.98,1.00) Swap(85826,5384,53503)
-                           Param = { 0.01245}
-[ 11] 17:00:41   Burn-in of 200000 steps (Locus: 11/109, Replicate: 3/3) 
-[ 92] 17:00:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(114685,117659,119446)
-                           Param = { 0.009127}
-[ 92] 17:00:42   Burn-in of 200000 steps (Locus: 92/109, Replicate: 3/3) 
-[105] 17:00:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(126996,128342,128974)
-                           Param = { 0.01063}
-[ 90] 17:00:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(54114,37173,85609)
-                           Param = { 0.009879}
-[ 90] 17:00:43   Burn-in of 200000 steps (Locus: 90/109, Replicate: 3/3) 
-[  3] 17:00:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.98,1.00) Swap(65758,34068,78311)
-                           Param = { 0.008244}
-[  3] 17:00:43   Burn-in of 200000 steps (Locus: 3/109, Replicate: 3/3) 
-[ 88] 17:00:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.92,0.97,1.00) Swap(55931,16048,31112)
-                           Param = { 0.01086}
-[ 88] 17:00:43   Burn-in of 200000 steps (Locus: 88/109, Replicate: 3/3) 
-[ 55] 17:00:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(49091,27695,158)
-                           Param = { 0.01458}
-[ 66] 17:00:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(113968,116396,121515)
-                           Param = { 0.006194}
-[ 55] 17:00:44   Burn-in of 200000 steps (Locus: 55/109, Replicate: 3/3) 
-[ 40] 17:00:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109127,109958,110437)
-                           Param = { 0.005427}
-[ 66] 17:00:44   Burn-in of 200000 steps (Locus: 66/109, Replicate: 3/3) 
-[ 40] 17:00:44   Burn-in of 200000 steps (Locus: 40/109, Replicate: 3/3) 
-[ 10] 17:00:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(112809,115026,117251)
-                           Param = { 0.007713}
-[ 86] 17:00:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(118028,120744,124160)
-                           Param = { 0.007483}
-[ 86] 17:00:45   Burn-in of 200000 steps (Locus: 86/109, Replicate: 3/3) 
-[ 32] 17:00:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116419,117658,118557)
-                           Param = { 0.009128}
-[ 32] 17:00:46   Burn-in of 200000 steps (Locus: 32/109, Replicate: 3/3) 
-[ 58] 17:00:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(110435,111895,111605)
-                           Param = { 0.006555}
-[ 58] 17:00:46   Burn-in of 200000 steps (Locus: 58/109, Replicate: 3/3) 
-[ 47] 17:00:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(113591,111099,109477)
-                           Param = { 0.007057}
-[ 47] 17:00:47   Burn-in of 200000 steps (Locus: 47/109, Replicate: 3/3) 
-[ 68] 17:00:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(121658,123488,125674)
-                           Param = { 0.008187}
-[ 68] 17:00:48   Burn-in of 200000 steps (Locus: 68/109, Replicate: 3/3) 
-[ 81] 17:00:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(37488,379,6089)
-                           Param = { 0.01402}
-[ 81] 17:00:48   Burn-in of 200000 steps (Locus: 81/109, Replicate: 3/3) 
-[ 25] 17:00:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.98,0.99,1.00) Swap(132178,133193,133450)
-                           Param = { 0.009458}
-[ 25] 17:00:49   Burn-in of 200000 steps (Locus: 25/109, Replicate: 3/3) 
-[ 56] 17:00:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(101445,101613,101328)
-                           Param = { 0.008209}
-[ 20] 17:00:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108746,109316,109908)
-                           Param = { 0.007242}
-[ 48] 17:00:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116389,116779,119511)
-                           Param = { 0.007484}
-[ 56] 17:00:49   Burn-in of 200000 steps (Locus: 56/109, Replicate: 3/3) 
-[ 48] 17:00:49   Burn-in of 200000 steps (Locus: 48/109, Replicate: 3/3) 
-[ 17] 17:00:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111339,110481,109336)
-                           Param = { 0.00807}
-[ 17] 17:00:49   Burn-in of 200000 steps (Locus: 17/109, Replicate: 3/3) 
-[  8] 17:00:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111876,111865,110066)
-                           Param = { 0.009085}
-[  8] 17:00:50   Burn-in of 200000 steps (Locus: 8/109, Replicate: 3/3) 
-[ 41] 17:00:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(66506,32562,15074)
-                           Param = { 0.009733}
-[ 69] 17:00:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126681,127969,129280)
-                           Param = { 0.01196}
-[ 41] 17:00:50   Burn-in of 200000 steps (Locus: 41/109, Replicate: 3/3) 
-[ 69] 17:00:50   Burn-in of 200000 steps (Locus: 69/109, Replicate: 3/3) 
-[ 89] 17:00:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(115420,112535,106584)
-                           Param = { 0.00731}
-[ 89] 17:00:51   Burn-in of 200000 steps (Locus: 89/109, Replicate: 3/3) 
-[ 87] 17:00:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117700,117956,118409)
-                           Param = { 0.006726}
-[ 15] 17:00:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(107970,109316,108926)
-                           Param = { 0.007746}
-[ 87] 17:00:52   Burn-in of 200000 steps (Locus: 87/109, Replicate: 3/3) 
-[ 64] 17:00:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(55042,59798,68465)
-                           Param = { 0.006988}
-[ 79] 17:00:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(117948,118481,118584)
-                           Param = { 0.01115}
-[ 64] 17:00:52   Burn-in of 200000 steps (Locus: 64/109, Replicate: 3/3) 
-[ 79] 17:00:52   Burn-in of 200000 steps (Locus: 79/109, Replicate: 3/3) 
-[106] 17:00:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(58605,79832,85657)
-                           Param = { 0.006827}
-[ 28] 17:00:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(67043,97262,107360)
-                           Param = { 0.008939}
-[106] 17:00:53   Burn-in of 200000 steps (Locus: 106/109, Replicate: 3/3) 
-[ 28] 17:00:53   Burn-in of 200000 steps (Locus: 28/109, Replicate: 3/3) 
-[ 13] 17:00:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(53284,57952,74998)
-                           Param = { 0.008688}
-[ 13] 17:00:53   Burn-in of 200000 steps (Locus: 13/109, Replicate: 3/3) 
-[ 65] 17:00:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(59753,76882,81436)
-                           Param = { 0.008172}
-[  6] 17:00:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(114965,116375,117992)
-                           Param = { 0.006171}
-[ 65] 17:00:54   Burn-in of 200000 steps (Locus: 65/109, Replicate: 3/3) 
-[  6] 17:00:54   Burn-in of 200000 steps (Locus: 6/109, Replicate: 3/3) 
-[  4] 17:00:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109588,109503,110469)
-                           Param = { 0.006385}
-[ 61] 17:00:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(100991,102466,104340)
-                           Param = { 0.004585}
-[ 61] 17:00:54   Burn-in of 200000 steps (Locus: 61/109, Replicate: 3/3) 
-[ 53] 17:00:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(73259,3522,3978)
-                           Param = { 0.01572}
-[ 53] 17:00:55   Burn-in of 200000 steps (Locus: 53/109, Replicate: 3/3) 
-[ 62] 17:00:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(95449,94585,92807)
-                           Param = { 0.006385}
-[ 62] 17:00:55   Burn-in of 200000 steps (Locus: 62/109, Replicate: 3/3) 
-[ 75] 17:00:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(119154,119017,119489)
-                           Param = { 0.009706}
-[ 75] 17:00:56   Burn-in of 200000 steps (Locus: 75/109, Replicate: 3/3) 
-[ 49] 17:00:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116545,118292,119135)
-                           Param = { 0.008825}
-[ 49] 17:00:57   Burn-in of 200000 steps (Locus: 49/109, Replicate: 3/3) 
-[ 12] 17:00:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(103378,102682,99942)
-                           Param = { 0.007651}
-[ 16] 17:00:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(100195,101098,97476)
-                           Param = { 0.008197}
-[ 12] 17:00:58   Burn-in of 200000 steps (Locus: 12/109, Replicate: 3/3) 
-[ 50] 17:00:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(73263,60790,92840)
-                           Param = { 0.007101}
-[ 16] 17:00:58   Burn-in of 200000 steps (Locus: 16/109, Replicate: 3/3) 
-[ 50] 17:00:58   Burn-in of 200000 steps (Locus: 50/109, Replicate: 3/3) 
-[ 77] 17:01:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123748,124902,127167)
-                           Param = { 0.008444}
-[ 21] 17:01:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(67955,69515,65562)
-                           Param = { 0.007849}
-[ 21] 17:01:02   Burn-in of 200000 steps (Locus: 21/109, Replicate: 3/3) 
-[ 57] 17:01:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(63776,64414,92491)
+[ 41] 06:28:58   Burn-in of 200000 steps (Locus: 41/109, Replicate: 3/3) 
+[ 54] 06:29:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(68334,28754,46670)
+                           Param = { 0.008143}
+[ 54] 06:29:02   Burn-in of 200000 steps (Locus: 54/109, Replicate: 3/3) 
+[ 29] 06:29:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(110770,113521,116414)
+                           Param = { 0.008185}
+[ 23] 06:29:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119053,119364,120110)
+                           Param = { 0.007681}
+[ 29] 06:29:02   Burn-in of 200000 steps (Locus: 29/109, Replicate: 3/3) 
+[ 23] 06:29:02   Burn-in of 200000 steps (Locus: 23/109, Replicate: 3/3) 
+[  1] 06:29:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117674,117882,119406)
+                           Param = { 0.005846}
+[  1] 06:29:08   Burn-in of 200000 steps (Locus: 1/109, Replicate: 3/3) 
+[ 17] 06:29:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(111305,110231,110657)
+                           Param = { 0.009088}
+[ 17] 06:29:10   Burn-in of 200000 steps (Locus: 17/109, Replicate: 3/3) 
+[ 14] 06:29:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(116051,119567,122787)
+                           Param = { 0.007787}
+[ 14] 06:29:10   Burn-in of 200000 steps (Locus: 14/109, Replicate: 3/3) 
+[ 73] 06:29:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.88,0.94,1.00) Swap(71968,1780,1096)
+                           Param = { 0.01345}
+[ 73] 06:29:11   Burn-in of 200000 steps (Locus: 73/109, Replicate: 3/3) 
+[ 85] 06:29:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(28943,7358,62)
+                           Param = { 0.01234}
+[ 85] 06:29:15   Burn-in of 200000 steps (Locus: 85/109, Replicate: 3/3) 
+[ 90] 06:29:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(51378,40394,86594)
+                           Param = { 0.006498}
+[ 90] 06:29:17   Burn-in of 200000 steps (Locus: 90/109, Replicate: 3/3) 
+[100] 06:29:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(42918,69922,79467)
+                           Param = { 0.007165}
+[ 10] 06:29:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(111604,115962,117215)
+                           Param = { 0.007253}
+[100] 06:29:18   Burn-in of 200000 steps (Locus: 100/109, Replicate: 3/3) 
+[ 10] 06:29:18   Burn-in of 200000 steps (Locus: 10/109, Replicate: 3/3) 
+[ 42] 06:29:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.88,0.95,1.00) Swap(32762,2945,5903)
+                           Param = { 0.01388}
+[ 42] 06:29:22   Burn-in of 200000 steps (Locus: 42/109, Replicate: 3/3) 
+[ 56] 06:29:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(102277,102046,102511)
+                           Param = { 0.00743}
+[ 56] 06:29:24   Burn-in of 200000 steps (Locus: 56/109, Replicate: 3/3) 
+[ 19] 06:29:25   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(118428,121398,124899)
+                           Param = { 0.01161}
+[ 19] 06:29:25   Burn-in of 200000 steps (Locus: 19/109, Replicate: 3/3) 
+[ 26] 06:29:25   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.94,1.00) Swap(44183,975,1448)
+                           Param = { 0.01575}
+[ 26] 06:29:25   Burn-in of 200000 steps (Locus: 26/109, Replicate: 3/3) 
+[ 39] 06:29:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(104171,107241,109751)
+                           Param = { 0.006561}
+[ 39] 06:29:26   Burn-in of 200000 steps (Locus: 39/109, Replicate: 3/3) 
+[ 24] 06:29:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(98240,100586,104204)
+                           Param = { 0.006433}
+[ 27] 06:29:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(37715,220,1283)
+                           Param = { 0.01326}
+[ 24] 06:29:27   Burn-in of 200000 steps (Locus: 24/109, Replicate: 3/3) 
+[ 27] 06:29:27   Burn-in of 200000 steps (Locus: 27/109, Replicate: 3/3) 
+[ 81] 06:29:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(25023,1578,6888)
                            Param = { 0.01293}
-[ 57] 17:01:02   Burn-in of 200000 steps (Locus: 57/109, Replicate: 3/3) 
-[109] 17:01:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(104543,103023,102094)
-                           Param = { 0.009033}
-[ 37] 17:01:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(112418,111668,109912)
-                           Param = { 0.007112}
-[ 37] 17:01:03   Burn-in of 200000 steps (Locus: 37/109, Replicate: 3/3) 
-[ 76] 17:01:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(58776,82747,93647)
-                           Param = { 0.009293}
-[ 76] 17:01:03   Burn-in of 200000 steps (Locus: 76/109, Replicate: 3/3) 
-[ 98] 17:01:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(101481,100403,101077)
-                           Param = { 0.006962}
-[ 98] 17:01:06   Burn-in of 200000 steps (Locus: 98/109, Replicate: 3/3) 
-[  5] 17:01:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(41368,14664,60048)
-                           Param = { 0.01211}
-[  5] 17:01:07   Burn-in of 200000 steps (Locus: 5/109, Replicate: 3/3) 
-[ 96] 17:01:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(84552,81648,74712)
-                           Param = { 0.008083}
-[ 96] 17:01:08   Burn-in of 200000 steps (Locus: 96/109, Replicate: 3/3) 
-[ 71] 17:01:09   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.98,1.00) Swap(56937,8893,45046)
-                           Param = { 0.01247}
-[ 71] 17:01:09   Burn-in of 200000 steps (Locus: 71/109, Replicate: 3/3) 
-[ 72] 17:01:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.79,0.83,0.92,1.00) Swap(20235,4,45)
-                           Param = { 0.01307}
-[ 72] 17:01:16   Burn-in of 200000 steps (Locus: 72/109, Replicate: 3/3) 
-[  2] 17:01:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(50935,65622,69738)
-                           Param = { 0.004235}
-[  2] 17:01:17   Burn-in of 200000 steps (Locus: 2/109, Replicate: 3/3) 
-[ 22] 17:01:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(46789,3537,6166)
-                           Param = { 0.01315}
-[ 22] 17:01:17   Burn-in of 200000 steps (Locus: 22/109, Replicate: 3/3) 
-[ 54] 17:01:23   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(60514,31662,48295)
-                           Param = { 0.008953}
-[ 54] 17:01:23   Burn-in of 200000 steps (Locus: 54/109, Replicate: 3/3) 
-[ 73] 17:01:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.95,1.00) Swap(77958,1526,714)
-                           Param = { 0.01229}
-[ 67] 17:01:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116403,117754,119381)
-                           Param = { 0.008063}
-[ 83] 17:01:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(107913,109179,110048)
-                           Param = { 0.007205}
-[  1] 17:01:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117545,119552,119321)
-                           Param = { 0.007634}
-[ 27] 17:02:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(28996,347,1268)
-                           Param = { 0.01314}
-[ 23] 17:02:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119267,120435,120140)
-                           Param = { 0.008431}
-[ 33] 17:03:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.96,1.00) Swap(43863,1848,5593)
-                           Param = { 0.01285}
-[ 74] 17:03:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(56426,89620,102216)
-                           Param = { 0.006964}
-[100] 17:03:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(47534,68487,77798)
-                           Param = { 0.007755}
-[ 36] 17:03:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(61162,61179,83647)
-                           Param = { 0.008277}
-[ 60] 17:03:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(119891,120179,120096)
-                           Param = { 0.009449}
-[ 51] 17:04:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119799,120086,120307)
-                           Param = { 0.008451}
-[ 82] 17:04:19   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.92,0.96,1.00) Swap(49177,56242,68545)
-                           Param = { 0.01037}
-[  9] 17:04:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.54,0.56,0.63,1.00) Swap(47216,147,0)
-                           Param = { 0.01481}
-[ 70] 17:04:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.97,1.00) Swap(43334,37407,80898)
-                           Param = { 0.008666}
-[ 63] 17:04:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.61,0.63,0.75,1.00) Swap(19272,0,0)
-                           Param = { 0.01292}
-[ 24] 17:04:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(98464,99736,103310)
-                           Param = { 0.00675}
-[  7] 17:04:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(44593,26796,62085)
-                           Param = { 0.01079}
-[ 45] 17:04:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(47966,72,5770)
-                           Param = { 0.01422}
-[ 38] 17:04:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.85,0.92,1.00) Swap(49567,646,87)
-                           Param = { 0.01376}
-[ 31] 17:04:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(116254,119940,123068)
-                           Param = { 0.007217}
-[ 43] 17:04:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(96637,102213,103940)
-                           Param = { 0.007205}
-[102] 17:04:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120584,119416,120273)
-                           Param = { 0.01034}
-[ 44] 17:04:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(112455,113050,109165)
-                           Param = { 0.007193}
-[ 48] 17:05:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116506,117448,118961)
-                           Param = { 0.009332}
-[ 89] 17:05:07   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(113568,111364,106439)
-                           Param = { 0.008666}
-[ 64] 17:05:09   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(60663,57492,65671)
-                           Param = { 0.007213}
-[ 11] 17:05:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.98,1.00) Swap(74743,8371,53867)
-                           Param = { 0.01089}
-[101] 17:05:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(119478,123452,125708)
-                           Param = { 0.00927}
-[ 16] 17:05:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(100581,100990,97486)
-                           Param = { 0.008819}
-[ 80] 17:05:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(97379,95467,93290)
-                           Param = { 0.007287}
-[103] 17:05:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(118896,119285,119309)
-                           Param = { 0.008331}
-[ 66] 17:05:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.96,1.00) Swap(113856,117756,120677)
-                           Param = { 0.007415}
-[ 30] 17:05:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(87916,18303,80253)
-                           Param = { 0.007932}
-[ 91] 17:05:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(56010,93200,106366)
-                           Param = { 0.01016}
-[ 50] 17:05:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(70040,61270,92720)
-                           Param = { 0.008527}
-[ 87] 17:05:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116630,117790,118526)
-                           Param = { 0.00852}
-[ 76] 17:05:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(54430,77249,92615)
-                           Param = { 0.009452}
-[  6] 17:05:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(114756,116021,117816)
-                           Param = { 0.007899}
-[ 81] 17:05:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(25056,2504,7267)
-                           Param = { 0.01343}
-[ 72] 17:05:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.78,0.83,0.92,1.00) Swap(18436,0,29)
-                           Param = { 0.01356}
-[ 59] 17:05:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.97,1.00) Swap(67948,9828,63597)
-                           Param = { 0.01207}
-[104] 17:05:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.88,0.95,1.00) Swap(14781,5338,8048)
-                           Param = { 0.01368}
-[ 49] 17:05:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115654,117716,118619)
+[ 81] 06:29:27   Burn-in of 200000 steps (Locus: 81/109, Replicate: 3/3) 
+[ 87] 06:29:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(118275,118727,119432)
+                           Param = { 0.007836}
+[ 87] 06:29:28   Burn-in of 200000 steps (Locus: 87/109, Replicate: 3/3) 
+[ 50] 06:29:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(66789,69756,93335)
                            Param = { 0.008877}
-[ 28] 17:05:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(65590,93258,105313)
-                           Param = { 0.007996}
-[ 42] 17:05:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.88,0.95,1.00) Swap(39882,2727,3839)
-                           Param = { 0.01332}
-[ 93] 17:05:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(122827,125411,127074)
-                           Param = { 0.006875}
-[ 85] 17:05:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(35115,5539,166)
-                           Param = { 0.01352}
-[106] 17:05:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(62303,78123,85189)
-                           Param = { 0.007133}
-[ 18] 17:05:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(60635,51634,75112)
-                           Param = { 0.008616}
-[ 78] 17:05:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(119217,120055,121028)
-                           Param = { 0.008645}
-[ 19] 17:05:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(118625,122192,124513)
-                           Param = { 0.008733}
-[  8] 17:05:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(114019,111316,108143)
-                           Param = { 0.008178}
-[ 25] 17:05:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(132532,132867,132882)
-                           Param = { 0.006915}
-[ 86] 17:05:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(119087,121351,124572)
-                           Param = { 0.008197}
-[ 84] 17:05:46   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(41850,75118,91221)
-                           Param = { 0.006727}
-[ 52] 17:05:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(129058,130688,131572)
-                           Param = { 0.01006}
-[ 55] 17:05:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(41360,26773,624)
-                           Param = { 0.01287}
-[ 88] 17:05:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.92,0.97,1.00) Swap(62031,17822,31561)
-                           Param = { 0.009761}
-[ 90] 17:05:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(61428,32364,86042)
-                           Param = { 0.008287}
-[ 95] 17:05:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(131325,131542,131590)
-                           Param = { 0.008708}
-[ 26] 17:05:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.86,0.94,1.00) Swap(49324,1535,2527)
-                           Param = { 0.01573}
-[ 12] 17:05:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(103109,102287,101476)
-                           Param = { 0.007358}
-[ 54] 17:05:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(64398,27148,48461)
-                           Param = { 0.009306}
-[ 21] 17:05:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(69571,70053,66371)
-                           Param = { 0.004506}
-[ 32] 17:05:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115462,117992,118935)
-                           Param = { 0.007789}
-[ 39] 17:05:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(104229,106477,109979)
-                           Param = { 0.007342}
-[ 14] 17:05:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(117020,121305,123189)
-                           Param = { 0.007766}
-[108] 17:05:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(121086,121412,120390)
-                           Param = { 0.009749}
-[ 97] 17:05:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(88406,88220,80548)
-                           Param = { 0.007323}
-[ 99] 17:05:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.87,0.93,1.00) Swap(62959,1762,310)
-                           Param = { 0.01336}
-[ 92] 17:06:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115854,117489,119234)
-                           Param = { 0.008199}
-[ 17] 17:06:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111643,110257,110166)
-                           Param = { 0.01106}
-[107] 17:06:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(125772,128545,128506)
-                           Param = { 0.00954}
-[ 68] 17:06:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(120349,123996,125179)
+[ 50] 06:29:30   Burn-in of 200000 steps (Locus: 50/109, Replicate: 3/3) 
+[ 21] 06:29:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(67010,71222,65138)
                            Param = { 0.007861}
-[ 61] 17:06:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(99515,101051,103834)
-                           Param = { 0.009363}
-[ 65] 17:06:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(59424,76267,80631)
-                           Param = { 0.008746}
-[ 35] 17:06:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126033,127086,129624)
-                           Param = { 0.00932}
-[ 79] 17:06:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(116772,118399,118530)
-                           Param = { 0.009134}
-[ 47] 17:06:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(113070,111318,109290)
-                           Param = { 0.009661}
-[ 46] 17:06:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(118498,119093,119637)
-                           Param = { 0.006452}
-[ 29] 17:06:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(110235,113788,115960)
-                           Param = { 0.009363}
-[  3] 17:06:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.97,1.00) Swap(56473,36802,82961)
-                           Param = { 0.009855}
-[ 40] 17:06:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108706,108883,109663)
-                           Param = { 0.007031}
-[ 94] 17:06:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.98,1.00) Swap(115781,118161,118824)
-                           Param = { 0.006965}
-[ 62] 17:06:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(96440,96471,94031)
-                           Param = { 0.008088}
-[ 69] 17:06:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(126683,128193,129658)
-                           Param = { 0.008463}
-[ 34] 17:06:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(122145,121886,121711)
-                           Param = { 0.007308}
-[ 13] 17:06:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(52074,60975,75151)
-                           Param = { 0.00874}
-[ 58] 17:06:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109784,110380,111173)
-                           Param = { 0.008954}
-[ 53] 17:06:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.95,1.00) Swap(56350,2832,4625)
-                           Param = { 0.01306}
-[ 41] 17:06:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(63041,38562,16008)
-                           Param = { 0.01091}
-[ 37] 17:06:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(112455,110505,109564)
-                           Param = { 0.007964}
-[ 56] 17:06:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(102736,102222,102080)
-                           Param = { 0.006239}
-[ 75] 17:06:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117968,119183,118883)
-                           Param = { 0.008927}
-[  5] 17:06:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(43624,17323,55651)
+[ 21] 06:29:30   Burn-in of 200000 steps (Locus: 21/109, Replicate: 3/3) 
+[ 84] 06:29:31   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(38043,73880,90196)
+                           Param = { 0.007189}
+[ 84] 06:29:31   Burn-in of 200000 steps (Locus: 84/109, Replicate: 3/3) 
+[101] 06:29:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(120368,122483,125651)
+                           Param = { 0.007006}
+[101] 06:29:32   Burn-in of 200000 steps (Locus: 101/109, Replicate: 3/3) 
+[ 13] 06:29:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(53879,55563,73823)
+                           Param = { 0.007521}
+[ 13] 06:29:34   Burn-in of 200000 steps (Locus: 13/109, Replicate: 3/3) 
+[ 40] 06:29:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109110,110039,110583)
+                           Param = { 0.006687}
+[ 40] 06:29:34   Burn-in of 200000 steps (Locus: 40/109, Replicate: 3/3) 
+[ 43] 06:29:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.96,1.00) Swap(96950,100896,103733)
+                           Param = { 0.006839}
+[ 43] 06:29:38   Burn-in of 200000 steps (Locus: 43/109, Replicate: 3/3) 
+[ 45] 06:29:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.87,0.95,1.00) Swap(33851,645,5901)
+                           Param = { 0.01325}
+[ 45] 06:29:39   Burn-in of 200000 steps (Locus: 45/109, Replicate: 3/3) 
+[106] 06:29:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(61430,82280,87214)
+                           Param = { 0.008859}
+[106] 06:29:39   Burn-in of 200000 steps (Locus: 106/109, Replicate: 3/3) 
+[  8] 06:29:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111520,110947,109326)
+                           Param = { 0.008741}
+[  8] 06:29:40   Burn-in of 200000 steps (Locus: 8/109, Replicate: 3/3) 
+[ 12] 06:29:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(103290,102859,101580)
+                           Param = { 0.008708}
+[ 12] 06:29:45   Burn-in of 200000 steps (Locus: 12/109, Replicate: 3/3) 
+[ 78] 06:29:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(120995,120647,119701)
+                           Param = { 0.006586}
+[ 78] 06:29:45   Burn-in of 200000 steps (Locus: 78/109, Replicate: 3/3) 
+[ 28] 06:29:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(66785,96141,106505)
+                           Param = { 0.006603}
+[ 28] 06:29:47   Burn-in of 200000 steps (Locus: 28/109, Replicate: 3/3) 
+[ 25] 06:29:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(132995,133997,133569)
+                           Param = { 0.009689}
+[ 25] 06:29:48   Burn-in of 200000 steps (Locus: 25/109, Replicate: 3/3) 
+[103] 06:29:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(117789,119010,118631)
+                           Param = { 0.006119}
+[103] 06:29:48   Burn-in of 200000 steps (Locus: 103/109, Replicate: 3/3) 
+[ 74] 06:29:50   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(57258,85363,102004)
+                           Param = { 0.008484}
+[ 74] 06:29:51   Burn-in of 200000 steps (Locus: 74/109, Replicate: 3/3) 
+[ 68] 06:29:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(121034,123630,126276)
+                           Param = { 0.008419}
+[ 68] 06:29:51   Burn-in of 200000 steps (Locus: 68/109, Replicate: 3/3) 
+[ 63] 06:29:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.60,0.64,0.75,1.00) Swap(27922,0,0)
+                           Param = { 0.01437}
+[ 63] 06:29:52   Burn-in of 200000 steps (Locus: 63/109, Replicate: 3/3) 
+[ 69] 06:29:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(126805,127684,128948)
+                           Param = { 0.01453}
+[ 69] 06:29:53   Burn-in of 200000 steps (Locus: 69/109, Replicate: 3/3) 
+[ 35] 06:29:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126931,128364,128741)
+                           Param = { 0.007603}
+[ 35] 06:29:53   Burn-in of 200000 steps (Locus: 35/109, Replicate: 3/3) 
+[ 92] 06:29:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.97,1.00) Swap(114974,117529,119861)
+                           Param = { 0.008601}
+[ 92] 06:29:53   Burn-in of 200000 steps (Locus: 92/109, Replicate: 3/3) 
+[ 70] 06:29:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.98,1.00) Swap(71931,24718,79580)
+                           Param = { 0.006896}
+[108] 06:29:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(122576,121454,121671)
+                           Param = { 0.009326}
+[ 70] 06:29:53   Burn-in of 200000 steps (Locus: 70/109, Replicate: 3/3) 
+[108] 06:29:54   Burn-in of 200000 steps (Locus: 108/109, Replicate: 3/3) 
+[ 46] 06:29:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119394,120389,120343)
+                           Param = { 0.007578}
+[ 46] 06:29:54   Burn-in of 200000 steps (Locus: 46/109, Replicate: 3/3) 
+[105] 06:29:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127690,128475,130214)
+                           Param = { 0.009113}
+[105] 06:29:57   Burn-in of 200000 steps (Locus: 105/109, Replicate: 3/3) 
+[ 44] 06:29:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(112615,111581,110087)
+                           Param = { 0.007316}
+[ 99] 06:29:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.93,1.00) Swap(56635,2381,564)
+                           Param = { 0.01224}
+[ 44] 06:29:58   Burn-in of 200000 steps (Locus: 44/109, Replicate: 3/3) 
+[ 99] 06:29:58   Burn-in of 200000 steps (Locus: 99/109, Replicate: 3/3) 
+[ 98] 06:29:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(100830,101415,102411)
+                           Param = { 0.007612}
+[ 98] 06:29:58   Burn-in of 200000 steps (Locus: 98/109, Replicate: 3/3) 
+[ 59] 06:30:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.98,1.00) Swap(54668,15032,64471)
+                           Param = { 0.01319}
+[ 59] 06:30:00   Burn-in of 200000 steps (Locus: 59/109, Replicate: 3/3) 
+[ 79] 06:30:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117749,119023,119771)
+                           Param = { 0.007889}
+[ 79] 06:30:01   Burn-in of 200000 steps (Locus: 79/109, Replicate: 3/3) 
+[ 80] 06:30:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(96734,96457,93378)
+                           Param = { 0.00836}
+[ 91] 06:30:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(52892,89881,105194)
+                           Param = { 0.007843}
+[ 80] 06:30:01   Burn-in of 200000 steps (Locus: 80/109, Replicate: 3/3) 
+[ 91] 06:30:01   Burn-in of 200000 steps (Locus: 91/109, Replicate: 3/3) 
+[ 77] 06:30:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123220,125956,127675)
+                           Param = { 0.009156}
+[ 77] 06:30:03   Burn-in of 200000 steps (Locus: 77/109, Replicate: 3/3) 
+[ 60] 06:30:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119688,120353,119661)
+                           Param = { 0.0088}
+[ 60] 06:30:04   Burn-in of 200000 steps (Locus: 60/109, Replicate: 3/3) 
+[  6] 06:30:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(115153,115729,117649)
+                           Param = { 0.009662}
+[  6] 06:30:05   Burn-in of 200000 steps (Locus: 6/109, Replicate: 3/3) 
+[ 61] 06:30:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(99049,101001,104323)
+                           Param = { 0.008151}
+[ 61] 06:30:08   Burn-in of 200000 steps (Locus: 61/109, Replicate: 3/3) 
+[ 34] 06:30:08   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(123825,123437,121966)
+                           Param = { 0.01003}
+[ 34] 06:30:08   Burn-in of 200000 steps (Locus: 34/109, Replicate: 3/3) 
+[ 76] 06:30:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(55963,82715,95081)
+                           Param = { 0.009118}
+[ 67] 06:30:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116282,118063,118752)
+                           Param = { 0.008335}
+[ 76] 06:30:11   Burn-in of 200000 steps (Locus: 76/109, Replicate: 3/3) 
+[ 67] 06:30:11   Burn-in of 200000 steps (Locus: 67/109, Replicate: 3/3) 
+[ 71] 06:30:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.97,1.00) Swap(61959,9818,44571)
+                           Param = { 0.01175}
+[ 71] 06:30:13   Burn-in of 200000 steps (Locus: 71/109, Replicate: 3/3) 
+[ 31] 06:30:14   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(115668,118675,121909)
+                           Param = { 0.005518}
+[ 31] 06:30:14   Burn-in of 200000 steps (Locus: 31/109, Replicate: 3/3) 
+[ 53] 06:30:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.88,0.95,1.00) Swap(53069,4730,3885)
+                           Param = { 0.01333}
+[ 53] 06:30:16   Burn-in of 200000 steps (Locus: 53/109, Replicate: 3/3) 
+[ 94] 06:30:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116611,117555,119308)
+                           Param = { 0.007298}
+[ 94] 06:30:17   Burn-in of 200000 steps (Locus: 94/109, Replicate: 3/3) 
+[ 15] 06:30:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108827,110469,109810)
+                           Param = { 0.007769}
+[ 15] 06:30:17   Burn-in of 200000 steps (Locus: 15/109, Replicate: 3/3) 
+[ 20] 06:30:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109531,110116,110109)
+                           Param = { 0.0055}
+[ 20] 06:30:17   Burn-in of 200000 steps (Locus: 20/109, Replicate: 3/3) 
+[ 64] 06:30:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(61593,56053,67631)
+                           Param = { 0.009483}
+[ 64] 06:30:20   Burn-in of 200000 steps (Locus: 64/109, Replicate: 3/3) 
+[ 86] 06:30:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(117005,120998,123764)
+                           Param = { 0.007554}
+[ 86] 06:30:20   Burn-in of 200000 steps (Locus: 86/109, Replicate: 3/3) 
+[ 22] 06:30:21   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.90,0.96,1.00) Swap(54092,5725,5567)
+                           Param = { 0.01386}
+[ 22] 06:30:21   Burn-in of 200000 steps (Locus: 22/109, Replicate: 3/3) 
+[ 58] 06:30:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(110839,111253,111169)
+                           Param = { 0.007889}
+[  5] 06:30:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(45241,13858,55617)
+                           Param = { 0.01043}
+[ 58] 06:30:27   Burn-in of 200000 steps (Locus: 58/109, Replicate: 3/3) 
+[  5] 06:30:27   Burn-in of 200000 steps (Locus: 5/109, Replicate: 3/3) 
+[ 33] 06:30:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(55479,2352,5130)
+                           Param = { 0.01561}
+[ 52] 06:30:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(129458,130715,132079)
+                           Param = { 0.0101}
+[ 33] 06:30:27   Burn-in of 200000 steps (Locus: 33/109, Replicate: 3/3) 
+[ 52] 06:30:27   Burn-in of 200000 steps (Locus: 52/109, Replicate: 3/3) 
+[ 48] 06:30:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115167,117437,119962)
+                           Param = { 0.01013}
+[ 48] 06:30:28   Burn-in of 200000 steps (Locus: 48/109, Replicate: 3/3) 
+[  4] 06:30:30   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108865,110287,110163)
+                           Param = { 0.008138}
+[  4] 06:30:30   Burn-in of 200000 steps (Locus: 4/109, Replicate: 3/3) 
+[ 95] 06:30:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(131098,131728,132863)
+                           Param = { 0.008239}
+[ 95] 06:30:33   Burn-in of 200000 steps (Locus: 95/109, Replicate: 3/3) 
+[109] 06:30:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(104331,102888,102830)
+                           Param = { 0.007587}
+[109] 06:30:33   Burn-in of 200000 steps (Locus: 109/109, Replicate: 3/3) 
+[  3] 06:30:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.95,0.98,1.00) Swap(72587,25035,82451)
+                           Param = { 0.008421}
+[  7] 06:30:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(65372,20877,61080)
+                           Param = { 0.01112}
+[ 82] 06:30:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(47947,56941,67623)
+                           Param = { 0.006688}
+[  3] 06:30:34   Burn-in of 200000 steps (Locus: 3/109, Replicate: 3/3) 
+[  7] 06:30:34   Burn-in of 200000 steps (Locus: 7/109, Replicate: 3/3) 
+[ 82] 06:30:34   Burn-in of 200000 steps (Locus: 82/109, Replicate: 3/3) 
+[ 38] 06:30:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.82,0.84,0.92,1.00) Swap(51374,1340,60)
+                           Param = { 0.0143}
+[ 38] 06:30:35   Burn-in of 200000 steps (Locus: 38/109, Replicate: 3/3) 
+[ 37] 06:30:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(112058,110730,109205)
+                           Param = { 0.007997}
+[ 37] 06:30:35   Burn-in of 200000 steps (Locus: 37/109, Replicate: 3/3) 
+[ 32] 06:30:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115018,116955,118452)
+                           Param = { 0.006555}
+[ 32] 06:30:38   Burn-in of 200000 steps (Locus: 32/109, Replicate: 3/3) 
+[ 30] 06:30:39   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(90287,18094,80860)
+                           Param = { 0.0119}
+[ 30] 06:30:39   Burn-in of 200000 steps (Locus: 30/109, Replicate: 3/3) 
+[ 16] 06:30:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(101864,102631,100277)
+                           Param = { 0.008837}
+[ 16] 06:30:40   Burn-in of 200000 steps (Locus: 16/109, Replicate: 3/3) 
+[ 47] 06:30:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(112017,111297,109750)
+                           Param = { 0.006847}
+[ 47] 06:30:40   Burn-in of 200000 steps (Locus: 47/109, Replicate: 3/3) 
+[ 62] 06:30:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(97292,94053,93188)
+                           Param = { 0.007953}
+[ 62] 06:30:41   Burn-in of 200000 steps (Locus: 62/109, Replicate: 3/3) 
+[ 11] 06:30:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.93,0.98,1.00) Swap(74676,6468,56617)
                            Param = { 0.01207}
-[ 57] 17:06:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(72777,57068,91621)
-                           Param = { 0.008498}
-[ 98] 17:06:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(99163,100004,101377)
-                           Param = { 0.00925}
-[ 96] 17:06:25   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(86084,82148,73854)
-                           Param = { 0.006967}
-[ 71] 17:06:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.98,1.00) Swap(47493,10788,46437)
-                           Param = { 0.01265}
-[ 22] 17:06:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(45532,3325,5564)
-                           Param = { 0.01475}
-[  2] 17:06:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(50968,65901,70634)
-                           Param = { 0.007794}
-17:07:02   Program finished
+[ 65] 06:30:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(59223,71997,78706)
+                           Param = { 0.009229}
+[ 11] 06:30:42   Burn-in of 200000 steps (Locus: 11/109, Replicate: 3/3) 
+[ 65] 06:30:42   Burn-in of 200000 steps (Locus: 65/109, Replicate: 3/3) 
+[107] 06:30:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(125917,127114,129428)
+                           Param = { 0.009871}
+[107] 06:30:42   Burn-in of 200000 steps (Locus: 107/109, Replicate: 3/3) 
+[ 96] 06:30:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(87087,81777,72934)
+                           Param = { 0.005739}
+[ 96] 06:30:43   Burn-in of 200000 steps (Locus: 96/109, Replicate: 3/3) 
+[ 36] 06:30:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(64174,60212,85783)
+                           Param = { 0.007992}
+[ 36] 06:30:43   Burn-in of 200000 steps (Locus: 36/109, Replicate: 3/3) 
+[ 97] 06:30:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(85753,86923,81904)
+                           Param = { 0.006957}
+[ 97] 06:30:47   Burn-in of 200000 steps (Locus: 97/109, Replicate: 3/3) 
+[ 83] 06:30:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108068,109300,109069)
+                           Param = { 0.007477}
+[ 83] 06:30:49   Burn-in of 200000 steps (Locus: 83/109, Replicate: 3/3) 
+[ 89] 06:30:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(115159,111531,107613)
+                           Param = { 0.008856}
+[ 89] 06:30:54   Burn-in of 200000 steps (Locus: 89/109, Replicate: 3/3) 
+[ 72] 06:30:55   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.78,0.82,0.92,1.00) Swap(18805,4,90)
+                           Param = { 0.01261}
+[ 72] 06:30:55   Burn-in of 200000 steps (Locus: 72/109, Replicate: 3/3) 
+[ 88] 06:30:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(61046,15303,31765)
+                           Param = { 0.011}
+[ 88] 06:30:58   Burn-in of 200000 steps (Locus: 88/109, Replicate: 3/3) 
+[104] 06:30:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(22893,2274,8971)
+                           Param = { 0.01327}
+[104] 06:30:58   Burn-in of 200000 steps (Locus: 104/109, Replicate: 3/3) 
+[ 18] 06:31:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(63261,52727,74105)
+                           Param = { 0.008603}
+[ 18] 06:31:03   Burn-in of 200000 steps (Locus: 18/109, Replicate: 3/3) 
+[ 55] 06:31:15   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.92,0.96,1.00) Swap(39859,29285,715)
+                           Param = { 0.01105}
+[ 55] 06:31:16   Burn-in of 200000 steps (Locus: 55/109, Replicate: 3/3) 
+[ 51] 06:33:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(119650,119976,120159)
+                           Param = { 0.009253}
+[  9] 06:33:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.54,0.56,0.63,1.00) Swap(56464,110,0)
+                           Param = { 0.01378}
+[ 93] 06:33:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123066,125478,127338)
+                           Param = { 0.006718}
+[ 66] 06:33:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.96,1.00) Swap(113643,118026,121964)
+                           Param = { 0.009953}
+[ 75] 06:33:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117682,117577,117921)
+                           Param = { 0.007394}
+[ 39] 06:33:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(106307,108201,109961)
+                           Param = { 0.008453}
+[ 57] 06:34:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(77397,53436,91601)
+                           Param = { 0.007818}
+[102] 06:34:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(119810,120446,120128)
+                           Param = { 0.007642}
+[ 41] 06:34:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(63709,30893,13683)
+                           Param = { 0.01163}
+[ 14] 06:34:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(114895,119608,124006)
+                           Param = { 0.01091}
+[ 21] 06:34:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(69703,70576,65728)
+                           Param = { 0.006716}
+[ 49] 06:34:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116939,118297,118521)
+                           Param = { 0.004577}
+[ 26] 06:34:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.86,0.94,1.00) Swap(56269,1014,1558)
+                           Param = { 0.01422}
+[ 90] 06:35:02   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(59775,33378,88306)
+                           Param = { 0.0085}
+[  1] 06:35:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(118247,118878,118450)
+                           Param = { 0.009083}
+[ 45] 06:35:10   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.84,0.87,0.95,1.00) Swap(40934,102,6415)
+                           Param = { 0.01309}
+[ 68] 06:35:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(121365,122833,125146)
+                           Param = { 0.006401}
+[ 79] 06:35:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(117209,117762,118821)
+                           Param = { 0.007298}
+[ 85] 06:35:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.88,0.94,1.00) Swap(16958,13950,268)
+                           Param = { 0.01339}
+[ 23] 06:35:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(118815,120167,119926)
+                           Param = { 0.006989}
+[ 73] 06:35:28   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.89,0.94,1.00) Swap(74247,1219,590)
+                           Param = { 0.013}
+[ 84] 06:35:29   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.90,0.94,1.00) Swap(39444,73814,90730)
+                           Param = { 0.005868}
+[  8] 06:35:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(111354,110170,109542)
+                           Param = { 0.007118}
+[106] 06:35:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(56186,79008,86171)
+                           Param = { 0.008653}
+[103] 06:35:34   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119099,118103,118870)
+                           Param = { 0.007069}
+[ 50] 06:35:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.99,1.00) Swap(64196,65433,91876)
+                           Param = { 0.007649}
+[100] 06:35:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.96,1.00) Swap(49444,65760,76939)
+                           Param = { 0.005693}
+[ 10] 06:35:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(112952,114767,117627)
+                           Param = { 0.007973}
+[108] 06:35:37   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(120670,120812,120973)
+                           Param = { 0.008061}
+[101] 06:35:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(119647,122709,125194)
+                           Param = { 0.00615}
+[ 29] 06:35:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(109283,113401,115878)
+                           Param = { 0.009814}
+[ 63] 06:35:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.61,0.64,0.76,1.00) Swap(15732,4,0)
+                           Param = { 0.01145}
+[  2] 06:35:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.96,1.00) Swap(52800,67231,70817)
+                           Param = { 0.007075}
+[ 54] 06:35:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(61418,29097,48622)
+                           Param = { 0.007536}
+[ 19] 06:35:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.97,1.00) Swap(117983,120912,123092)
+                           Param = { 0.00924}
+[ 95] 06:35:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(131409,131578,132539)
+                           Param = { 0.01036}
+[ 17] 06:35:48   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(111662,110702,110124)
+                           Param = { 0.007427}
+[ 20] 06:35:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(109623,110940,110158)
+                           Param = { 0.00794}
+[ 35] 06:35:52   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126634,129063,128954)
+                           Param = { 0.007445}
+[ 32] 06:35:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116136,117077,118585)
+                           Param = { 0.007329}
+[ 43] 06:35:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(97988,102241,104550)
+                           Param = { 0.008771}
+[ 56] 06:35:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(103738,102564,101708)
+                           Param = { 0.007614}
+[ 69] 06:35:56   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(126577,128354,129179)
+                           Param = { 0.007625}
+[ 74] 06:35:57   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(58258,86495,102414)
+                           Param = { 0.008244}
+[ 87] 06:35:58   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.96,0.98,1.00) Swap(118455,119126,118784)
+                           Param = { 0.007206}
+[ 42] 06:35:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(32426,1733,4738)
+                           Param = { 0.01462}
+[ 34] 06:36:00   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(122552,122302,120865)
+                           Param = { 0.009288}
+[ 60] 06:36:01   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(120117,120478,120479)
+                           Param = { 0.007444}
+[ 81] 06:36:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.88,0.95,1.00) Swap(35402,774,6721)
+                           Param = { 0.01294}
+[ 40] 06:36:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108909,109108,110349)
+                           Param = { 0.006984}
+[ 98] 06:36:04   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(100578,101433,102837)
+                           Param = { 0.01158}
+[ 27] 06:36:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.81,0.84,0.93,1.00) Swap(24688,759,763)
+                           Param = { 0.01492}
+[ 70] 06:36:05   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(58946,29904,83454)
+                           Param = { 0.01014}
+[ 24] 06:36:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(98488,101189,103304)
+                           Param = { 0.008222}
+[ 92] 06:36:11   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115674,118307,120611)
+                           Param = { 0.008449}
+[ 67] 06:36:12   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(116514,118831,119413)
+                           Param = { 0.008253}
+[ 12] 06:36:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(103005,103039,101355)
+                           Param = { 0.008238}
+[ 25] 06:36:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.98,0.99,1.00) Swap(132927,133024,133694)
+                           Param = { 0.007974}
+[ 61] 06:36:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(100891,101698,104028)
+                           Param = { 0.007768}
+[ 46] 06:36:13   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(119603,119783,119571)
+                           Param = { 0.008784}
+[ 13] 06:36:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.98,1.00) Swap(44632,68526,76801)
+                           Param = { 0.01113}
+[105] 06:36:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127620,128409,129383)
+                           Param = { 0.00812}
+[ 28] 06:36:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(66585,94960,106426)
+                           Param = { 0.006756}
+[ 33] 06:36:16   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(34669,3810,6164)
+                           Param = { 0.01468}
+[ 59] 06:36:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.98,1.00) Swap(53151,13148,67489)
+                           Param = { 0.01183}
+[ 53] 06:36:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.86,0.89,0.95,1.00) Swap(67440,3762,3281)
+                           Param = { 0.01483}
+[ 76] 06:36:18   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(52843,81649,93018)
+                           Param = { 0.006669}
+[ 31] 06:36:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.94,0.97,1.00) Swap(115618,120337,123545)
+                           Param = { 0.01018}
+[  6] 06:36:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.95,0.97,1.00) Swap(114460,115688,117396)
+                           Param = { 0.008466}
+[ 78] 06:36:20   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(118753,119151,119700)
+                           Param = { 0.006517}
+[ 99] 06:36:22   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.85,0.87,0.93,1.00) Swap(75857,1089,502)
+                           Param = { 0.01538}
+[ 91] 06:36:24   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(57075,90217,106117)
+                           Param = { 0.007641}
+[ 77] 06:36:26   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(123162,124442,127388)
+                           Param = { 0.00944}
+[ 86] 06:36:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.94,0.97,1.00) Swap(117444,120636,124313)
+                           Param = { 0.009461}
+[ 80] 06:36:27   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(97700,94870,93280)
+                           Param = { 0.009328}
+[  5] 06:36:32   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.93,0.97,1.00) Swap(47738,13601,58001)
+                           Param = { 0.01167}
+[ 94] 06:36:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(116300,117992,118213)
+                           Param = { 0.008295}
+[ 72] 06:36:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.78,0.82,0.92,1.00) Swap(22219,106,60)
+                           Param = { 0.01364}
+[ 71] 06:36:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.93,0.97,1.00) Swap(44613,10627,44069)
+                           Param = { 0.009129}
+[ 83] 06:36:33   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108243,108714,109953)
+                           Param = { 0.006611}
+[ 15] 06:36:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(108186,109071,110338)
+                           Param = { 0.01212}
+[ 64] 06:36:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(60170,59891,66329)
+                           Param = { 0.008041}
+[ 44] 06:36:35   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.99,1.00) Swap(112517,110939,110140)
+                           Param = { 0.009113}
+[  7] 06:36:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.97,1.00) Swap(36187,30133,64390)
+                           Param = { 0.01113}
+[ 97] 06:36:36   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(86719,88300,82264)
+                           Param = { 0.0094}
+[ 48] 06:36:38   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(115040,117060,118695)
+                           Param = { 0.007454}
+[ 47] 06:36:40   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(112386,112207,109786)
+                           Param = { 0.009022}
+[ 82] 06:36:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.89,0.92,0.96,1.00) Swap(46740,56292,68291)
+                           Param = { 0.005894}
+[ 16] 06:36:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(99848,102685,97790)
+                           Param = { 0.007431}
+[ 58] 06:36:41   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(111141,111922,110996)
+                           Param = { 0.007101}
+[  4] 06:36:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(107664,109306,109530)
+                           Param = { 0.008091}
+[ 37] 06:36:42   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(112501,109904,110038)
+                           Param = { 0.006435}
+[ 52] 06:36:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.96,0.97,0.98,1.00) Swap(129256,130357,131642)
+                           Param = { 0.008461}
+[109] 06:36:43   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(103660,103248,102331)
+                           Param = { 0.008412}
+[ 11] 06:36:44   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.94,0.98,1.00) Swap(90298,6148,53944)
+                           Param = { 0.01142}
+[ 22] 06:36:45   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.87,0.90,0.96,1.00) Swap(33565,7015,5894)
+                           Param = { 0.01259}
+[  3] 06:36:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.92,0.95,0.97,1.00) Swap(58228,33615,81929)
+                           Param = { 0.01048}
+[ 38] 06:36:47   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.82,0.85,0.92,1.00) Swap(50701,700,118)
+                           Param = { 0.01345}
+[ 65] 06:36:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.91,0.94,0.97,1.00) Swap(56867,70380,79846)
+                           Param = { 0.005995}
+[ 62] 06:36:49   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(95292,95351,93106)
+                           Param = { 0.006149}
+[ 30] 06:36:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.95,0.98,1.00) Swap(76208,25176,81854)
+                           Param = { 0.0108}
+[ 36] 06:36:51   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.94,0.96,0.98,1.00) Swap(67888,54335,83943)
+                           Param = { 0.01026}
+[107] 06:36:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.95,0.97,0.98,1.00) Swap(127566,127476,129740)
+                           Param = { 0.007809}
+[104] 06:36:53   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.83,0.87,0.95,1.00) Swap(20191,2475,7778)
+                           Param = { 0.01252}
+[ 96] 06:36:54   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(88685,81469,74442)
+                           Param = { 0.007331}
+[ 89] 06:36:59   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.97,0.98,0.99,1.00) Swap(114353,111015,106894)
+                           Param = { 0.008235}
+[ 88] 06:37:03   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.88,0.92,0.97,1.00) Swap(60602,14279,33885)
+                           Param = { 0.0113}
+[ 18] 06:37:06   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.93,0.96,0.98,1.00) Swap(61247,53791,73661)
+                           Param = { 0.009292}
+[ 55] 06:37:17   Sampling Temp[4]:(1,1.5,3,1e+06) Acc(0.90,0.92,0.96,1.00) Swap(34643,36993,144)
+                           Param = { 0.01167}
+06:37:52   Program finished

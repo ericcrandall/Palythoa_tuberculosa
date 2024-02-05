@@ -1,6 +1,6 @@
 #!
 
-			for m in  stepping.stone.splits.d/  stepping.stone.splitsD.KOsplitd/ stepping.stone.oneway/  stepping.stone.splitsD/
+			for m in   stepping.stone.KO.D/  
 			  do
 				cd $m
 				  echo $m

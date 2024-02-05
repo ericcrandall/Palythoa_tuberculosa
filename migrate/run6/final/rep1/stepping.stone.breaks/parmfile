@@ -54,7 +54,7 @@ custom-migration={
 geo=NO
 
 updatefreq=0.200000 0.200000 0.200000 0.200000 #tree, parameter haplotype, timeparam updates
-bayes-posteriorbins= 500 500
+bayes-posteriorbins= 2000 2000
 bayes-posteriormaxtype=TOTAL
 bayes-file=YES:bayesfile
 bayes-allfile=YES:bayesallfile

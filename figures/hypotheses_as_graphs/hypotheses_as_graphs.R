@@ -31,6 +31,8 @@ stepstone <- graph_from_data_frame(d=stepedges,vertices=nodes,directed=T)
 
 divergence <- graph_from_data_frame(d=stepedgesNS,vertices = nodes, directed=T)
 
+divergence2 <- graph_from_data_frame(d=stepedges,vertices = nodes, directed=T)
+
 #panmixia
 plot(stepstone,layout=hi_islands, edge.arrow.size=0.3, 
     edge.curved=0.4, vertex.color=V(stepstone)$sampled, 
@@ -45,12 +47,19 @@ plot(stepstone,layout=hi_islands, edge.arrow.size=0.3,
      #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
      vertex.frame.color =NA)
 
-#divergence
+#divergence2
 plot(divergence,layout=hi_islands, edge.arrow.size=0.6, edge.width = 3, edge.lty = 1,
      edge.curved=1, vertex.color=V(stepstone)$sampled, 
      edge.color="grey50",vertex.size=3, vertex.label = NA,
      #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
      vertex.border = V(stepstone)$sector)
+#divergence2
+plot(divergence2,layout=hi_islands, edge.arrow.size=0.6, edge.width = 3, edge.lty = 1,
+     edge.curved=1, vertex.color=V(stepstone)$sampled, 
+     edge.color="grey50",vertex.size=3, vertex.label = NA,
+     #    vertex.label=V(stepstone)$label, vertex.label.cex=0.7, vertex.label.color = "white"
+     vertex.border = V(stepstone)$sector)
+
 #island
 plot(island,layout=hi_islands, edge.arrow.size=0.3, edge.curved=0.4, 
      vertex.color=V(island)$sampled, edge.color = "grey90",vertex.frame.color = NA,

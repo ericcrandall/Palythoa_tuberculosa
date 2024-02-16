@@ -1,5 +1,5 @@
 #!
-for r in  rep5/
+for r in  rep*
 	do
 		cd $r
 		echo $r
@@ -8,7 +8,7 @@ for r in  rep5/
 			for m in */
 			  do
 				cd $m
-				  echo $m
+				  echo $m > current.model.txt
 				  date
 				  mpirun -np 110 --hostfile ~/hosts ~/migrate-5.0.4/src/migrate-n-mpi parmfile
 				  sleep 10

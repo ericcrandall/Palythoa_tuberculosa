@@ -1,0 +1,17 @@
+model,bezier.corrected,lbf,choice,modelprob,model_letters
+panmixia,-70726.612,-1657.4719999999797,8,0,A
+island,-73364.51,-6933.267999999982,16,0,B
+NWHI_MHI,-70735.71399999999,-1675.6759999999776,9,0,C
+stepping.stone.breaks,-71043.93,-2292.1079999999783,11,0,D
+stepping.stone.breaks.KO,-70653.586,-1511.4199999999837,5,0,E
+stepping.stone.oneway,-72217.462,-4639.171999999991,15,0,F
+stepping.stone,-71215.42,-2635.087999999989,13,0,G
+stepping.stone.KO,-70715.82,-1635.8880000000063,7,0,H
+stepping.stone.KOd,-71149.814,-2503.8759999999893,12,0,I
+stepping.stone.KO.D,-71007.04400000001,-2218.3360000000102,10,0,J
+stepping.stone.splits.d,-71906.796,-4017.8399999999965,14,0,K
+stepping.stone.splitsD,-70666.442,-1537.1319999999832,6,0,L
+stepping.stone.splitsD.KOsplitd,-70650.816,-1505.8800000000047,4,0,M
+stepping.stone.splitsD.2way.KOd,-70086.968,-378.1839999999793,3,7.557668313782882e-83,N
+stepping.stone.splitsD.2way.NS.KO.D,-69897.876,0,1,1,O
+stepping.stone.splitsD.2way.SN.KO.D,-69956.86,-117.96799999999348,2,2.4186569767908118e-26,P

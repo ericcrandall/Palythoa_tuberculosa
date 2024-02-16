@@ -1,11 +1,11 @@
 #!
-for r in */
+for r in rep*/
 	do
 		cd $r
 		echo $r
 		date
-		date > 2000_bins_rerun.txt
-			for m in  panmixia/ island/ NWHI_MHI/ stepping.stone.breaks/ stepping.stone.breaks.KO/
+		date > 2way_run.txt
+			for m in  stepping.stone.splitsD.2way.NS.KO.D/ stepping.stone.splitsD.2way.SN.KO.D/
 			  do
 				echo $m > current_model.txt
 				cd $m

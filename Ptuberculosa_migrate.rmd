@@ -1897,7 +1897,7 @@ Because I set such wide priors on gene flow for marine species, the standard PDF
 4. sum all log histograms for each locus
 5. add the log prior back
 6. convert to non-log
-7. adjust so that the sum of the new histogram sums t0 1.0
+7. adjust so that the sum of the new histogram sums to 1.0
 
 ### Read in the posteriors and make a labeling key
 
@@ -2253,7 +2253,7 @@ remove_prior <- function(densityd,prior,threshold = 1e-10){
   # first it zeros values less than a threshold, then 
   # removes the prior, then renormalizes so the density
   # sums to 1
-  prior[which(prior < 1e-30)] <- 1e-30
+  prior[which(prior < 1e-10)] <- 1e-10
   densityd[which(densityd < threshold)] <- 0
   new <- (densityd/prior)/sum(densityd/prior)
 
@@ -2271,9 +2271,9 @@ sum_over_loci <- function(df,parameter,lower.bound,upper.bound){
   
     #add a teeny-tiny amount to all values to avoid zeros
     df2 <- df %>% mutate(across(starts_with(parameter), 
-                        .fns= function(x) x + 1e-11))  %>% 
+                        .fns= function(x) x + 1e-30))  %>% 
       #filter to the bounds
-            filter(between(x, lower.bound, upper.bound )) %>% 
+            #filter(between(x, lower.bound, upper.bound )) %>% 
       #log all values
             mutate(across(starts_with(c(parameter)),
                   .fns=log)) %>% 
@@ -2310,7 +2310,7 @@ summarize_posterior <- function(posterior,
                   parameter_type = c("Theta","M","Nm","D"),
                   prior_params = c(min,mean,max),
                   lower.bound, upper.bound,
-                  n=16384){
+                  n=2^10, threshold = 1e-10){
   # this function takes a Migrate-n posterior "bayesallfile" as a dataframe
   # as well as one of the parameter types, and the prior on that parameter
   # as a vector c(min,mean,max). Currently only exponential priors supported
@@ -2326,8 +2326,8 @@ summarize_posterior <- function(posterior,
   # create a tibble with x values for a density plot
   #  of the chosen number of points
   dens <- tibble(.rows = n, x = density(getx[[1]],  n=n, 
-                           from = prior_params[1], 
-                           to = prior_params[3],
+                           from =lower.bound, 
+                           to = upper.bound,
                            bw = "nrd0")$x)
   print("calculating densities")
   # calculate densities for each parameter of a given type at each locus
@@ -2338,9 +2338,8 @@ summarize_posterior <- function(posterior,
                   starts_with(paste0(parameter_type,"_")),
                           names_sep = "-") %>% 
           dplyr::select(starts_with(paste0(parameter_type,"_"))) %>% 
-          map_dfc(function(x) density(x, n = n, from = 
-                                    prior_params[1], 
-                                    to = prior_params[3], 
+          map_dfc(function(x) density(x, n = n, from = lower.bound,
+                                    to = upper.bound, 
                                     bw = "nrd0")$y) %>%
           bind_cols(dens)
   
@@ -2358,7 +2357,7 @@ summarize_posterior <- function(posterior,
         mutate(across(starts_with(parameter_type), 
                   ~ remove_prior(densityd = .x,
                                   prior = dens$prior,
-                                  threshold = 1e-10) ))
+                                  threshold = threshold) ))
 
   dens3 <- dens2
     
@@ -3793,11 +3792,11 @@ posterior <- read_table(file.path(Dir,"rep1",winningModel,"bayesallfile"), comme
                   migrants.per.gen() %>% dplyr::select(starts_with(c("Locus","Steps","Replicate","Theta_", "M_", 
                                                     "Nm_","D_","d_")))
 
-#combine into one, and then keep only the first 2 reps (based on diagnostics below)
-#posteriors12 <- posteriors %>% bind_rows(.id = "rep") %>% 
-#                                 migrants.per.gen()  %>% mutate(rep = as.integer(rep))
-
-
+#create a long version for locus-by-locus plots
+posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_", 
+                                                           "Nm_","D_","d_")),
+                                                    names_to = "parameter",
+                                                    values_to = "value") 
 
 
 #posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_", 
@@ -3957,7 +3956,29 @@ D_8_9            1          1
 ```
 
 #### Theta Estimates
-And here I run the code for the $\theta$ estimates
+
+
+##### Locus by Locus Plots
+
+```{r}
+
+
+theta_plot <- posteriors_long %>%  
+    filter(str_detect(parameter, "Theta_")) %>%  
+    ggplot() + 
+    geom_density(mapping = aes(x = value, group=Locus, color
+                               =Locus), weight = 0.5) + 
+    scale_x_log10(limits=c(0.0001,0.01)) + 
+    facet_wrap(~parameter, scales = "free_y",
+               labeller = labeller(parameter= parameter_key), 
+               dir = "v",nrow=2) +
+    theme(axis.text.x = element_text(size = rel(0.6)))
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Theta_loci.pdf",theta_plot,width = 10.7, height = 6.42)
+
+```
+
+##### Summed Over Loci Plots
 
 ```{r, eval = F}
 parameter_type <- "Theta"
@@ -3970,7 +3991,7 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
 thetas <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              prior_params = c(0,0.001,0.1))
+                              prior_params = c(0,0.001,0.1),lower.bound=0, upper.bound=0.1,n=2^11)
 
 #convert to long format
 thetas_long <- thetas %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4112,6 +4133,28 @@ mmustats
 
 #### 4Nem estimates
 
+##### Locus by Locus Plots
+
+```{r}
+
+
+Nm_plot <- posteriors_long %>%  
+    filter(str_detect(parameter, "Nm_")) %>%  
+    ggplot() + 
+    geom_density(mapping = aes(x = value, group=Locus, color
+                               =Locus), weight = 0.5) + 
+    scale_x_log10(limits=c(0.01,10)) + 
+    facet_wrap(~parameter, scales = "free_y",
+               labeller = labeller(parameter= parameter_key), 
+               dir = "v",nrow=2) +
+    theme(axis.text.x = element_text(size = rel(0.6)))
+
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_loci.pdf",Nm_plot,width = 10.7, height = 6.42)
+
+```
+
+##### Summed Over Loci Plots
+
 ```{r, eval = F}
 parameter_type <- "Nm"
 
@@ -4123,7 +4166,8 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for nm parameters
 nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              prior_params = c(0,1,1e6), n = 2^21, lower.bound=0, upper.bound=100)
+                           prior_params = c(0,1,1e6), n = 2^8, lower.bound=0, 
+                           upper.bound=100, threshold = 1e-10)
 
 #convert to long format
 nms_long <- nms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4146,6 +4190,7 @@ Nms_density <-  ggplot(nms_long, aes(x = x, y = Density,
 nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
+        #scale_x_log10(limits = c(0.01,100)) +
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$4N_em$")) +

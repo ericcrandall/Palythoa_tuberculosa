@@ -2260,7 +2260,7 @@ remove_prior <- function(densityd,prior,threshold = 1e-10){
   return(new)
 }
 
-sum_over_loci <- function(df,parameter){
+sum_over_loci <- function(df,parameter,lower.bound,upper.bound){
       #this function takes a data frame of probability densities for many loci
       # that have had the prior removed,
       # together with with a logged prior named "logPrior",
@@ -2272,6 +2272,8 @@ sum_over_loci <- function(df,parameter){
     #add a teeny-tiny amount to all values to avoid zeros
     df2 <- df %>% mutate(across(starts_with(parameter), 
                         .fns= function(x) x + 1e-11))  %>% 
+      #filter to the bounds
+            filter(between(x, lower.bound, upper.bound )) %>% 
       #log all values
             mutate(across(starts_with(c(parameter)),
                   .fns=log)) %>% 
@@ -2307,6 +2309,7 @@ sum_over_loci <- function(df,parameter){
 summarize_posterior <- function(posterior, 
                   parameter_type = c("Theta","M","Nm","D"),
                   prior_params = c(min,mean,max),
+                  lower.bound, upper.bound,
                   n=16384){
   # this function takes a Migrate-n posterior "bayesallfile" as a dataframe
   # as well as one of the parameter types, and the prior on that parameter
@@ -2322,7 +2325,7 @@ summarize_posterior <- function(posterior,
 
   # create a tibble with x values for a density plot
   #  of the chosen number of points
-  dens <- tibble(.rows = n, x = density(getx[,1],  n=n, 
+  dens <- tibble(.rows = n, x = density(getx[[1]],  n=n, 
                            from = prior_params[1], 
                            to = prior_params[3],
                            bw = "nrd0")$x)
@@ -2361,7 +2364,7 @@ summarize_posterior <- function(posterior,
     
   for(p in parameters){
     print(p)  
-    dens3 <- sum_over_loci(df = dens3, parameter = p)
+    dens3 <- sum_over_loci(df = dens3, parameter = p, lower.bound, upper.bound)
   }
   # trying to do the above loop with purrr:map_dfc
   #dens4 <- parameters %>% 
@@ -2385,9 +2388,9 @@ posterior_stats <- function(df,parameter){
 
 ```
 
-## Final Parameter Estimates
+## Parameter Estimates
 
-These are the final estimates, summed over loci.
+These are the estimates, summed over loci.
 
 ### Stepping-Stone_KOD Model
 
@@ -2399,18 +2402,18 @@ And here I run the code for the $\theta$ estimates
 ```{r, eval = F}
 parameter_type <- "Theta"
 
-parameters <- names(posteriors12) %>%
+parameters <- names(posterior) %>%
                         str_subset(parameter_type)
 
 parameter_key2 <- parameters
 names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
-thetas <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
+thetas <- summarize_posterior(posterior, parameter_type = parameter_type, 
                               prior_params = c(0,0.001,0.1))
 
 #convert to long format
-thetas_long <- thetas %>% select(all_of(c("x","prior",parameters))) %>% 
+thetas_long <- thetas %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
                             values_to = "Density")
@@ -3075,11 +3078,7 @@ thetastats <- read_csv("./tables/stepping.stone.KOd/theta_stats.csv")
 thetastats
 ```
 
-![Theta Density](./figures/stepping.stone.KOd/thetas_density.jpg)
 ![Theta Ridges](./figures/stepping.stone.KOd/thetas_ridges.jpg)
-
-![Theta Violins](./figures/stepping.stone.KOd/thetas_violins.jpg)
-
 
 #### m/mu estimates
 
@@ -3158,10 +3157,8 @@ mmustats <- read_csv("./tables/stepping.stone.KOd/Mmu_stats.csv")
 mmustats
 ```
 
-![Mmu Density](./figures/stepping.stone.KOd/M_density.jpg)
-![Mmu Ridges](./figures/stepping.stone.KOd/M_ridges.jpg)
 
-![Mmu Violins](./figures/stepping.stone.KOd/M_violins.jpg)
+![Mmu Ridges](./figures/stepping.stone.KOd/M_ridges.jpg)
 
 #### 4Nem estimates
 
@@ -3241,7 +3238,6 @@ nmstats
 ```
 
 
-![4Nem Density](./figures/stepping.stone.KOd/Nm_density.jpg)
 ![4Nem Ridges](./figures/stepping.stone.KOd/Nm_ridges.jpg)
 
 ![4Nem Violins](./figures/stepping.stone.KOd/Nm_violins.jpg)
@@ -3339,7 +3335,7 @@ Divergence time is estimated at `r t` years before present
 
 ## Simulations with very low gene flow
 
-So these results are intriguing in that they suggest that we could be getting quite low pairwise $F_{ST}$ values even when there is neglible gene flow between islands. However, it doesn't make sense that an equilbrium model could yield such low $F_{ST}$ without a non-equilibrium event preceeding it, such as a founder event (i.e. Hawaiian population being founded from elsewhere in the Indo-Pacific) I want to double check that the results are indeed consistent with low $F_{ST}$ so I am going to simulate the model (minus the anthropogenic gene flow between Oahu and Kure) with a founder event to see if our results are consistent.
+So these results are intriguing in that they suggest that we could be getting quite low pairwise $F_{ST}$ values even when there is negligible gene flow between islands. However, it doesn't make sense that an equilbrium model could yield such low $F_{ST}$ without a non-equilibrium event preceeding it, such as a founder event (i.e. Hawaiian population being founded from elsewhere in the Indo-Pacific) I want to double check that the results are indeed consistent with low $F_{ST}$ so I am going to simulate the model (minus the anthropogenic gene flow between Oahu and Kure) with a founder event to see if our results are consistent.
 
 IBDsim [@lebloisIBDSimComputerProgram2009] did well for me in my previous Hawaii paper, so I am turning to it again, as it is able to simulate all the aspects that I need. I'm going to start with just doing 90 diploid samples of DNA under the Juke Cantor model to simulate the haplotype dataset used in migrate. 
 
@@ -3648,79 +3644,101 @@ I also have changed the sampler for migration parameters to Metropolis-Hastings,
 migration=PRIOR:50
 bayes-proposals= MIG METROPOLIS-HASTINGS Sampler
 bayes-priors= MIG WEXPPRIOR: 0.000100 1000.000000 10000000 10000
+bayes-posteriorbins= 2000 2000
+
+```
+
+I ran all the models for 5 replicates during the month of January. The runs would have been completed much sooner, but Kinilau went down due to power failures many times during this period. I also had to rerun a number of models which still had histogram bins set to 500 (which changes the marginal likelihood of the model - upward bias).
+
+
+## A strong prior on Oahu-Kure divergence?
+
+For models with Divergence between Oahu and Kure, I considered using the very stong prior below, whichcorresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
+
+```
 #for models with Divergence between Oahu and Kure
-bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-7 1.63e-6 1.0-7 
+bayes-priors= SPLIT * * WEXPPRIOR: 0.0 8e-7 1.63e-6 1.0e-7 
 bayes-priors= SPLITSTD * * WEXPPRIOR: 0.0 2e-7 2e-6 1.0e-7
 # this corresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
 ```
-Here's my reasoning for the above:
-Midway - discovered by Westerners in 1859. Naval activity increased in 1941.
 
-```{r, eval =F}
+My reasoning is that Midway - was discovered by westerners in 1859. Naval activity increased in 1941. So the earliest date that westerners could have transported P. tuberculosa to Midway is 1859, but more likely to have happened in 1941ish. 
+
+```{r}
 mulo = 1e-9
 generationtime = 1
 muhi = 1e-8
 
-max_age = 2022-1859=> 163
+max_age = 2022-1859
 
 max_split = max_age * (muhi /generationtime)
 mean_split = 80 * muhi
 sd_split = 20 * muhi
 ```
 
-So, a maximum splitting time of `r max_split`, with a mean of `r mean_split` and pick an sd of `r sd_split`
+So, a maximum splitting time of `r max_split`, with a mean of `r mean_split` and pick an sd of `r sd_split`. In the end, I didn't use this prior on any of the models.
 
+In the end, I didn't apply this prior to any of the models for the following reasons:  
 
+1. Migrate doesn't handle such a small prior. It reset the maximum to 0.00002.  
+2. I also couldn't seem to add the prior to models that had other divergence times. Whenever I tried to individual priors on all divergence times, with the small prior on Oahu->Kure, Migrate would throw a segmentation fault.  
 
-I ran all the models for 5 replicates during the month of January. The runs would have been completed much sooner, but Kinilau went down due to power failures many times during this period.
+But note that for equilibrium models with just the divergence from Oahu to Kure, the strong prior **did** improve the marginal likelihood.
+
 
 ## Copy it Down
 
-```{bash}
-rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@kinilau.tobolab.org:~/run6 ./final
+```{bash, eval = F}
+rsync -av -e ssh --exclude='bayes*' --exclude="*.pdf"  eric@kinilau.tobolab.org:~/run6/ ./final
 ```
 
 ##  Model Selection Results
 
 ### Model Marginal Likelihoods
 
-```{r likelihoods4, message=F, results='hide'}
+```{r likelihoods5, message=F, results='hide'}
 
 runDir <-"~/github/Palythoa_tuberculosa/migrate/run6/final/"
 
-likelist2 <- list()
+likelist3 <- list()
 for(r in 1:5){
   rep = paste0("rep",r)
   print(rep)
-  likelist2[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
+  likelist3[[rep]] <- harvest.model.likelihoods(workingDir=file.path(runDir,rep))
 }
 
 # Model selection for each replicate...
-likelist2 %>% map(bfcalcs)
+likelist3 %>% map(bfcalcs)
 ```
+
 The final model marginal likelihood estimates based on the mean of 5 replicates:
 
 ```{r}
-like2.df <-  likelist2 %>% bind_rows() %>% group_by(model)
+like3.df <-  likelist3 %>% bind_rows() %>% group_by(model)
 
-means2 <- like2.df %>% summarize(bezier.corrected = mean(bezier.corrected))
+means3 <- like3.df %>% summarize(bezier.corrected = mean(bezier.corrected))
   
 
-final_model2 <- bfcalcs(means2)
+final_model3 <- bfcalcs(means3)
 
-final_model2
+model_letters <- c("C","B","A","G","H","J","I","D","E","F","K","L","N","O","P","M")
+
+
+final_model3 <- final_model3 %>% bind_cols(model_letters=model_letters) %>% arrange(model_letters)
+
+final_model3
 ```
 
 #### T-Test
 
-The best model by far is now stepping.stone.oneway....
+The two best models are stepping.stone.splitsD.KOsplitd (sequential colonization with gene flow north to south, then colonization of Kure from Oahu wihout gene flow 94% relative probability) and stepping.stone.breaks.KO (equilibrium gene flow with two lumped metapopulations in the NWHI and gene flow between Oahu and Kure). With 5 reps, there is no significant difference in marginal likelihood between these two.
 
 ```{r eval = F}
-top.choice <- final_model2$model[which(final_model2$choice ==1)]
-second.choice <- final_model2$model[which(final_model2$choice ==2)]
+top.choice <- final_model3$model[which(final_model3$choice ==1)]
+second.choice <- final_model3$model[which(final_model3$choice ==2)]
 
-TS <- permTS(like2.df$bezier.corrected[which(like2.df$model == top.choice)],
-       like2.df$bezier.corrected[which(like2.df$model == second.choice)],
+TS <- permTS(like3.df$bezier.corrected[which(like3.df$model == top.choice)],
+       like3.df$bezier.corrected[which(like3.df$model == second.choice)],
        alternative = "greater")
 
 TS
@@ -3729,48 +3747,516 @@ TS
 
 #### Figures
 
-And some figures summarizing all this. The two best models are equilibrium models across the archipelago, with recent divergence from Oahu to Kure. The best one is divergence without gene flow, followed by divergence with gene flow. The three models with divergences are much worse than those without. Difference between stepping.stone and stepping.stone.KO is very significant. 
+And some figures summarizing all this.
 
 ```{r}
-models <- c("N-Island", "NWHI vs. MHI","Panmixia", "SS: Islands",
-            "SS: Regional Breaks", "SS: Regional Breaks, KO 2way",
-            "SS: Islands, OK 2way", 
-            "SS: Islands, O2K Colonization with GF",
-            "SS: Islands, O2K Colonization without GF",
-            "SS: Islands, Oneway",
-            "Seq Div: No GF","Seq Div: GF",
-            "Seq Div: GF, O2K Colonization without GF")
 
-model_letters <- c("B", "C"," A", "D","G", "H", "L", "M", "E", "I","J","K")
-model_letters <- rep(model_letters,5)
+model_letters2 <- rep(model_letters,5)
 
-models <- c("SS: Islands, O2K Colonization with GF", 
-            "SS: Islands, O2K Colonization without GF")
-
-model_letters2 <- c("L","M")
-
-likesPlot2 <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>% 
+likesPlot_letters <- likelist3 %>% bind_rows() %>% bind_cols(model_letters2) %>% 
               group_by(model) %>% 
-              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
-              geom_violin(draw_quantiles = 0.5) +
-              theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-              scale_x_discrete(labels = models) +
+              ggplot(mapping = aes(x=model_letters2, y = bezier.corrected)) +
+              geom_boxplot() +
               labs(x = "Metapopulation Model", 
-                   y = "Bezier Corrected Marginal Likelihood") +
-              ylim(-50000,-45000)
-likesPlot2
+                   y = "Bezier Corrected Marginal Likelihood")
 
-likesPlot2_letters <- likelist2 %>% bind_rows() %>% filter(model != "stepping.stone.KO") %>%
-              group_by(model) %>% 
-              ggplot(mapping = aes(x=model, y = bezier.corrected)) +
-              geom_violin(draw_quantiles = 0.5) +
-              scale_x_discrete(labels = model_letters2) +
-              labs(x = "Metapopulation Model", 
-                   y = "Bezier Corrected Marginal Likelihood") +
-              ylim(-50000,-45000)
+likesPlot_letters
+
+likesPlot_letters + ylim(-70200, -69000)
+
+```
+
+## Parameter Estimates
+
+### stepping.stone.splitsD.2way.NS.KO.D
+
+For the model with divergence-with-gene-flow from north to south, followed by divergence-with-gene-flow from Oahu to Kure (Model O)
+
+#### Read in the posteriors and make a labeling key
+
+```{r, eval = F}
+#
+Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run6"
+      
+winningModel <- "stepping.stone.splitsD.2way.NS.KO.D"
+
+#posteriors <- list()
+
+#read in the posterior for two replicates this may take 5 minutes
+#for(r in 1:2){
+#  print(paste("Loading Rep",r))
+#  posteriors[[r]] <- read.table(file.path(Dir,paste0("rep",r),winningModel,
+#                                      "bayesallfile"), header=T) 
+#}
+
+posterior <- read_table(file.path(Dir,"rep1",winningModel,"bayesallfile"), comment = "#") %>% 
+                  migrants.per.gen() %>% dplyr::select(starts_with(c("Locus","Steps","Replicate","Theta_", "M_", 
+                                                    "Nm_","D_","d_")))
+
+#combine into one, and then keep only the first 2 reps (based on diagnostics below)
+#posteriors12 <- posteriors %>% bind_rows(.id = "rep") %>% 
+#                                 migrants.per.gen()  %>% mutate(rep = as.integer(rep))
+
+
+
+
+#posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_", 
+#                                                           "Nm_","D_","d_")),
+#                                                    names_to = "parameter",
+#                                                    values_to = "value") 
+
+
+# read in a population key to translate numbers into names in figures
+popkey <- read_csv("popkey.csv")
+names(popkey$Pop) <- popkey$Index
+#make a new labeling key
+posterior_parameters <- names(posterior) %>% str_subset("Theta|M_|Nm_|D_|d_")
+
+parameter_key <- posterior_parameters %>% 
+                                  str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
+                                  str_replace("M_", "m/mu " ) %>% 
+                                  str_replace("Theta_", "theta ") %>% 
+                                  str_replace_all(popkey$Pop) %>% 
+                                  str_replace("Nm_", "4Nem ") 
+                                  
+
+names(parameter_key) <- posterior_parameters
+
+```
+
+#### Check Convergence
+
+```{r, eval = F}
+posterior.grouped <- posterior %>% 
+                       dplyr::select(all_of(c("Locus","Replicate",
+                                         "Steps",
+                                         posterior_parameters))) %>% 
+                       group_by(Replicate)
+
+posterior.reps <- group_split(posterior.grouped)
+posterior.key <- group_keys(posterior.grouped)
+
+#thin by taking every other step
+#posteriors2 <- lapply(posteriors,filter,Steps%%500==0)
+
+
+# select parameters only
+#posterior2 <-  posterior %>% dplyr::select(starts_with(c("Theta_", "M_", 
+#                                                          "Nm_","D_","d_")))
+
+posteriors.mcmc <- posterior.reps %>% map(~ dplyr::select(., starts_with(c("Theta_", "M_", 
+                                                          "Nm_","D_","d_"))))  %>% map(mcmc)      
+posteriors.mcmc <- mcmc.list(posteriors.mcmc)
+posterior.ggs <- ggs(posteriors.mcmc, burnin = F)
+
+ggmcmc(posterior.ggs, param_page = 4)
+
+
+
+
+
+
+
+#if I wanted to pull out parameters by locus, but I don't - Peter calculates Effective Sizes on the whole posterior
+
+posteriors3 <- posterior %>% dplyr::select(starts_with(c("Replicate","Steps","Locus","Theta_", "M_", 
+                                                          "Nm_","D_","d_"))) %>% mutate(Locus_name = Locus)
+
+posteriors3_Nm <- posteriors3 %>% pivot_wider(id_cols = c("Steps", "Replicate","Locus"), 
+                                                            names_from = "Locus_name",
+                                               values_from =starts_with(c("Theta_", "M_", 
+                                                          "Nm_","D_","d_")), names_sep = "-L")
+
+posteriors3_Nm.mcmc <- mcmc(posteriors3_Nm)
+
+effectiveSize(posteriors3_Nm.mcmc)
 
 
 ```
+
+
+##### Effective Sizes
+Effective sizes are good
+
+```{}
+effectiveSize(posteriors.mcmc[[1]]) (first replicate)
+
+Theta_1   Theta_2   Theta_3   Theta_4   Theta_5   Theta_6   Theta_7   Theta_8   Theta_9     M_6_1     M_3_2     M_2_3     M_4_3     M_3_4     M_5_4     M_4_5 
+ 755139.9  826428.2  796069.0  891979.6  379318.7  679559.4  696500.7  951356.4  691646.8  956594.2  953136.2  968733.7 1094410.4 1089891.0  849360.1 1089891.0 
+    M_6_5     M_1_6     M_5_6     M_7_6     M_6_7     M_8_7     M_7_8     M_9_8     M_8_9    Nm_6_1    Nm_3_2    Nm_2_3    Nm_4_3    Nm_3_4    Nm_5_4    Nm_4_5 
+1043252.9  963042.5 1089891.0  959816.7  882511.5  924205.2 1089891.0  928377.0  952468.5  879150.2  941641.8  930176.8 1095970.2  928354.5  783268.4  875664.3 
+   Nm_6_5    Nm_1_6    Nm_5_6    Nm_7_6    Nm_6_7    Nm_8_7    Nm_7_8    Nm_9_8    Nm_8_9     D_6_1     D_2_3     D_3_4     D_4_5     D_5_6     D_6_7     D_7_8 
+1122918.5 1089891.0  901501.8  916741.7  910306.5  881627.3  964591.7  953676.9  855007.4 1089891.0 1110109.8 1084510.7  800135.8  989120.0  945399.5  890976.6 
+    D_8_9 
+ 781656.3 
+
+
+```
+
+
+##### Gelman-Rubin Diagnostic
+
+Gelman-Rubin diagnostic across 3 replicates looks great!
+
+```{}
+
+gelman.diag(posteriors.mcmc, autoburnin = F)
+
+Potential scale reduction factors:
+
+        Point est. Upper C.I.
+Theta_1          1          1
+Theta_2          1          1
+Theta_3          1          1
+Theta_4          1          1
+Theta_5          1          1
+Theta_6          1          1
+Theta_7          1          1
+Theta_8          1          1
+Theta_9          1          1
+M_6_1            1          1
+M_3_2            1          1
+M_2_3            1          1
+M_4_3            1          1
+M_3_4            1          1
+M_5_4            1          1
+M_4_5            1          1
+M_6_5            1          1
+M_1_6            1          1
+M_5_6            1          1
+M_7_6            1          1
+M_6_7            1          1
+M_8_7            1          1
+M_7_8            1          1
+M_9_8            1          1
+M_8_9            1          1
+Nm_6_1           1          1
+Nm_3_2           1          1
+Nm_2_3           1          1
+Nm_4_3           1          1
+Nm_3_4           1          1
+Nm_5_4           1          1
+Nm_4_5           1          1
+Nm_6_5           1          1
+Nm_1_6           1          1
+Nm_5_6           1          1
+Nm_7_6           1          1
+Nm_6_7           1          1
+Nm_8_7           1          1
+Nm_7_8           1          1
+Nm_9_8           1          1
+Nm_8_9           1          1
+D_6_1            1          1
+D_2_3            1          1
+D_3_4            1          1
+D_4_5            1          1
+D_5_6            1          1
+D_6_7            1          1
+D_7_8            1          1
+D_8_9            1          1
+```
+
+#### Theta Estimates
+And here I run the code for the $\theta$ estimates
+
+```{r, eval = F}
+parameter_type <- "Theta"
+
+parameters <- names(posterior) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for theta
+thetas <- summarize_posterior(posterior, parameter_type = parameter_type, 
+                              prior_params = c(0,0.001,0.1))
+
+#convert to long format
+thetas_long <- thetas %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density")
+
+theta.colors <- rev(brewer.pal(9,"Spectral"))
+theta.colors.light <- lighten(theta.colors)
+theta.colors.dark <- darken(theta.colors)
+
+#plot
+thetas_density <-  ggplot(thetas_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(linewidth = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(type = theta.colors, 
+                             labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") +
+        ylim(0,0.175) + xlim(0,0.005)
+
+thetas_ridges <- ggplot(thetas_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$\\Theta$")) + xlim(0,0.005)
+
+thetas_violins <- ggplot(thetas_long, aes(x = Parameter, y = x, 
+                                          violinwidth = Density*10, 
+                                          fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_x_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(y = TeX("$\\Theta$")) + ylim(0,0.005)
+
+
+# get stats for each summed-over-loci posterior
+
+theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+
+# write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
+# 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
+#https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
+#to make multipanel figures
+```
+
+Theta estimates:
+
+```{r, eval = T}
+thetastats <- read_csv("/Users/eric/github/Palythoa_tuberculosa/tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
+thetastats
+```
+
+
+![Theta Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg)
+
+
+
+#### m/mu estimates
+
+```{r, eval = F}
+parameter_type <- "M"
+
+parameters <- names(posterior) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for theta
+Ms <- summarize_posterior(posterior, parameter_type = parameter_type, 
+                              prior_params = c(0.0001,1000,10000000), n = 2^18)
+
+#convert to long format
+Ms_long <- Ms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density") 
+
+migration.colors <- c(rbind(theta.colors, theta.colors.dark))
+migration.colors <- migration.colors[c(1,3,4,5,6,7,8,9,2,10,11,12,13,14,15,16)]
+#plot
+Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        scale_x_continuous(limits = c(100,1000)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted")
+  
+           
+#plot
+M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_x_continuous(limits = c(100,1000)) +
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$\\frac{m}{\\mu}$"))
+
+# get stats for each summed-over-loci posterior
+
+Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+
+# write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
+# 
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",Ms_density, width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",M_ridges, width = 10.7, height = 6.42)
+# 
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",M_ridges, width = 10.7, height = 6.42)
+# 
+#M_ridges2<-M_ridges + theme(legend.position = "none")
+#ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", width = 10.7, height = 6.42)
+```
+
+
+M/mu estimates:
+
+```{r, eval = F}
+mmustats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
+mmustats
+```
+
+![N/mu Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg)
+
+#### 4Nem estimates
+
+```{r, eval = F}
+parameter_type <- "Nm"
+
+parameters <- names(posterior) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for nm parameters
+nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
+                              prior_params = c(0,1,1e6), n = 2^21, lower.bound=0, upper.bound=100)
+
+#convert to long format
+nms_long <- nms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density")
+
+          
+#plot
+Nms_density <-  ggplot(nms_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") + xlim(0,25)
+  
+           
+#plot
+nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$4N_em$")) +
+        xlim(0,25)
+  
+nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+                    fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        ylim(0,25)
+# get stats for each summed-over-loci posterior
+
+nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+
+# write_csv(nms_stats, "tables/stepping.stone.KO.D/4Nm_stats.csv")
+# 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins)
+# 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins)
+nm_ridges2 <- Nm_ridges + theme(legend.position = "none")
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2)
+
+```
+
+$4N_em$ estimates:
+
+```{r, eval = F}
+nmstats <- read_csv()
+nmstats
+```
+
+
+#### Divergence estimates
+
+```{r, eval = F}
+parameter_type <- "D"
+
+parameters <- names(posterior) %>%
+                        str_subset(parameter_type)
+
+parameter_key2 <- parameters
+names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+
+#summarize the posterior for D parameters
+nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
+                              prior_params = c(0,1,1e6), n = 2^20)
+
+#convert to long format
+nms_long <- nms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+                pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+                            names_to = "Parameter",
+                            values_to = "Density")
+
+          
+#plot
+Nms_density <-  ggplot(nms_long, aes(x = x, y = Density, 
+                    color = Parameter)) +
+        geom_line(size = 1) + 
+        #scale_x_log10(limits = c(5e-4,1e-2)) + 
+        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        geom_line(aes(x = x, y=prior), color = "grey",
+                  linetype="dotted") + xlim(0,25)
+  
+           
+#plot
+nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
+                    fill = Parameter)) +
+        geom_density_ridges(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
+        labs(x = TeX("$4N_em$")) +
+        xlim(0,25)
+  
+nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+                    fill = Parameter)) +
+        geom_violin(stat = "identity") + 
+        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        ylim(0,25)
+# get stats for each summed-over-loci posterior
+
+nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
+                                                             parameter = .x),
+                                      .id = "parameter")
+
+# write_csv(nms_stats, "tables/stepping.stone.KO.D/4Nm_stats.csv")
+# 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins)
+# 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins)
+nm_ridges2 <- Nm_ridges + theme(legend.position = "none")
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2)
+
+```
+
+$4N_em$ estimates:
+
+```{r, eval = F}
+nmstats <- read_csv()
+nmstats
+```
+
 
 # Literature Cited
 

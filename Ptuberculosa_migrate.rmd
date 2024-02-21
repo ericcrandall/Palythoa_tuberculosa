@@ -1888,7 +1888,7 @@ likesPlot2_letters <- likelist2 %>% bind_rows() %>% filter(model != "stepping.st
 
 ## Model Parameter Estimates
 
-Because I set such wide priors on gene flow for marine species, the standard PDF output does a poor job of binning the data, such that even though an equilibrium model of gene flow is the best model, Migrate is telling me that all migration parameters have a mode of 2.5 and 0 at the 25th percentile. It would be nice if I could look at the posterior calculated across all loci myself, but it is unclear how Migrate does this exactly. I inquired about this to Peter, and he got back to me with this method for summing the posterior over all loci and some Python code as a demo.
+Because I set such wide priors on gene flow for marine species, the standard PDF output does a poor job of binning the data, such that even though an equilibrium model of gene flow is the best model, Migrate is telling me that all migration parameters have a mode of 2.5 and 0 at the 25th percentile. It would be nice if I could look at the posterior calculated across all loci myself, but it is unclear how Migrate does this exactly. I inquired about this to Peter, and he got back to me with this method for summing the posterior over all loci and some Python code as a demo. See email thread "correctly combining over loci using the bayesallfile" from November 2022.
 
 > 1. create a histogram for each locus
 2. log the histogram (there will be issues with zero value cells)
@@ -2243,39 +2243,31 @@ bf %>% filter(pnumber %in% 1:9) %>% filter(Locus == 110) %>%
 
 ##### Functions for Summarizing from Bayesallfile
 
-These functions are for reconstructing distributions from the "raw" posterior output, which Peter calls a `bayesallfile`. 
+These functions are for reconstructing distributions from the "raw" posterior output, which Peter calls a `bayesallfile`.  
+
+**Note** I revised these functions following the "Sanity Check" section below, when I re-ran Migrate due to a bug in v4.4.4. I found an issue in the remove_prior function where it wasn't removing the prior correctly. Code for parameter estimates from before the "Sanity Check" will no longer work in these functions.
 
 ```{r}
-remove_prior <- function(densityd,prior,threshold = 1e-10){
-  # this function changes values less than a threshold 
-  # to zero removes a prior from the 
-  # y values of a density distributions (density).
-  # first it zeros values less than a threshold, then 
-  # removes the prior, then renormalizes so the density
-  # sums to 1
-  prior[which(prior < 1e-10)] <- 1e-10
-  densityd[which(densityd < threshold)] <- 0
-  new <- (densityd/prior)/sum(densityd/prior)
-
-  return(new)
+remove_prior <- function(densityd,prior,floor = 1e-10){
+  # this function subtracts the prior from the posterior density for the y values of a single density column
+  # and changes values less than zero to a small floor value
+  # and then standardizes the result to sum to 1
+  minusprior <- densityd - prior
+  minusprior[minusprior <= 0] <- threshold
+  standardized <- minusprior / sum(minusprior)
+  return(standardized)
 }
 
-sum_over_loci <- function(df,parameter,lower.bound,upper.bound){
+sum_over_loci <- function(df,parameter){
       #this function takes a data frame of probability densities for many loci
-      # that have had the prior removed,
-      # together with with a logged prior named "logPrior",
-      #  as well as the name of a parameter (e.g. "Theta_1")
+      # that have had the prior removed, and also has a logged prior column called logPrior
+      # as well as the name of a parameter (e.g. "Theta_1")
       # and sums the densities over loci.
        # Rmpfr package allows quadruple precision for calcs on very small numbers.
     require(Rmpfr)
-  
-    #add a teeny-tiny amount to all values to avoid zeros
-    df2 <- df %>% mutate(across(starts_with(parameter), 
-                        .fns= function(x) x + 1e-30))  %>% 
-      #filter to the bounds
-            #filter(between(x, lower.bound, upper.bound )) %>% 
+
       #log all values
-            mutate(across(starts_with(c(parameter)),
+       df2 <- df %>%  mutate(across(starts_with(c(parameter)),
                   .fns=log)) %>% 
       # convert the df to rowwise so that rows can be summed
       # and then sum across the row, including the prior
@@ -2291,8 +2283,6 @@ sum_over_loci <- function(df,parameter,lower.bound,upper.bound){
     # standardize by dividing by the sum of the column
     sum_param_prior_standardized <-
              sum_param_prior_exp/sum(sum_param_prior_exp)
-    
-
     #drop the intermediate columns (no longer needed), change the standardized
     # output back to double precision so that it can be incorporated into the df
     # rename the summed column after the parameter
@@ -2308,12 +2298,12 @@ sum_over_loci <- function(df,parameter,lower.bound,upper.bound){
 
 summarize_posterior <- function(posterior, 
                   parameter_type = c("Theta","M","Nm","D"),
-                  prior_params = c(min,mean,max),
+                  exponential_mean = 1,
                   lower.bound, upper.bound,
-                  n=2^10, threshold = 1e-10){
+                  n = 2^10, floor = 1e-10){
   # this function takes a Migrate-n posterior "bayesallfile" as a dataframe
-  # as well as one of the parameter types, and the prior on that parameter
-  # as a vector c(min,mean,max). Currently only exponential priors supported
+  # as well as one of the parameter types, and the mean of an exponential prior
+  # Currently only exponential priors supported
   # it will create densities for each parameter of the given type,
   # remove the prior from each, sum across loci, and re-add the prior (once)
   parameters <- names(posterior) %>%
@@ -2344,7 +2334,7 @@ summarize_posterior <- function(posterior,
           bind_cols(dens)
   
   # create, standardize, log and remove prior
-  dens$prior <- dexp(dens$x, rate = 1/prior_params[2], 
+  dens$prior <- dexp(dens$x, rate = 1/exponential_mean, 
                      log = F)
   
   dens$prior <- dens$prior/sum(dens$prior)
@@ -2357,13 +2347,13 @@ summarize_posterior <- function(posterior,
         mutate(across(starts_with(parameter_type), 
                   ~ remove_prior(densityd = .x,
                                   prior = dens$prior,
-                                  threshold = threshold) ))
+                                 floor = floor) ))
 
   dens3 <- dens2
     
   for(p in parameters){
     print(p)  
-    dens3 <- sum_over_loci(df = dens3, parameter = p, lower.bound, upper.bound)
+    dens3 <- sum_over_loci(df = dens3, parameter = p)
   }
   # trying to do the above loop with purrr:map_dfc
   #dens4 <- parameters %>% 
@@ -3172,7 +3162,7 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
 nms <- summarize_posterior(posteriors12, parameter_type = parameter_type, 
-                              prior_params = c(0,1,1), n = 2^17)
+                              prior_params = c(0,1,100), n = 2^17)
 
 #convert to long format
 nms_long <- nms %>% select(all_of(c("x","prior",parameters))) %>% 
@@ -3974,9 +3964,11 @@ theta_plot <- posteriors_long %>%
                dir = "v",nrow=2) +
     theme(axis.text.x = element_text(size = rel(0.6)))
 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Theta_loci.pdf",theta_plot,width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Theta_loci.pdf",theta_plot,width = 10.7, height = 6.42)
 
 ```
+
+![Theta - Locus by Locus](./figures/stepping.stone.splitsD.2way.NS.KO.D/Theta_loci.jpg)
 
 ##### Summed Over Loci Plots
 
@@ -3991,7 +3983,7 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
 thetas <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              prior_params = c(0,0.001,0.1),lower.bound=0, upper.bound=0.1,n=2^11)
+                              exponential_mean=0.001,lower.bound=0, upper.bound=0.1,n=2^14)
 
 #convert to long format
 thetas_long <- thetas %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4038,13 +4030,13 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
 
 # write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
 # 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
 #https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
 #to make multipanel figures
 ```
@@ -4074,7 +4066,8 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for theta
 Ms <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              prior_params = c(0.0001,1000,10000000), n = 2^18)
+                              exponential_mean = 1000, n = 2^14, 
+                          lower.bound = 0, upper.bound = 1000)
 
 #convert to long format
 Ms_long <- Ms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4088,7 +4081,7 @@ migration.colors <- migration.colors[c(1,3,4,5,6,7,8,9,2,10,11,12,13,14,15,16)]
 Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
-        scale_x_continuous(limits = c(100,1000)) + 
+        scale_x_continuous(limits = c(0,100)) + 
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted")
@@ -4098,7 +4091,7 @@ Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density,
 M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_x_continuous(limits = c(100,1000)) +
+        scale_x_continuous(limits = c(0,100)) +
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$\\frac{m}{\\mu}$"))
@@ -4109,16 +4102,16 @@ Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms,
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
-# 
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",Ms_density, width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",M_ridges, width = 10.7, height = 6.42)
-# 
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",M_ridges, width = 10.7, height = 6.42)
-# 
-#M_ridges2<-M_ridges + theme(legend.position = "none")
-#ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", width = 10.7, height = 6.42)
+write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",Ms_density, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",M_ridges, width = 10.7, height = 6.42)
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",M_ridges, width = 10.7, height = 6.42)
+
+M_ridges2<-M_ridges + theme(legend.position = "none")
+ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", width = 10.7, height = 6.42)
 ```
 
 
@@ -4129,9 +4122,11 @@ mmustats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
 mmustats
 ```
 
-![N/mu Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg)
+![M/mu Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg)
 
 #### 4Nem estimates
+
+
 
 ##### Locus by Locus Plots
 
@@ -4153,9 +4148,12 @@ Nm_plot <- posteriors_long %>%
 
 ```
 
+![4Nm Locus By Locus](./figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_loci.jpg)
+
 ##### Summed Over Loci Plots
 
 ```{r, eval = F}
+
 parameter_type <- "Nm"
 
 parameters <- names(posterior) %>%
@@ -4166,8 +4164,8 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for nm parameters
 nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                           prior_params = c(0,1,1e6), n = 2^8, lower.bound=0, 
-                           upper.bound=100, threshold = 1e-10)
+                           exponential_mean = 1, n = 2^14, lower.bound=0, 
+                           upper.bound=100, floor = 1e-10)
 
 #convert to long format
 nms_long <- nms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4183,7 +4181,7 @@ Nms_density <-  ggplot(nms_long, aes(x = x, y = Density,
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,25)
+                  linetype="dotted") + xlim(0,2)
   
            
 #plot
@@ -4194,37 +4192,37 @@ nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density,
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$4N_em$")) +
-        xlim(0,25)
+        xlim(0,2)
   
 nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
-        ylim(0,25)
+        ylim(0,2)
 # get stats for each summed-over-loci posterior
 
 nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(nms_stats, "tables/stepping.stone.KO.D/4Nm_stats.csv")
+# write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
 # 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins)
-# 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins)
-nm_ridges2 <- Nm_ridges + theme(legend.position = "none")
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
+# # 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
+# nm_ridges2 <- nm_ridges + theme(legend.position = "none")
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2,width = 10.7, height = 6.42)
 
 ```
 
 $4N_em$ estimates:
 
 ```{r, eval = F}
-nmstats <- read_csv()
+nmstats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
 nmstats
 ```
 
@@ -4241,65 +4239,65 @@ parameter_key2 <- parameters
 names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for D parameters
-nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              prior_params = c(0,1,1e6), n = 2^20)
+ds <- summarize_posterior(posterior, parameter_type = parameter_type, 
+                              exponential_mean=0.001, n = 2^14, lower.bound = 0, upper.bound = 0.001)
 
 #convert to long format
-nms_long <- nms %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+ds_long <- ds %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
                             values_to = "Density")
 
           
 #plot
-Nms_density <-  ggplot(nms_long, aes(x = x, y = Density, 
+ds_density <-  ggplot(ds_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+        scale_color_discrete(type = theta.colors.light, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,25)
+                  linetype="dotted") + xlim(0,0.001)
   
            
 #plot
-nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
+ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_fill_discrete(type =theta.colors.light, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$4N_em$")) +
-        xlim(0,25)
+        xlim(0,0.001)
   
-nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+ds_violins <- ggplot(ds_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
-        ylim(0,25)
+        scale_fill_discrete(type = theta.colors.light, labels = parameter_key) +
+        ylim(0,0.001)
 # get stats for each summed-over-loci posterior
 
-nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
+ds_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = ds, 
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(nms_stats, "tables/stepping.stone.KO.D/4Nm_stats.csv")
+# write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
 # 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
 # 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins)
-nm_ridges2 <- Nm_ridges + theme(legend.position = "none")
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",ds_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",ds_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",ds_violins)
+ds_ridges2 <- ds_ridges + theme(legend.position = "none")
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
 
 ```
 
-$4N_em$ estimates:
+D estimates:
 
 ```{r, eval = F}
-nmstats <- read_csv()
-nmstats
+ds_stats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
+ds_stats
 ```
 
 

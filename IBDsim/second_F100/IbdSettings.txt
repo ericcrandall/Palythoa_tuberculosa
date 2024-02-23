@@ -1,0 +1,56 @@
+%%%%%%%%%% SIMULATION PARAMETERS %%%%%%%
+Data_File_Name = stepstone_radseq
+GenePop_File_Extension = .gen
+Run_Number = 1
+Pause = Never
+Genepop = T
+Migrate = F
+Migraine_Settings = F
+Nexus_File_Format = F
+
+%%%%%%%%%% MARKERS PARAMETERS %%%%%%%%%
+Locus_Number = 109
+Mutation_Rate = 0.000006
+Mutation_Model = JC69
+MRCA_Sequence = TACTCTATATATTATGTTTGGTGTGTGATCTGGTTTAGTCGGGACTGCTTTGAGGCTCTTGATTCGAGCTGAACTTGGACAGCCAGGAGCTCTTTTAGGTGATGATCAACTTTATAATGTGATCGTCACTGCGCATGCATTTGTGATAATTTTTTTCTTGGTGATGCCTATGATGATTGGGGGATTCGGTAATTGGTTGGTTCCTTTAATGTTGGGGGCTCCTGATATGGCGTTCCCGCGGTTGAATAATATAAGTTTTTGGTTGCTTCCGCCTTCGTTGACTTTGTTGCTTGCTTCTTCTGCTGTTGAGAGTGGTGTAGGGACAGGTTGAACGGTTTATCCTCCTTTGTCTGGGAACTTAGCTCATGCTGGGGGTTCTGTGGATCTAGCTATCTTCTCGTTACACTTAGCTGGTGTATCTTCTATTTTAGGTGCTGTAAATTTTATTACTACGATCATTAATATGCGGTGACAGGGGATGCAATTTGAGCGGTTGCCTC
+Sequence_Size = 500
+Transition_Transversion_ratio = 2
+Equilibrium_Frequencies = 0.25 0.25 0.25 0.25
+Polymorphic_Loci_Only= False
+Ploidy = Diploid
+
+%%%%%%%%%% VARIOUS COMPUTATION OPTIONS %%%
+DiagnosticTables = Hexp, Fis, Seq_stats, Effective_Dispersal, Iterative_Statistics
+
+
+%%%%%%%%%% DEMOGRAPHIC OPTIONS %%%%%%%%
+NewDemographicPhaseAt=0
+Lattice_Boundaries = Absorbing
+Total_Range_Dispersal = True
+Dispersal_Distribution = SteppingStone
+Immigration_Control = Simple1Dproduct
+Total_Emigration_Rate = 0.002628559
+Dist_max = 1
+Lattice_SizeX = 15
+Lattice_SizeY = 1
+Ind_Per_Pop = 44324
+Continuous_Deme_Size_Variation = None
+Continuous_Lattice_Size_Variation = None
+
+NewDemographicPhaseAt=70962
+Lattice_SizeX = 1
+Lattice_SizeY = 1
+Ind_Per_Pop = 100
+
+NewDemographicPhaseAt=70963
+Lattice_SizeX = 1
+Lattice_SizeY = 1
+Ind_Per_Pop = 100000
+
+%%%%%%%%%% SAMPLE PARAMETERS %%%%%%%%
+%Sample_SizeX = 9
+%Sample_SizeY = 9
+Sample_Coordinates_X = 1 3 6 8 11 12 13 14 15
+Sample_Coordinates_Y = 1 1 1 1 1  1  1  1  1
+Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
+

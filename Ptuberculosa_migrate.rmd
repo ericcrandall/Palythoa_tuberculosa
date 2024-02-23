@@ -2253,7 +2253,7 @@ remove_prior <- function(densityd,prior,floor = 1e-10){
   # and changes values less than zero to a small floor value
   # and then standardizes the result to sum to 1
   minusprior <- densityd - prior
-  minusprior[minusprior <= 0] <- threshold
+  minusprior[minusprior <= 0] <- floor
   standardized <- minusprior / sum(minusprior)
   return(standardized)
 }
@@ -2333,11 +2333,9 @@ summarize_posterior <- function(posterior,
                                     bw = "nrd0")$y) %>%
           bind_cols(dens)
   
-  # create, standardize, log and remove prior
+  # create, log and remove prior
   dens$prior <- dexp(dens$x, rate = 1/exponential_mean, 
                      log = F)
-  
-  dens$prior <- dens$prior/sum(dens$prior)
   
   dens$logPrior <- log(dens$prior)
   
@@ -3316,7 +3314,7 @@ So these results are intriguing in that they suggest that we could be getting qu
 
 IBDsim [@lebloisIBDSimComputerProgram2009] did well for me in my previous Hawaii paper, so I am turning to it again, as it is able to simulate all the aspects that I need. I'm going to start with just doing 90 diploid samples of DNA under the Juke Cantor model to simulate the haplotype dataset used in migrate. 
 
-Here is the parmfile for a coalescentsimulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and an equivalent migration rate (as Migrate found this ratio close to 1). From the present, there are 15 demes of 50K effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At 999 generations, there is a founder event of 100 individuals in one deme, which, at 1,000 generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
+Here is the parmfile for a coalescentsimulation with a 1.2e-8 mutation rate per generation (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and an equivalent migration rate (as Migrate found this ratio close to 1). From the present, there are 15 demes of 50K effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At 999 generations, there is a founder event of 100 individuals in one deme, which, at 1,000 generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
 
 I have varied the simulations to test the effect of the age and size of the founder event as such:
 
@@ -3939,7 +3937,7 @@ D_8_9            1          1
 
 ##### Locus by Locus Plots
 
-```{r}
+```{r, eval = F}
 
 
 theta_plot <- posteriors_long %>%  
@@ -4017,15 +4015,15 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
-# 
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
 
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+#  
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
 #https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
 #to make multipanel figures
 ```
@@ -4033,8 +4031,8 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
 Theta estimates:
 
 ```{r, eval = T}
-thetastats <- read_csv("/Users/eric/github/Palythoa_tuberculosa/tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
-thetastats
+theta_stats <- read_csv("/Users/eric/github/Palythoa_tuberculosa/tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
+theta_stats
 ```
 
 
@@ -4046,7 +4044,7 @@ thetastats
 
 ##### Locus by Locus Plots
 
-```{r}
+```{r, eval = F}
 
 
 M_plot <- posteriors_long %>%  
@@ -4060,11 +4058,12 @@ M_plot <- posteriors_long %>%
                dir = "v",nrow=2) +
     theme(axis.text.x = element_text(size = rel(0.6)))
 
-#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/M_loci.jpg",Nm_plot,width = 10.7, height = 6.42)
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/M_loci.pdf",M_plot,width = 10.7, height = 6.42)
 
 ```
 
 ![M/mu Locus By Locus](./figures/stepping.stone.splitsD.2way.NS.KO.D/M_loci.jpg)
+##### Summed Over Loci Plots
 
 ```{r, eval = F}
 parameter_type <- "M"
@@ -4092,7 +4091,7 @@ migration.colors <- migration.colors[c(1,3,4,5,6,7,8,9,2,10,11,12,13,14,15,16)]
 Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
-        scale_x_continuous(limits = c(0,100)) + 
+        scale_x_continuous(limits = c(0,1000)) + 
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted")
@@ -4102,35 +4101,39 @@ Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density,
 M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_x_continuous(limits = c(0,100)) +
+        scale_x_continuous(limits = c(0,1000)) +
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$\\frac{m}{\\mu}$"))
 
-# get stats for each summed-over-loci posterior
+#get stats for each summed-over-loci posterior
 
-Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
-                                                             parameter = .x),
-                                      .id = "parameter")
-
-write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",Ms_density, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",M_ridges, width = 10.7, height = 6.42)
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",M_ridges, width = 10.7, height = 6.42)
-
-M_ridges2<-M_ridges + theme(legend.position = "none")
-ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", width = 10.7, height = 6.42)
+# Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
+#                                                               parameter = .x),
+#                                        .id = "parameter")
+#  
+# write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
+# 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",
+#         Ms_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",
+#         M_ridges, width = 10.7, height = 6.42)
+#  
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",
+#        M_ridges, width = 10.7, height = 6.42)
+#  
+# M_ridges2<-M_ridges + theme(legend.position = "none")
+# ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", 
+#         width = 10.7, height = 6.42)
 ```
 
 
 M/mu estimates:
 
-```{r, eval = F}
-mmustats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
-mmustats
+```{r}
+mmu_stats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
+mmu_stats
 ```
 
 ![M/mu Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg)
@@ -4141,8 +4144,7 @@ mmustats
 
 ##### Locus by Locus Plots
 
-```{r}
-
+```{r, eval = F}
 
 Nm_plot <- posteriors_long %>%  
     filter(str_detect(parameter, "Nm_")) %>%  
@@ -4192,49 +4194,49 @@ Nms_density <-  ggplot(nms_long, aes(x = x, y = Density,
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
         scale_color_discrete(type = migration.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,2)
+                  linetype="dotted") + xlim(0,3)
   
            
 #plot
-nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density, 
+nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density*10, 
                     fill = Parameter)) +
-        geom_density_ridges(stat = "identity") + 
+        geom_ridgeline(stat = "identity") + 
         #scale_x_log10(limits = c(0.01,100)) +
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$4N_em$")) +
-        xlim(0,2)
+        xlim(0,3)
   
-nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
+nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*10, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
         scale_fill_discrete(type = migration.colors, labels = parameter_key) +
-        ylim(0,2)
+        ylim(0,3)
 # get stats for each summed-over-loci posterior
 
 nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
-# 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
-# # 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
-# nm_ridges2 <- nm_ridges + theme(legend.position = "none")
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2,width = 10.7, height = 6.42)
+write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
+ 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
+ 
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
+nm_ridges2 <- nm_ridges + theme(legend.position = "none")
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2,width = 10.7, height = 6.42)
 
 ```
 
 $4N_em$ estimates:
 
-```{r, eval = F}
-nmstats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
-nmstats
+```{r}
+nm_stats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
+nm_stats
 ```
 
 
@@ -4254,7 +4256,7 @@ names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
 
 #summarize the posterior for D parameters
 ds <- summarize_posterior(posterior, parameter_type = parameter_type, 
-                              exponential_mean=0.001, n = 2^14, lower.bound = 0, upper.bound = 0.001)
+                              exponential_mean=0.001, n = 2^15, lower.bound = 0, upper.bound = 0.005)
 
 #convert to long format
 ds_long <- ds %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
@@ -4270,7 +4272,7 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
         scale_color_discrete(type = theta.colors.light, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,0.001)
+                  linetype="dotted") + xlim(0,0.00125)
   
            
 #plot
@@ -4279,49 +4281,49 @@ ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density,
         geom_density_ridges(stat = "identity") + 
         scale_fill_discrete(type =theta.colors.light, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
-        labs(x = TeX("$4N_em$")) +
-        xlim(0,0.001)
+        labs(x = TeX("Divergence Time (generations x $\\mu)$")) +
+        xlim(0,0.00125)
   
 ds_violins <- ggplot(ds_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
         scale_fill_discrete(type = theta.colors.light, labels = parameter_key) +
-        ylim(0,0.001)
+        ylim(0,0.00125)
 # get stats for each summed-over-loci posterior
 
 ds_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = ds, 
                                                              parameter = .x),
                                       .id = "parameter")
 
-# write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
-# 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
-# # 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",ds_density)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",ds_ridges)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",ds_violins)
-# ds_ridges2 <- ds_ridges + theme(legend.position = "none")
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
+write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",ds_density)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",ds_ridges)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",ds_violins)
+ds_ridges2 <- ds_ridges + theme(legend.position = "none")
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
 
 ```
 
 D estimates:
 
-```{r, eval = F}
+```{r}
 ds_stats <- read_csv("tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
 ds_stats
 ```
 
 ![D Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg)
-Divergence time in coalescent units, following along on page 25 here.  @beerliPopulationGeneticInference2019
+Divergence time is in generations multiplied by expected mutations (gen * $\mu$), following along on page 25 here.  @beerliPopulationGeneticInference2019
 
-Assuming a 1 year generation time, and 1.2e-8 mutation rate 
+Assuming a 1 year generation time, and 1.2e-8 mutations/generation rate [@zhangEvolutionaryResponsesReefbuilding2022]
 
 ```{r}
 d <-mean(ds_stats$mode) #units of gen*mu
-gen <- 2
+gen <- 1
 t <- d / (1.2e-8 * gen)
 
 t
@@ -4333,15 +4335,15 @@ Divergence time is estimated at `r t` years before present
 
 ## Simulations with Migrate-derived parameters
 
-OK. Just double checking that the new results make sense. Here is the parmfile for a coalescent simulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and a migration rate that is `r mean(Ms_stats$mode)` times greater (`r 6e-6 * mean(Ms_stats$mode)`) (as Migrate found this ratio close to 1). From the present, there are 15 demes of `r mean(theta_stats$mode)/(4*1.2e-8)` effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At `r t` generations, there is a founder event of F individuals in one deme, which, at `r t+1` generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
+OK. Just double checking that the new results make sense. Here is the parmfile for a coalescent simulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and a migration rate that is `r mean(mmu_stats$mode)` times greater (`r 6e-6 * mean(mmu_stats$mode)`). From the present, there are 15 demes of `r mean(theta_stats$mode)/(4*1.2e-8)` effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At `r t` generations, there is a founder event of F individuals in one deme, which, at `r t+1` generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
 
 I have varied the simulations to test the effect of [F]ounder event as such:
 
-| Size of [F]ounding Population | [G]eneration Time (years) | Founding Time in Generations |
-|-------------------------------|---------------------------|------------------------------|
-| 10                            | 1                         | 58,496
-| 100                           | 2                         | 29,248
-| 10000                         | 3                         | 19,498
+| Size of [F]ounding Population |
+|-------------------------------|
+| 10                            |
+| 100                           |
+| 10000                         |
 
 
 ```{}
@@ -4356,7 +4358,7 @@ Migraine_Settings = F
 Nexus_File_Format = F
 
 %%%%%%%%%% MARKERS PARAMETERS %%%%%%%%%
-Locus_Number = 100
+Locus_Number = 109
 Mutation_Rate = 0.000006
 Mutation_Model = JC69
 MRCA_Sequence = TACTCTATATATTATGTTTGGTGTGTGATCTGGTTTAGTCGGGACTGCTTTGAGGCTCTTGATTCGAGCTGAACTTGGACAGCCAGGAGCTCTTTTAGGTGATGATCAACTTTATAATGTGATCGTCACTGCGCATGCATTTGTGATAATTTTTTTCTTGGTGATGCCTATGATGATTGGGGGATTCGGTAATTGGTTGGTTCCTTTAATGTTGGGGGCTCCTGATATGGCGTTCCCGCGGTTGAATAATATAAGTTTTTGGTTGCTTCCGCCTTCGTTGACTTTGTTGCTTGCTTCTTCTGCTGTTGAGAGTGGTGTAGGGACAGGTTGAACGGTTTATCCTCCTTTGTCTGGGAACTTAGCTCATGCTGGGGGTTCTGTGGATCTAGCTATCTTCTCGTTACACTTAGCTGGTGTATCTTCTATTTTAGGTGCTGTAAATTTTATTACTACGATCATTAATATGCGGTGACAGGGGATGCAATTTGAGCGGTTGCCTC
@@ -4376,22 +4378,20 @@ Lattice_Boundaries = Absorbing
 Total_Range_Dispersal = True
 Dispersal_Distribution = SteppingStone
 Immigration_Control = Simple1Dproduct
-Total_Emigration_Rate = 0.0003203168
+Total_Emigration_Rate = 0.002628559
 Dist_max = 1
 Lattice_SizeX = 15
 Lattice_SizeY = 1
-Ind_Per_Pop = 40283
+Ind_Per_Pop = 44324
 Continuous_Deme_Size_Variation = None
-Dens_Logistic_Growth_Rate = 0.3
 Continuous_Lattice_Size_Variation = None
-Lattice_Logistic_Growth_Rate = 0.3
 
-NewDemographicPhaseAt=29248
+NewDemographicPhaseAt=70962
 Lattice_SizeX = 1
 Lattice_SizeY = 1
 Ind_Per_Pop = 100
 
-NewDemographicPhaseAt=58498
+NewDemographicPhaseAt=70963
 Lattice_SizeX = 1
 Lattice_SizeY = 1
 Ind_Per_Pop = 100000
@@ -4402,7 +4402,6 @@ Ind_Per_Pop = 100000
 Sample_Coordinates_X = 1 3 6 8 11 12 13 14 15
 Sample_Coordinates_Y = 1 1 1 1 1  1  1  1  1
 Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
-
 
 ```
 
@@ -4421,7 +4420,7 @@ stats_haps <- basic.stats(haps)
 #read in the simulated data
 sims <- list()
 for(sim in list.files("IBDsim", pattern = "^second", include.dirs=T, full.names = T)){
-  simname <- sim %>% str_match("F\\d+_G.+") %>% as.character()
+  simname <- sim %>% str_match("F\\d+") %>% as.character()
   sims[simname] <- read.genepop(file.path(sim,"stepstone_radseq.gen"),
                                 ncode = 3,  quiet = T)
 }
@@ -4430,7 +4429,7 @@ for(sim in list.files("IBDsim", pattern = "^second", include.dirs=T, full.names 
 locus_fsts <- sims %>% map(\(x) basic.stats(genind2hierfstat(x)))
 locus_fsts$Observed <- stats_haps
 
-fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping=aes(x=Fst),binwidth = 0.01) +
+fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping=aes(x=Fst),binwidth = 0.005) +
                                 xlim(-0.05,0.2) + ylim(0,25) + labs(y = "locus count", x = TeX("$F_{ST}$")))
 
 cowplot::plot_grid(plotlist = fst_hists, labels = names(fst_hists), ncol=2)
@@ -4439,11 +4438,11 @@ cowplot::plot_grid(plotlist = fst_hists, labels = names(fst_hists), ncol=2)
 
 ```
 
-These results, particularly for a 2 or 3-year generation time, are quite reasonable. The observed values are more negative than the simulated values, for reasons I'm not quite sure of.
+These results are quite reasonable. The observed values have more variance than the simulated values, for reasons I'm not quite sure of, but are probably biological in nature.
 
 ### Check IBD
 
-Once again, getting reasonable results for 2 and 3-year generation times.
+Once again, getting reasonable results, with the simulated results looking more orderly than the empirical values.
 
 ```{r, warning=FALSE}
 #create a "geographic" distance matrix                  

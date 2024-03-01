@@ -4270,7 +4270,7 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(type = theta.colors, labels = parameter_key) +
+        scale_color_discrete(type =theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") + xlim(0,0.00125)
   
@@ -4279,7 +4279,7 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
 ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_fill_discrete(type =theta.colors, labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("Divergence Time (generations x $\\mu)$")) +
         xlim(0,0.00125)
@@ -4287,7 +4287,7 @@ ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density,
 ds_violins <- ggplot(ds_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
         ylim(0,0.00125)
 # get stats for each summed-over-loci posterior
 

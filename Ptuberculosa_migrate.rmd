@@ -4017,13 +4017,13 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
 
 write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
-#  
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.Dthetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
+ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
 #https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
 #to make multipanel figures
 ```
@@ -4220,15 +4220,15 @@ nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms,
 
 write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
  
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
- 
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
-nm_ridges2 <- nm_ridges + theme(legend.position = "none")
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
+#  
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
+# nm_ridges2 <- nm_ridges + theme(legend.position = "none")
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges_nolegend.pdf",nm_ridges2,width = 10.7, height = 6.42)
 
 ```
 
@@ -4270,7 +4270,7 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(type = theta.colors.light, labels = parameter_key) +
+        scale_color_discrete(type = theta.colors, labels = parameter_key) +
         geom_line(aes(x = x, y=prior), color = "grey",
                   linetype="dotted") + xlim(0,0.00125)
   
@@ -4279,7 +4279,7 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
 ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_fill_discrete(type =theta.colors.light, labels = parameter_key) +
+        scale_fill_discrete(type =theta.colors, labels = parameter_key) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("Divergence Time (generations x $\\mu)$")) +
         xlim(0,0.00125)
@@ -4287,7 +4287,7 @@ ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density,
 ds_violins <- ggplot(ds_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors.light, labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
         ylim(0,0.00125)
 # get stats for each summed-over-loci posterior
 
@@ -4295,17 +4295,17 @@ ds_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = ds,
                                                              parameter = .x),
                                       .id = "parameter")
 
-write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",ds_density)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",ds_ridges)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",ds_violins)
-ds_ridges2 <- ds_ridges + theme(legend.position = "none")
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
+# write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
+# 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
+# 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.pdf",ds_density)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.pdf",ds_ridges)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.pdf",ds_violins)
+# ds_ridges2 <- ds_ridges + theme(legend.position = "none")
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
 
 ```
 

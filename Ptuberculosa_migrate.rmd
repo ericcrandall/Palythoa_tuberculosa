@@ -3703,6 +3703,8 @@ model_letters <- c("C","B","A","G","H","J","I","D","E","F","K","L","N","O","P","
 final_model3 <- final_model3 %>% bind_cols(model_letters=model_letters) %>% arrange(model_letters)
 
 final_model3
+
+#write_csv(final_model3, "tables/final_model_table.csv")
 ```
 
 #### T-Test

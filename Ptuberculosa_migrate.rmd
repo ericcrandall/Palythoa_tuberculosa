@@ -285,16 +285,20 @@ ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
                 geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
                 ylab(expression(F["ST"]/1-F["ST"])) + 
               gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T,
-                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle"))) +
+                 theme(axis.text = element_text(size = rel(1.5)), 
+                                axis.title = element_text(size = rel(2)))
 
 #remove Oahu
 gen.dist.mat <- gen.dist.mat[-4,-4]
 geo.dist.mat <- geo.dist.mat[-4,-4]
 geo.dist <- as.dist(geo.dist.mat)
 gen.dist <- as.dist(gen.dist.mat)
-dist.df_withoutOahu <- dist.df %>% filter(row != "Oahu" | col != "Oahu")
+dist.df_withoutOahu <- dist.df %>% filter(row != "Oahu" & col != "Oahu")
 lmodel_withoutOahu <- lm(fst ~ distance , dist.df_withoutOahu)
 mantelt_withoutOahu <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+mantelt_withoutOahu
+
 slope <- round(lmodel_withoutOahu$coefficients[2],7)
 mantelr <- round(mantelt_withoutOahu$obs, 2)
 pvalue <- round(mantelt_withoutOahu$pvalue, 5)
@@ -306,6 +310,10 @@ ibd_plot_oahu <- ibd_plot_oahu +  geom_text(label = paste("m =", slope,
 
 ibd_plot_oahu
 
+dist.df_withoutOahu <- dist.df %>% filter(row == "Oahu" & col == "Oahu")
+lmodel_withOahu <- lm(fst ~ distance , dist.df.O)
+mantelt_withOahu <- mantel.randtest(dist(dist.df.O$fst), dist(dist.df.O$distance), nrepet=10000)
+mantelt_withOahu
 #ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
 ```
 
@@ -3711,7 +3719,7 @@ final_model3
 
 The two best models are stepping.stone.splitsD.KOsplitd (sequential colonization with gene flow north to south, then colonization of Kure from Oahu wihout gene flow 94% relative probability) and stepping.stone.breaks.KO (equilibrium gene flow with two lumped metapopulations in the NWHI and gene flow between Oahu and Kure). With 5 reps, there is no significant difference in marginal likelihood between these two.
 
-```{r eval = F}
+```{r}
 top.choice <- final_model3$model[which(final_model3$choice ==1)]
 second.choice <- final_model3$model[which(final_model3$choice ==2)]
 
@@ -4434,9 +4442,17 @@ locus_fsts$Observed <- stats_haps
 fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping=aes(x=Fst),binwidth = 0.005) +
                                 xlim(-0.05,0.2) + ylim(0,25) + labs(y = "locus count", x = TeX("$F_{ST}$")))
 
-cowplot::plot_grid(plotlist = fst_hists, labels = names(fst_hists), ncol=2)
+fst_hists_all<-cowplot::plot_grid(plotlist = fst_hists, labels = c("A","B","C","D"), nrow=2)
 
+ggsave("figures/final_figures/fst_hists_all_letters.pdf", fst_hists_all, width = 8, height = 5, units = "in" )
 
+fst_loci_distribution <- ggplot(locus_fsts$Observed$perloc, mapping=aes(x = Fst)) + geom_histogram() +
+                          geom_histogram(locus_fsts$F100$perloc, mapping=aes(x = Fst), fill = theta.colors[9], alpha = 0.5) +
+                          labs(y = "locus count", x = TeX("$F_{ST}$")) + 
+                          theme(axis.text = element_text(size = rel(1.5)), 
+                                axis.title = element_text(size = rel(2)))
+
+ggsave("figures/final_figures/fst_hists.pdf", fst_loci_distribution, width = 8, height = 5, units = "in" )
 
 ```
 
@@ -4458,15 +4474,33 @@ geo.dist <- as.dist(geo.dist.mat)
 # (WC Theta is not working for reasons I can't figure out, so using Nei 87)
 fsts <- sims %>% map(\(x) genet.dist(genind2hierfstat(x), method = "Nei87"))
 
-ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x))) + 
-                             geom_point(aes(x = Lattice_Dist, y = Fst)) + ylim(0,0.15) +
-                              labs(x = "Lattice Distance", y = TeX("$F_{ST}$")))
+ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x)), aes(x = Lattice_Dist, y = Fst)) + 
+                             geom_point() + ylim(-0.02,0.075) +
+                              labs(x = "Lattice Distance", y = TeX("$F_{ST}$")) + geom_smooth(method=lm, color = "blue") ) 
+                
+fst_haps.mat <- as.matrix(fst_haps)
 
-ibd_plots$Observed <- tibble(Geog_Dist = geo.dist, Fst = fst_haps) %>%  ggplot() + 
-                              geom_point(aes(x = Geog_Dist, y = Fst)) + ylim(0,0.15) +
-                              labs(x = "Kilometers", y = TeX("$F_{ST}$"))
+fst.df <- melt(fst_haps.mat)[melt(lower.tri(fst_haps))$value,]
+names(fst.df) <- c("row","col","fst")
+fst.df <- fst.df %>% bind_cols(geo=geo.dist)
 
-cowplot::plot_grid(plotlist = ibd_plots, labels = names(ibd_plots), ncol=2)
+oahu.fst <- fst.df %>% filter(row == "93OAPtu" | col == "93OAPtu")
+
+fst.df <- fst.df %>% filter(row != "93OAPtu" & col != "93OAPtu")
+
+
+
+
+ibd_plots$Observed <- fst.df %>%  ggplot(aes(x = geo, y = fst)) + 
+                              geom_point() + ylim(-0.02,0.075) +
+                              labs(x = "Kilometers", y = TeX("$F_{ST}$")) + 
+                              geom_smooth(method=lm, color = "blue") + 
+                              geom_point(oahu.fst, mapping=aes(x = geo, y = fst), col = "red")
+
+                              
+
+ibd_compare <- cowplot::plot_grid(plotlist = ibd_plots, labels = names(ibd_plots), ncol=2)
+#ggsave("figures/final_figures/ibd_compare.pdf", ibd_compare, width = 8, height = 5, units = "in" )
 #sim_dists.df <-  bind_cols(fst = as.dist(sim_haps_fst), distance = as.dist(sim_geo_dists))
 
 #mantelt_sims <- mantel.randtest(as.dist(sim_haps_fst),as.dist(sim_geo_dists), nrepet = 10000)

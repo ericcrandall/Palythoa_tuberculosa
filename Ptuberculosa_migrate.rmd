@@ -37,6 +37,7 @@ library(snpR)
 library(graph4lg)
 library(gghighlight)
 library(hierfstat)
+library(pophelper)
 source("../IBD_Kernels/IBD_functions.R")
 
 # Function library
@@ -332,6 +333,63 @@ ibd_plot_kure
 ```
 
 Kure still has a positive slope
+
+# Structure
+
+```{r}
+snps <- subset_snpR_data(snps, pop = -"Pioneer_Banks")
+
+
+#show mainparams and extraparams for loc and noloc setups
+
+#consider usepopinfo with mig_prior = 5.25e-6
+# consider non-admixture model!!
+```
+
+
+Command line for structure_threader
+
+```{bash}
+structure_threader run -K 9 -R 5 -t 45  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
+
+#for usepop
+structure_threader run -Klist 9 -R 5 -t 5  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
+```
+
+## Summarize results with 
+```{r}
+popmap <- read_tsv("popmap.tsv")
+# first load
+files <- list.files("structure/admix_loc/output/",pattern = "str",full.names = T)
+admix_loc <- readQ(files)
+admix_loc_tab <- tabulateQ(admix_loc)
+admix_loc_summ <- summariseQ(admix_loc_tab)
+evannoMethodStructure(admix_noloc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/admix_loc")
+
+admix_loc_align <- alignK(admix_loc, type = "across")
+admix_loc_merge <- mergeQ(admix_loc_align)
+admix_loc_p1 <- plotQ(admix_loc_align, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/admix_loc", 
+              grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
+              showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6)
+
+
+
+files <- list.files("structure/noadmix_loc/output/",pattern = "str",full.names = T)
+noadmix_loc <- readQ(files)
+noadmix_loc_tab <- tabulateQ(noadmix_loc)
+noadmix_loc_summ <- summariseQ(noadmix_loc_tab)
+evannoMethodStructure(noadmix_loc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/noadmix_loc")
+
+noadmix_loc_align <- alignK(noadmix_loc, type = "across")
+
+noadmix_loc_p1 <- plotQ(noadmix_loc_align, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/noadmix_loc",
+              grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
+              showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6)
+
+
+```
 
 # Haplotypes from dDocent
 
@@ -3637,7 +3695,7 @@ I ran all the models for 5 replicates during the month of January. The runs woul
 
 ## A strong prior on Oahu-Kure divergence?
 
-For models with Divergence between Oahu and Kure, I considered using the very stong prior below, whichcorresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
+For models with Divergence between Oahu and Kure, I considered using the very stong prior below, which corresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
 
 ```
 #for models with Divergence between Oahu and Kure
@@ -4156,7 +4214,7 @@ mmu_stats
 
 ```{r, eval = F}
 
-Nm_plot <- posteriors_long %>%  
+Nm_plot <- posterior_long %>%  
     filter(str_detect(parameter, "Nm_")) %>%  
     ggplot() + 
     geom_density(mapping = aes(x = value, group=Locus, color
@@ -4254,6 +4312,26 @@ nm_stats
 ![4Nm Ridges](./figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg)
 
 #### Divergence estimates
+
+##### Locus by Locus Plots
+
+```{r, eval = F}
+
+D_plot <- posterior_long %>%  
+    filter(str_detect(parameter, "D_")) %>%  
+    ggplot() + 
+    geom_density(mapping = aes(x = value, group=Locus, color
+                               =Locus), weight = 0.5) + 
+    scale_x_log10(limits=c(1e-7,0.01)) + 
+    facet_wrap(~parameter, scales = "free_y",
+               labeller = labeller(parameter= parameter_key), 
+               dir = "v",nrow=2) +
+    theme(axis.text.x = element_text(size = rel(0.6)))
+
+#ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_loci.pdf",D_plot,width = 10.7, height = 6.42)
+
+```
+
 
 ```{r, eval = F}
 parameter_type <- "D"

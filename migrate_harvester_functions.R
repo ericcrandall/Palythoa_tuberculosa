@@ -40,16 +40,14 @@ make_parameter_key <- function(Dir,popkeyname = "popkey.csv", posterior){
   popkey <- read_csv(file.path(Dir,popkeyname))
   names(popkey$Pop) <- popkey$Index
   #get all the parameter names from the posterior
-  posterior_parameters <- names(posterior) %>% str_subset("Theta|M_|Nm_|D_")
+  parameter_key <- names(posterior) %>% str_subset("Theta|M_|Nm_|D_")
   
-  parameter_key <- posterior_parameters %>% 
+  names(parameter_key) <- parameter_key %>% 
     str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
     str_replace("M_", "m/mu " ) %>% 
     str_replace("Theta_", "theta ") %>% 
     str_replace_all(popkey$Pop) %>% 
     str_replace("Nm_", "4Nem ") 
-  
-  names(parameter_key) <- posterior_parameters
   
   return(parameter_key)
 }
@@ -58,14 +56,16 @@ make_parameter_key <- function(Dir,popkeyname = "popkey.csv", posterior){
 # Functions for harvesting model marginal likelihoods from multiple models and doing model selection
 #
 #
-harvest.model.likelihoods <- function(workingDir = workingDir,
+harvest_model_likelihoods <- function(modelsDir,
                                       outfileName = "outfile.txt",
                                       multilocus = T){
   # this function harvests model marginal likelihoods for models calculated by
   # the program migrate-n (Beerli & Felsenstein 2001).
-  # It takes as input a directory full of directories, 
-  # each of which contains output from a migrate model, and is named
-  # after that model. 
+  # It takes as input a directory comprising multiple migrate models, each in its own directory (named after the model), 
+  # containing and outfile.txt for that model. 
+  # This function will find the marginal likelihoods (Thermodynamic, bezier-corrected and harmonic) 
+  # and harvest them into a data-frame.
+  # NOTE! still need to transfer code to harvest single-locus outputs
   
   #initialize a data frame to take the values
   modelMarglikes <- data.frame(model=character(),
@@ -74,8 +74,8 @@ harvest.model.likelihoods <- function(workingDir = workingDir,
                                harmonic=numeric()) 
   # loop through directories in the working directory, each of which is name
   # after a different model
-  for(i in list.dirs(workingDir, full.names = F)[-1]){ #i<-"stepping.stone"
-    modelDir<-file.path(workingDir,i)
+  for(i in list.dirs(modelsDir, full.names = F)[-1]){ #i<-"stepping.stone"
+    modelDir<-file.path(modelsDir,i)
     print(modelDir)
     #scan in the outfile, separating at each newline
     outfile<-scan(file=file.path(modelDir,outfileName),what="character",sep="\n") 
@@ -93,7 +93,7 @@ harvest.model.likelihoods <- function(workingDir = workingDir,
   return(modelMarglikes)
 }
 
-bfcalcs<-function(df,ml="bezier.corrected"){
+bf_calcs<-function(df,ml="bezier.corrected"){
   # This calculates log bayes factors on data frames output by
   # harvest.model.likelihoods(), following Johnson and Omland (2004)
   # You may choose the likelihood flavor with
@@ -110,7 +110,7 @@ bfcalcs<-function(df,ml="bezier.corrected"){
   return(dfall)
 }	
 
-migrants.per.gen<-function(x){
+migrants_per_gen<-function(x){
   #a function for creating 4Nm vectors out of m and Theta vectors.
   m<-names(x)[which(grepl("M_",names(x)))] #names of m columns
   #theta<-names(x)[which(grepl("Theta_",names(x)))] #names of theta columns
@@ -271,7 +271,7 @@ parameter_stats <- function(summarized_posterior, quantiles =  c(0.025, 0.25, 0.
   wmo <- p$x[which(p$y==max(p$y))]
   wme <- weighted.mean(p$x, p$y)
   wsd <- sqrt(weighted.var(p$x, p$y))
-  stats <- c(qu,mode = wmo, mean = wme, sd = wsd)
+  stats <- tibble_row(quantiles=list(qu),mode = wmo, mean = wme, sd = wsd[,1]) %>% unnest_wider(quantiles)
   return(stats)
 }
 
@@ -284,40 +284,52 @@ posterior_stats <- function(summarized_posterior, quantiles =  c(0.025, 0.25, 0.
   require(magrittr)
   require(purrr)
   require(stringr)
-  parameter_key <- parameter_key %>% str_subset(parameter_type)                            
-  df <- parameter_key %>% map_dfr(.f = ~ parameter_stats(summarized_posterior, parameter = .x),
-                             .id = "parameter")
+  #find the parameter type among the *names* of the parameter key
+  parameters <- parameter_key[grep(parameter_type, parameter_key)]  
+  
+  #setnames swaps the values and names of parameters, map creates a list output, list_rbind binds them into a tibble
+  df <- parameters %>%  
+        map(\(x) parameter_stats(thetas, quantiles = quantiles, parameter = x)) %>% list_rbind(names_to = "parameter")
   return(df)
 }
 
-plot_parameter_posteriors <- function(summarized_posterior, param_colors,
-                                      parameter_key, parameter_type = c("Theta","M","Nm","D"),
-                                      x_limits = c(0,1)){
+plot_parameter_posteriors <- function(summarized_posterior, parameter_key,
+                                      parameter_type = c("Theta","M","Nm","D"),
+                                      x_limits = c(0,1), param_colors = NULL){
+  #this function will create a ridge plot of parameters for a given parameter_type
+  #set x_limits to where you want the boundaries of the plot to fall on the x-axis
+  #param_colors can be a vector of colors the same length as the number of parameters
+  #you are plotting. If it is shorter, the function will generate colors from the
+  #turbo pallete of the viridis package.
   require(dplyr)
-  require(ggplot)
+  require(ggplot2)
   require(ggridges)
   require(tidyr)
   
-  parameter_key <- parameter_key %>% str_subset(parameter_type)
-  if(length(param_colors) < length(parameter_key)){
+  parameters <- parameter_key[grep(parameter_type, parameter_key)]
+  
+  if(length(param_colors) < length(parameters)){
     require(viridis)
-    param_colors <- turbo(n = length(parameter_key))
+    param_colors <- turbo(n = length(parameters))
   }
   
   # pivot to a long-format data frame
-  sp_long <- summarized_posterior %>% dplyr::select(all_of(c("x","prior",parameter_key))) %>% 
-               pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
+  sp_long <- summarized_posterior %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
+               pivot_longer(cols = !c(x,prior), 
                names_to = "Parameter",
                values_to = "Density")
   
  ridgeplot <- ggplot(sp_long, aes(x = x, y = Parameter, height = Density, 
                                          fill = Parameter)) +
               geom_density_ridges(stat = "identity") + 
-              scale_fill_discrete(type = param_colors, labels = parameter_key) +
-              scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
-              labs(x = parameter_type) + xlim(x_limits)
-
+              scale_fill_discrete(type = param_colors) +
+              scale_y_discrete(labels = NULL, breaks = NULL) +
+              labs(x = parameter_type) + xlim(x_limits) +
+              guides(fill = guide_legend(reverse=T))
+ return(ridgeplot)
 }
+
+
 
 
 

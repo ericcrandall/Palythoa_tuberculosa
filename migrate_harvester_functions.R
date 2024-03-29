@@ -329,7 +329,10 @@ plot_parameter_posteriors <- function(summarized_posterior, parameter_key,
  return(ridgeplot)
 }
 
-
-
+# TO DO
+#add coda-based functions to test for convergence
+#add locus-by-locus plot function
+#add single locus capability to harvester function
+#figure out why plot function is plotting things out of order
 
 

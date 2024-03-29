@@ -311,9 +311,9 @@ ibd_plot_oahu <- ibd_plot_oahu +  geom_text(label = paste("m =", slope,
 
 ibd_plot_oahu
 
-dist.df_withoutOahu <- dist.df %>% filter(row == "Oahu" & col == "Oahu")
-lmodel_withOahu <- lm(fst ~ distance , dist.df.O)
-mantelt_withOahu <- mantel.randtest(dist(dist.df.O$fst), dist(dist.df.O$distance), nrepet=10000)
+dist.df_O <- dist.df %>% filter(row == "Oahu" | col == "Oahu")
+lmodel_withOahu <- lm(fst ~ distance , dist.df_O)
+mantelt_withOahu <- mantel.randtest(dist(dist.df_O$fst), dist(dist.df_O$distance), nrepet=10000)
 mantelt_withOahu
 #ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
 ```
@@ -336,61 +336,191 @@ Kure still has a positive slope
 
 # Structure
 
-```{r}
-snps <- subset_snpR_data(snps, pop = -"Pioneer_Banks")
+I wanted to take a closer look at how Structure [@pritchardInferencePopulationStructure2000] sees these data. 'Ale'a had already tried with a location prior and admixture, but given low values of m below, I wanted to try without admixture and with an extra long MCMC chain (1 million steps)
+
+I also tried the USEPOPINFO setting to put an even stronger prior that the individuals did not move.
 
 
-#show mainparams and extraparams for loc and noloc setups
+## Parameter settings
 
-#consider usepopinfo with mig_prior = 5.25e-6
-# consider non-admixture model!!
+### MAINPARAMS
+```
+#define BURNIN 250000
+#define NUMREPS 1000000
+#define INFILE structure_infile
+#define OUTFILE structure_outfile
+#define NUMINDS 90
+#define NUMLOCI 24517
+#define PLOIDY 2
+#define MISSING -9
+#define ONEROWPERIND 0
+#define LABEL 1
+#define POPDATA 1
+#define POPFLAG 0
+#define LOCDATA 0
+#define PHENOTYPE 0
+#define EXTRACOLS 0
+#define MARKERNAMES 0
+#define RECESSIVEALLELES 0
+#define MAPDISTANCES 0
+#define PHASED 0
+#define PHASEINFO 0
+#define MARKOVPHASE 0
+#define NOTAMBIGUOUS -999
+```
+
+### EXTRAPARAMS (just changed NOADMIX to 1 for the no admixture runs)
+```
+#define NOADMIX 0
+#define LINKAGE 0
+#define USEPOPINFO 0
+#define LOCPRIOR 1
+#define FREQSCORR 1
+#define ONEFST 0
+#define INFERALPHA 1
+#define POPALPHAS 0
+#define ALPHA 5
+#define INFERLAMBDA 0
+#define POPSPECIFICLAMBDA 0
+#define LAMBDA 1
+#define FPRIORMEAN 0.012
+#define FPRIORSD 0.01
+#define UNIFPRIORALPHA 1
+#define ALPHAMAX 10
+#define ALPHAPRIORA 1
+#define ALPHAPRIORB 2
+#define LOG10RMIN -4.0
+#define LOG10RMAX 1.0
+#define LOG10RPROPSD 0.1
+#define LOG10RSTART -2.0
+#define GENSBACK 2
+#define MIGRPRIOR 0.01
+#define PFROMPOPFLAGONLY 0
+#define LOCISPOP 1
+#define LOCPRIORINIT 1
+#define MAXLOCPRIOR 20
+#define PRINTNET     1
+#define PRINTLAMBDA  1
+#define PRINTQSUM    1
+#define SITEBYSITE   0
+#define PRINTQHAT    0
+#define UPDATEFREQ   0
+#define PRINTLIKES   0
+#define INTERMEDSAVE 0
+#define ECHODATA     0
+#define ANCESTDIST   0
+#define NUMBOXES   1000
+#define ANCESTPINT 0.90
+#define COMPUTEPROB 1
+#define ADMBURNIN  0
+#define ALPHAPROPSD 0.025
+#define STARTATPOPINFO FALSE
+#define RANDOMIZE 0
+#define SEED 45196
+#define METROFREQ 10
+#define REPORTHITRATE 0
 ```
 
 
-Command line for structure_threader
+## Structure Threader
 
-```{bash}
+I used [Structure Threader](https://structure-threader.readthedocs.io/en/latest/) to run many values of K in parallel for 5 replicates each. Command line for structure_threader
+
+```{bash, eval = F}
 structure_threader run -K 9 -R 5 -t 45  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
 
 #for usepop
 structure_threader run -Klist 9 -R 5 -t 5  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
 ```
 
-## Summarize results with 
-```{r}
-popmap <- read_tsv("popmap.tsv")
-# first load
-files <- list.files("structure/admix_loc/output/",pattern = "str",full.names = T)
-admix_loc <- readQ(files)
-admix_loc_tab <- tabulateQ(admix_loc)
-admix_loc_summ <- summariseQ(admix_loc_tab)
-evannoMethodStructure(admix_noloc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/admix_loc")
+## Summarize results
 
-admix_loc_align <- alignK(admix_loc, type = "across")
-admix_loc_merge <- mergeQ(admix_loc_align)
-admix_loc_p1 <- plotQ(admix_loc_align, imgoutput = "join", returnplot = T,
-              exportplot = T, exportpath = "structure/admix_loc", 
+I used [pophelper](http://www.royfrancis.com/pophelper/) to calculate optimal K and summarize the results.
+
+### Admixture, location prior
+
+```{r, eval=F}
+popmap <- read_tsv("popmap.tsv")
+
+files <- list.files("structure/admix_loc/output/",pattern = "str",full.names = T)
+admix_loc <- readQ(files) #read in the files
+admix_loc_tab <- tabulateQ(admix_loc) #tabulate log-likelihoods
+admix_loc_summ <- summariseQ(admix_loc_tab) #take the mean across replicates
+evannoMethodStructure(admix_loc_summ,writetable = T,
+                      returnplot = T,exportplot = T, exportpath ="structure/admix_loc",
+                      xaxisbreaks = 1:9)
+
+admix_loc_align <- alignK(admix_loc, type = "auto") #align k clusters so they are the same across replicates (like clumpak)
+
+# summarize across replicates. This is not working because the sortQ function has 
+# been broken by recent updates to R. My Ks are alread sorted so I used the code from within the function thusly:
+#admix_loc_merge <- mergeQ(admix_loc_align) 
+        mergy<-function(x){
+            return(list(Reduce(`+`, x)/length(x)))
+        }
+ 
+      labels <- summariseQ(tabulateQ(admix_loc_align, sorttable = FALSE))$k
+      admix_loc_merged <- unlist(lapply(splitQ(admix_loc_align), mergy), recursive = FALSE)
+      admix_loc_merged <- admix_loc_merged[-1]
+
+#spit out a plot of all replicates to look at convergence
+admix_loc_all_plots <- plotQ(admix_loc_align, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/admix_loc", imgtype = "pdf", 
               grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
               showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6)
+#and the final plot
+admix_loc_p1 <- plotQ(admix_loc_merged, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/admix_loc", imgtype = "pdf",
+              grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
+              showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6,
+              showyaxis = F, showticks = F)
+```
+
+![Evanno Plot with admixture](structure/admix_loc/evannoMethodStructure.png)
+
+![Q Plot with admixture](structure/admix_loc/k1-9_Qplots.png)
 
 
 
+
+### No Admixture, Location Prior
+
+```{r, eval = F}
 files <- list.files("structure/noadmix_loc/output/",pattern = "str",full.names = T)
 noadmix_loc <- readQ(files)
 noadmix_loc_tab <- tabulateQ(noadmix_loc)
 noadmix_loc_summ <- summariseQ(noadmix_loc_tab)
-evannoMethodStructure(noadmix_loc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/noadmix_loc")
+evannoMethodStructure(noadmix_loc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/noadmix_loc",
+                      xaxisbreaks = 1:9)
 
 noadmix_loc_align <- alignK(noadmix_loc, type = "across")
 
-noadmix_loc_p1 <- plotQ(noadmix_loc_align, imgoutput = "join", returnplot = T,
-              exportplot = T, exportpath = "structure/noadmix_loc",
+#spit out a plot of all replicates to look at convergence
+noadmix_loc_all_plots <- plotQ(noadmix_loc_align, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/noadmix_loc", imgtype = "pdf",
               grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
               showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6)
 
 
+#Merging the results here yields garbage because the indiviudals are 
+# assigned to different clusters each time, so I 
+# am just showing results for the first replicate of each
+ 
+  noadmix_loc_merged <- noadmix_loc_align[c(6,11,16,21,26,31,36,41)]
+#and the final plot
+noadmix_loc_p1 <- plotQ(noadmix_loc_merged, imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "structure/noadmix_loc", imgtype = "pdf",
+              grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
+              showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6,
+              showyaxis = F, showticks = F)
+
+
 ```
 
+![Evanno Plot with no admixture](structure/noadmix_loc/evannoMethodStructure.png)
+
+
+![Q Plot with no admixture](structure/noadmix_k1-9_plots.png)
 # Haplotypes from dDocent
 
 ## Filter SNPs
@@ -1129,7 +1259,7 @@ stats <- stats[which(stats$length %in% migrate_lengths$length),]
 Write a space delimited textfile that can be added to the migrate data file in the format that Peter suggested.
 
 ```{r}
-stats <- read_csv("./migrate/run4/run4_locus_statistics.csv")
+stats <- read_csv("./tables/migrate_locus_statistics.csv")
 
 # write a space delimited textfile that can be added to the migrate data file
 # following Peter's suggestion here:
@@ -4433,6 +4563,7 @@ I have varied the simulations to test the effect of [F]ounder event as such:
 | 100                           |
 | 10000                         |
 
+### Haplotypes
 
 ```{}
 %%%%%%%%%% SIMULATION PARAMETERS %%%%%%%
@@ -4493,6 +4624,23 @@ Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
 
 ```
 
+### SNPs
+
+  I'm also doing this with 25K SNPs to see how Structure evaluates it.
+  
+```{}
+
+%%%%%%%%%% MARKERS PARAMETERS %%%%%%%%%
+Locus_Number = 25000
+Mutation_Rate = 0.000000012
+Mutation_Model = SNP
+Transition_Transversion_ratio = 2
+Equilibrium_Frequencies = 0.25 0.25 0.25 0.25
+Polymorphic_Loci_Only= False
+Ploidy = Diploid
+```
+
+
 ### Per-Locus FST
 Now read and plot the results
 
@@ -4522,7 +4670,7 @@ fst_hists <- locus_fsts %>% map(\(x) ggplot() + geom_histogram(x$perloc, mapping
 
 fst_hists_all<-cowplot::plot_grid(plotlist = fst_hists, labels = c("A","B","C","D"), nrow=2)
 
-ggsave("figures/final_figures/fst_hists_all_letters.pdf", fst_hists_all, width = 8, height = 5, units = "in" )
+#ggsave("figures/final_figures/fst_hists_all_letters.pdf", fst_hists_all, width = 8, height = 5, units = "in" )
 
 fst_loci_distribution <- ggplot(locus_fsts$Observed$perloc, mapping=aes(x = Fst)) + geom_histogram() +
                           geom_histogram(locus_fsts$F100$perloc, mapping=aes(x = Fst), fill = theta.colors[9], alpha = 0.5) +
@@ -4530,7 +4678,7 @@ fst_loci_distribution <- ggplot(locus_fsts$Observed$perloc, mapping=aes(x = Fst)
                           theme(axis.text = element_text(size = rel(1.5)), 
                                 axis.title = element_text(size = rel(2)))
 
-ggsave("figures/final_figures/fst_hists.pdf", fst_loci_distribution, width = 8, height = 5, units = "in" )
+#ggsave("figures/final_figures/fst_hists.pdf", fst_loci_distribution, width = 8, height = 5, units = "in" )
 
 ```
 

@@ -1,0 +1,16 @@
+vertex,island,haole_name,sector,sampled,label,lat,long
+1,Hawai'i,Hawaii,black,black,HI,19.718583,-155.450948
+2,Maui,Maui,black,black,MI,20.749399,-156.296895
+3,Moloka'i,Moloka'i,black,black,MK,21.1444,-157.0226
+4,Oahu,Oahu,black,black,OU,21.400363,-157.818501
+5,Kaua'i,Kauai,black,black,KI,22.124792,-159.581807
+6,Nihoa,Nihoa,gray75,gray50,NI,23.1,-161.966667
+7,Mokumanamana,Necker,gray75,gray50,MO,23.360741,-164.539902
+8,Lalo,French Frigate,gray75,black,LA,23.750278,-166.166667
+9,Onumui_Onuiki,Gardner,gray75,gray50,ON,24.852362,-168.029907
+10,Kamokuokamohoali'i,Maro,gray75,black,KO,25.449043,-170.65564
+11,Kamole,Laysan,gray75,gray50,KM,26.005642,-171.966382
+12,Kapou,Lisianski,gray75,gray50,KA,26.03291,-173.973511
+13,Manawai,Pearl & Hermes,gray75,black,MA,27.833333,-175.833333
+14,Kuaihelani,Midway,gray75,gray50,KU,28.271308,-177.412231
+15,Holaniku,Kure,gray75,black,HO,29.1,-179

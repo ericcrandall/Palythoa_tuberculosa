@@ -1,0 +1,49 @@
+# usage: Rscript run_ConStruct_K.R K T n.chains n.iter conStruct.data popmap popdists
+# where K is the number of layers (i.e. Structure clusters) to be included in the analysis
+# and T (or F) indicates whether to run the spatial model
+# n.chains is the number of MCMC chains
+# conStruct.data is an .RData object with conStruct formatted data
+# latlongs.name is a csv file of lat longs of each individual
+# ind.geog.dists.name is a csv file of individual pairwise distances
+
+require(tidyverse)
+require(conStruct)
+
+args = commandArgs(trailingOnly=TRUE)
+
+
+if (length(args) < 4) {
+  stop("Must supply K, spatial(T/F), n.chains, n.iter in this order", call.=FALSE)
+}
+#putting a . in front of an object exempts it from the rm(ls()) statements
+K <- args[1] %>% as.numeric()
+spatial <- args[2] %>% as.logical()
+n.chains <- args[3] %>% as.numeric()
+n.iter <- args[4] %>% as.numeric()
+conStruct.data.name <- args[5] %>% as.character()
+latlongs.name <- args[6] %>% as.character()
+ind.geog.dists.name <- args[7] %>% as.character()
+
+
+if(spatial){
+  prefix <- "sp"
+}else{
+  prefix <- "nonsp"
+}
+
+## Read and Convert Data
+print("Reading In The Data and Converting it for use by ConStruct")
+load(conStruct.data.name) 
+latlongs<- read_csv(latlongs.name) %>% as.matrix()
+ind_geog_dists <- read.csv(file = ind.geog.dists.name,header =T) %>% as.matrix()
+
+
+## Run a spatial model
+print(c("Running a conStruct model for K = ",K, "spatial = ", spatial))
+spatial9 <- conStruct(spatial = T, K = K,
+                      freqs = freqs,
+                      geoDist = ind_geog_dists,
+                      coords = latlongs,
+                      prefix = paste(prefix,"K",K, sep = "_"),
+                      n.iter = n.iter,
+                      n.chains = n.chains)

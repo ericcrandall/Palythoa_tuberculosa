@@ -17,7 +17,7 @@ marg_like_list <- list()
 for(r in 1:5){
   rep = paste0("rep",r)
   print(rep)
-  marg_like_list[[rep]] <- harvest_model_likelihoods(modelsDir=file.path(repDir,rep))
+  marg_like_list[[rep]] <- harvest_model_likelihoods(modelsDir=file.path(repsDir,rep))
 }
 
 ## Use bf_calcs to perform model selection for each replicate...

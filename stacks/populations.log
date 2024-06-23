@@ -1,0 +1,92 @@
+populations v2.55, executed 2024-06-07 15:09:31 (zlib-1.2.13)
+populations -P ./ -O ./SNPs_mac3_ind50 -M ../popmap -R 50 --max-obs-het 0.5 -B ./blast/Symbio_blacklist.txt --min-mac 3 --write-random-snp --hwe --vcf --genepop --treemix --phylip
+Locus/sample distributions will be written to './SNPs_mac3_ind50/populations.log.distribs'.
+populations parameters selected:
+  Percent samples limit per population: 0
+  Locus Population limit: 1
+  Percent samples overall: 0.5
+  Minor allele frequency cutoff: 0
+  Maximum observed heterozygosity cutoff: 0.5
+  Applying Fst correction: none.
+  Pi/Fis kernel smoothing: off
+  Fstats kernel smoothing: off
+  Bootstrap resampling: off
+
+Parsing population map...
+The population map contained 90 samples, 9 population(s), 1 group(s).
+Loaded 325 blacklisted markers.
+Working on 90 samples.
+Working on 9 population(s):
+    Kure: 187KURPtu, 188KURPtu, 190KURPtu, 191KURPtu, 192KURPtu, 193KURPtu, 197KURPtu, 198KURPtu, 202KURPtu, 204KURPtu
+    P&H: 178PHPtu, 179PHPtu, 180PHPtu, 181PHPtu
+    MaroReef: 164MRPtu, 165MRPtu, 169MRPtu, 172MRPtu, 175MRPtu
+    FFS: 149FFSPtu, 150FFSPtu, 151FFSPtu, 152FFSPtu, 153FFSPtu, 158FFSPtu, 159FFSPtu, 160FFSPtu, 161FFSPtu
+    Kauai: 445KAPtu, 451KAPtu, 458KAPtu, 460KAPtu, 461KAPtu, 469KAPtu, 471KAPtu, 478KAPtu, 480KAPtu, 481KAPtu, 482KAPtu, 483KAPtu, 485KAPtu, 
+           486KAPtu, 491KAPtu
+    Oahu: 113OAPtu, 117OAPtu, 123OAPtu, 127OAPtu, 129OAPtu, 132OAPtu, 133OAPtu, 137OAPtu, 92OAPtu, 93OAPtu
+    Molokai: 314MOPtu, 317MOPtu, 319MOPtu, 322MOPtu, 326MOPtu, 330MOPtu, 332MOPtu, 348MOPtu, 350MOPtu, 352MOPtu
+    Maui: 220MAPtu, 222MAPtu, 228MAPtu, 233MAPtu, 238MAPtu, 246MAPtu, 78MAPtu, 79MAPtu, 80MAPtu, 85MAPtu
+    BigIsland: 393BIPtu, 397BIPtu, 398BIPtu, 399BIPtu, 405BIPtu, 408BIPtu, 412BIPtu, 413BIPtu, 414BIPtu, 415BIPtu, 420BIPtu, 421BIPtu, 422BIPtu, 
+               423BIPtu, 424BIPtu, 428BIPtu, 429BIPtu
+Working on 1 group(s) of populations:
+    defaultgrp: Kure, P&H, MaroReef, FFS, Kauai, Oahu, Molokai, Maui, BigIsland
+
+SNPs and calls will be written in VCF format to './SNPs_mac3_ind50/populations.snps.vcf'
+Polymorphic sites in GenePop format will be written to './SNPs_mac3_ind50/populations.snps.genepop'
+Warning: Genepop: The order in which samples appear was modified (as the input population map is not sorted).Per-population SNP allele counts will be written to './SNPs_mac3_ind50/populations.treemix'
+Fixed difference sites in Phylip format will be written to './SNPs_mac3_ind50/populations.fixed.phylip'
+Raw haplotypes will be written to './SNPs_mac3_ind50/populations.haplotypes.tsv'
+Population-level summary statistics will be written to './SNPs_mac3_ind50/populations.sumstats.tsv'
+Population-level haplotype summary statistics will be written to './SNPs_mac3_ind50/populations.hapstats.tsv'
+
+Processing data in batches:
+  * load a batch of catalog loci and apply filters
+  * compute SNP- and haplotype-wise per-population statistics
+  * compute SNP- and haplotype-wise deviation from HWE
+  * write the above statistics in the output files
+  * export the genotypes/haplotypes in specified format(s)
+More details in './SNPs_mac3_ind50/populations.log.distribs'.
+Now processing...
+Batch 1 
+
+Removed 2146561 loci that did not pass sample/population constraints from 2152778 loci.
+Kept 6217 loci, composed of 2370236 sites; 62823 of those sites were filtered, 2896 variant sites remained.
+Number of loci with PE contig: 6217.00 (100.0%);
+  Mean length of loci: 371.25bp (stderr 1.46);
+Number of loci with SE/PE overlap: 6216.00 (100.0%);
+  Mean length of overlapping loci: 381.24bp (stderr 1.46); mean overlap: 31.00bp (stderr 0.00);
+Mean genotyped sites per locus: 381.24bp (stderr 1.46).
+
+Population summary statistics (more detail in populations.sumstats_summary.tsv):
+  Kure: 7.1378 samples per locus; pi: 0.10613; all/variant/polymorphic sites: 2369320/2895/1221; private alleles: 4
+  P&H: 2.3261 samples per locus; pi: 0.1143; all/variant/polymorphic sites: 2319000/2806/635; private alleles: 1
+  MaroReef: 3.7857 samples per locus; pi: 0.11383; all/variant/polymorphic sites: 2360712/2879/942; private alleles: 4
+  FFS: 5.2115 samples per locus; pi: 0.11677; all/variant/polymorphic sites: 2365135/2889/1180; private alleles: 3
+  Kauai: 9.8015 samples per locus; pi: 0.10854; all/variant/polymorphic sites: 2370176/2896/1606; private alleles: 22
+  Oahu: 5.2932 samples per locus; pi: 0.11233; all/variant/polymorphic sites: 2367989/2892/1109; private alleles: 3
+  Molokai: 5.9489 samples per locus; pi: 0.1195; all/variant/polymorphic sites: 2369764/2896/1327; private alleles: 7
+  Maui: 3.8851 samples per locus; pi: 0.11284; all/variant/polymorphic sites: 2343348/2846/945; private alleles: 0
+  BigIsland: 12.323 samples per locus; pi: 0.1129; all/variant/polymorphic sites: 2370176/2896/1919; private alleles: 34
+
+Number of variable sites found to be significantly out of Hardy-Weinberg equilibrium (<0.05):
+  Kure: 27
+  P&H: 0
+  MaroReef: 9
+  FFS: 27
+  Kauai: 40
+  Oahu: 4
+  Molokai: 29
+  Maui: 8
+  BigIsland: 122
+Number of loci found to be significantly out of Hardy-Weinberg equilibrium (<0.05):
+  Kure: 4910
+  P&H: 5265
+  MaroReef: 5122
+  FFS: 4933
+  Kauai: 4590
+  Oahu: 4991
+  Molokai: 4804
+  Maui: 5059
+  BigIsland: 4361
+(more detail in populations.sumstats.tsv and populations.hapstats.tsv)
+Populations is done.

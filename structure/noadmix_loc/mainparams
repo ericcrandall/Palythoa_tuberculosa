@@ -2,8 +2,8 @@
 #define NUMREPS 1000000
 #define INFILE structure_infile
 #define OUTFILE structure_outfile
-#define NUMINDS 90
-#define NUMLOCI 24517
+#define NUMINDS 72
+#define NUMLOCI 2833
 #define PLOIDY 2
 #define MISSING -9
 #define ONEROWPERIND 0

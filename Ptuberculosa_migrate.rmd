@@ -38,6 +38,7 @@ library(graph4lg)
 library(gghighlight)
 library(hierfstat)
 library(pophelper)
+library(conStruct)
 source("../IBD_Kernels/IBD_functions.R")
 
 # Function library
@@ -119,53 +120,315 @@ From Rob:
 'Ale'a:
 
 > Mahalo for checking out our data Eric, would be great to try out Migrate-n and see what results come of it. A couple other folks in the lab had similar interesting fst/structure results with their data (corals and fish) where O'ahu is more genetically similar to Kure/Midway atoll than to neighboring islands. Would be interesting to see if we get any cool results as Rob mentioned with military transport b/w O'ahu and Midway during WWII.
-I can send along my TotalRawSNPs and Filtered vcf files through scp command if you have a destination path you can provide me. Please let me know what other info you need from me, happy to send along.
-
-Eric:
-
->So it turns out that dDocent (or actually an associated perl script) can make haplotypes, but it will need the bam files for each individual. Supposedly we have unlimited storage on Google Drive at PSU, so I’m going to test that. I’ve shared a folder that you can use to upload the bam files.
-
 
 # Transfer files
 
-So, now I've received all .bam and .bai files for each individual, as well as locality metadata and total and filtered SNP datasets from 'Ale'a on Google Drive. I compressed these on my mac, and now need to transfer them to Argonaute. I will do this with the gdown python package (pip install gdown). This involves looking up the google id for each file in the URL of the share link and pasting that into gdown thusly
+'Ale'a placed all the files into a shared folder on OneDrive. To copy them to orbicella I used `rclone`, following [these instructions](https://rclone.org/remote_setup/) to authenticate.
 
-```{bash eval=F}
-gdown https://drive.google.com/uc?id=19nagmzHPQgKE4PPlyHikcWc7lBZFMbXB --output ptuberculosa_metadata.csv
-gdown https://drive.google.com/uc?id=19g9fMRdPH-_AG-l6kytu-lv6kd3qYpQD --output popmap
-gdown https://drive.google.com/uc?id=1ASB4yOnwDzDhFPA7Pev4CyIl6M6SX8_P --output popmap.csv
-gdown https://drive.google.com/uc?id=19ZsobdvBIs3bQukW0Q-ivpdlJEdGguns --output reference.fasta
-gdown https://drive.google.com/uc?id=19XNrJvZKMQ3L7qTIuExajc5KY6-gj3P8 --output mm0.9minq30mac3thin500.recode.vcf
-gdown https://drive.google.com/uc?id=19vth-3IMkfMfxq4cp0QLOUgC2yFqnZ3C --output TotalRawSNPs.vcf
-gdown https://drive.google.com/uc?id=1I0ib-QX4eyedctD951os6gvAMUe761JU --output bam_files.zip
-
-
-gdown https://drive.google.com/uc?id=1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
+```{bash eval = F}
+rclone copy -v  EDC_OneDrive:Documents/Research/Ptuberculosa/raw_reads ./ 
 ```
 
-# Isolation by Distance
 
-## Load the Data
 
-I'm going to use Will Hemstrom's new snpR package for the basic stats. It attaches sample metadata as "facets" to the datasets
+# SNPs and Haplotypes from Stacks
+
+
+## Process RadTags and Rename Files
+
+'Ale'a said:
+
+>It was an ezRAD protocol developed by the Tobo lab. The restriction enzymes used were both MboI and Sau3AI. The sequences have indexes removed but still need to be trimmed/ends cleaned.
+
+So I will process the radtags to remove adapters and the sau3AI cut site (GATC, which is the same as MboI).
+This command cleans data removing reads with uncalled bases, low phred scores, rescue barcodes and rad-tags.
+
+```{bash eval = F}
+
+process_radtags -p ./raw/ -o ./cleaned/ --rescue --clean --quality --paired --filter_illumina --renz-1 sau3AI \
+--adapter-1 AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+--adapter-2 AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+
+```
+
+> 724964572 total sequences
+        0 failed Illumina filtered reads (0.0%)
+227835784 reads contained adapter sequence (31.4%)
+        0 barcode not found drops (0.0%)
+ 28941251 low quality read drops (4.0%)
+ 63374437 RAD cutsite not found drops (8.7%)
+404813100 retained reads (55.8%)
+
+Hmm... gotta rename the cleaned files too
+
+```{bash eval = F}
+cd cleaned
+for f in *001.1.fq.gz
+do
+mv $f ${f/_R[12]_001.1.fq.gz/.1.fq.gz}
+done
+
+for f in *001.2.fq.gz
+do
+mv $f ${f/_R[12]_001.2.fq.gz/.2.fq.gz}
+done
+
+for f in *L005.1.fq.gz
+do
+mv $f ${f/_S*_L005.1.fq.gz/.1.fq.gz}
+done
+
+for f in *L005.2.fq.gz
+do
+mv $f ${f/_S*_L005.2.fq.gz/.2.fq.gz}
+done
+
+for f in *rem.1.fq.gz
+do
+mv $f ${f/_S*_L005_R1_001.rem.1.fq.gz/.rem.1.fq.gz}
+done
+
+for f in *rem.2.fq.gz
+do
+mv $f ${f/_S*_L005_R2_001.rem.2.fq.gz/.rem.2.fq.gz}
+done
+
+```
+
+## R80 Dataset fromt the Stacks Pipeline
+
+I'm going to try to find the R80 parameter set [@parisLostParameterSpace2017], which is the set of stacks parameters (m, M and n) that yield the highest number of variant loci. I will run across 9 different parameter combinations as below.
+
+```{bash eval = F}
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_332 --paired \
+-m 3 -M 3 -n 2 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_333 --paired \
+-m 3 -M 3 -n 3 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_334 --paired \
+-m 3 -M 3 -n 4 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_365 --paired \
+-m 3 -M 6 -n 5 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_366 --paired \
+-m 3 -M 6 -n 6 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_367 --paired \
+-m 3 -M 6 -n 7 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_398 --paired \
+-m 3 -M 9 -n 8 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_399 --paired \
+-m 3 -M 9 -n 9 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+denovo_map.pl --samples ./cleaned/ --popmap popmap --out-path ./stacks_output_3910 --paired \
+-m 3 -M 9 -n 10 --min-samples-per-pop 80 -T 12 -X "populations: --fasta-samples" -X "populations: --fasta-loci"\ 
+-X "populations: --write-random-snp" -X "populations: --vcf"
+
+```
+
+Determine R80 via this line from Rivera-Colon
+
+```{bash eval = F}
+cat populations.sumstats.tsv | grep -v '^#' | cut -f 1 | sort -n -u | wc -l
+
+```
+
 
 ```{r}
-snps<-read_vcf("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/mm0.9minq30mac3thin500.recode.vcf")
+R80 <- read_csv("tables/R80.csv") %>% mutate(Parameter_Set = factor(Parameter_Set, levels = Parameter_Set, ordered=T))
 
-labels <- read_tsv("/Users/eric/Library/CloudStorage/GoogleDrive-edc5240@psu.edu/My Drive/ptuberculosa/Ptuberculosa_data/labels.txt") %>% arrange(name) %>% mutate(island)
+r80plot <- R80 %>% ggplot(aes(x = Parameter_Set, y = Variant_Loci, group = 1)) + geom_point() + geom_path()
 
-labels <- labels %>% mutate(region = case_when(island %in% c("Big Island","Maui","Molokai","Oahu","Kauai") ~ "High",
+r80plot
+
+#ggsave("figures/final_figures/R80.pdf",r80plot)
+```
+
+## Find Symbiont Loci
+
+Raul Gonzalez-Pech kindly provided a FASTA file of all Symbiodinium genomes onto our server. I am going to blast the R80 `populations.loci.fa` file against it, following along [here](https://angus.readthedocs.io/en/2019/running-command-line-blast.html).
+
+First I need to create a database from Raul's FASTA file
+
+```{bash, eval = F}
+makeblastdb -in All_Symbiodiniacea_genomes.fasta -dbtype nucl
+
+Building a new DB, current time: 06/05/2024 21:23:37 
+New DB name:   /data/home/common_data/Symbiodiniaceae_genomes/Symbiodiniacea
+New DB title:  All_Symbiodiniacea_genomes.fasta
+Sequence type: Nucleotide
+Keep MBits: T
+Maximum file size: 3000000000B
+Adding sequences from FASTA; added 1136861 sequences in 129.668 seconds.
+
+
+```
+
+```{bash, eval = F}
+blastn -query ../populations.loci.fa -db  /data/home/common_data/Symbiodiniaceae_genomes/All_Symbiodiniacea_genomes.fasta -outfmt 6 -out SNPquery.tsv
+
+```
+
+Filter the list to evalues < 10E-15, and write them out as a blacklist to be filtered out by `populations`
+
+```{r, eval = F}
+blast <- read_tsv("stacks/blast/Symbiont_blast.tsv") %>% filter(Evalue < 10e-15)
+
+blacklist <- unique(blast$StacksLocus) %>% str_remove("CLocus_") %>% as.numeric()
+
+length(blacklist)
+
+write.csv(blacklist, "stacks/blast/Symbio_blacklist.txt", header = F, quote = F)
+```
+
+## SNPs
+
+### Filter to create final SNP dataset
+
+#### Filter in Populations
+
+So 325 loci match to Symbiodinium.
+
+I'll use `populations` to create a VCF and Genepop output with populations that removes the symbiont loci, and otherwise filters such that loci are found in 50% of individuals, minimum allele count of 3, max observed heterozygosity is 0.5
+
+```{bash eval = F}
+populations -P ./ -O ./SNPs_mac3_ind50 -M ../popmap -R 50 --max-obs-het 0.5 -B ./blast/Symbio_blacklist.txt --min-mac 3 --write-random-snp --hwe --vcf --genepop --treemix --phylip 
+
+Removed 2146561 loci that did not pass sample/population constraints from 2152778 loci.
+Kept 6217 loci, composed of 2370236 sites; 62823 of those sites were filtered, 2896 variant sites remained.
+Number of loci with PE contig: 6217.00 (100.0%);
+  Mean length of loci: 371.25bp (stderr 1.46);
+Number of loci with SE/PE overlap: 6216.00 (100.0%);
+  Mean length of overlapping loci: 381.24bp (stderr 1.46); mean overlap: 31.00bp (stderr 0.00);
+Mean genotyped sites per locus: 381.24bp (stderr 1.46).
+```
+
+#### Filter with snpR
+
+I'm going to use Will Hemstrom's new snpR package for filtering and basic stats. It attaches sample metadata as "facets" to the datasets
+
+```{r, eval = F}
+snps<-read_vcf("stacks/populations.snps.vcf")
+
+labels <- read_tsv("stacks/labels.txt")
+
+labels <- labels %>% mutate(region = case_when(island %in% c("Hawaii","Maui","Molokai","Oahu","Kauai") ~ "High",
                                       .default = "Low"      ))
 
 sample.meta(snps)$pop <- str_replace_all(labels$island," ","_")
 sample.meta(snps)$region <- labels$region
 
+snps <- filter_snps(snps, hwe = 1e-6, min_loci = 0.5)
+
+format_snps(snps, output = "structure", facets = "pop", outfile = "Ptuberculosa_filtered_SNPs.stru")
+format_snps(snps, output = "genepop", facets = "pop", outfile = "Ptuberculosa_filtered_SNPs.gen")
+format_snps(snps, output = "vcf", facets = "pop", outfile = "Ptuberculosa_filtered_SNPs.vcf", chr = "CHROM")
+format_snps(snps, output = "ac", facets = "pop", outfile = "Ptuberculosa_filtered_SNPs_allele_counts.txt")
+write_tsv(sample.meta(snps, "pop"), "popmap72.tsv")
+```
+
+```{bash, eval = F}
+Filtering loci. Starting loci: 2896 
+Filtering non-biallelic loci...
+	0 bad loci
+Filtering non_polymorphic loci...
+	0 bad loci
+Filtering loci out of hwe...
+	 61  bad loci
+	Ending loci: 2835 
+Filtering individuals. Starting individuals: 90 
+Filtering out individuals sequenced in few kept loci...
+Re-calculating and adding facets.
+	Ending individuals: 72 
+Re-filtering loci...
+Filtering non_polymorphic loci...
+	2 bad loci
+	Final loci count: 2833 
 ```
 
 
-## Calculate Distance Matrices
+63 loci were removed by the HWE filter, for a final total of 2833. 18 individuals were removed for having genotypes for less than 50% of loci for a final total of 72 individuals in the SNP dataset. 
 
-### Calculate Fst
+## Haplotypes
+
+Now I need to re-run `populations` to get haplotypes. More stringent requirements that the locus appear in 75% of all individuals across all populations. Write the fasta-samples-raw for fasta2genotype to operate on.
+
+```{bash eval = F}
+populations -P ../ -O ./ -M ../popmap -t 12 -p 9 -r 75 -H -B ./blast/Symbio_blacklist.txt  --hwe --fstats --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw 
+```
+
+### Fasta2Genotype
+
+Paul Maier created [this script](http://www.mountainmanmaier.com/software/) to convert Stacks haplotypes to migrate format. I had to remove all the [individualName] tokens from the populations.samples.fa to get it to work.
+
+```{bash eval = F}
+python2 /Applications/migrate/migrate-4.4.4/fasta2genotype/fasta2genotype.py populations.samples2.fa NA ../popmap.tsv  populations.snps.vcf ptuberculosa.mig
+
+```
+
+```{bash, eval = F}
+###################################################################
+###                                                             ###
+###       Fasta2Genotype | Data Conversion | Version 1.10       ###
+###                                                             ###
+###                        Cite as follows:                     ###
+###                                                             ###
+###   Maier P.A., Vandergast A.G., Ostoja S.M., Aguilar A.,     ###
+###   Bohonak A.J. (2019). Pleistocene glacial cycles drove     ###
+###   lineage diversification and fusion in the Yosemite toad   ###
+###   (Anaxyrus canorus). Evolution, in press.                  ###
+###   https://www.doi.org/10.1111/evo.13868                     ###
+###                                                             ###
+###################################################################
+
+Output type? [1] Migrate [2] Arlequin [3] DIYABC [4] LFMM [5] Phylip [6] G-Phocs [7] Treemix [8] Haplotype: 1
+Remove restriction enzyme or adapter sequences? These may bias data. [1] Yes [2] No: 2
+Coverage Cutoff (number reads for locus)? Use '0' to ignore coverage: 0
+Remove monomorphic loci? [1] Yes [2] No: 2
+Remove loci with excess heterozygosity? This can remove paralogs. [1] Yes [2] No: 1
+Maximum heterozygosity cutoff for removing loci out of Hardy-Weinberg? 0.5
+Filter for allele frequency? False alleles might bias data. [1] Yes [2] No: 2
+Filter for missing genotypes? These might bias data. [1] Yes [2] No: 2
+ 
+**************************************************************************************************************
+***                                       ... BEGINNING CONVERSION ...                                     ***
+**************************************************************************************************************
+ 
+Cataloging loci...
+Counting locus lengths...
+Cataloging populations...
+Counting gene copies...
+Counting alleles for each locus...
+Identifying loci with excess heterozygosity...
+     Calculating observed heterozygosity and homozygosity...
+     Calculating expected heterozygosity and homozygosity...
+     Flagging loci with excess heterozygosity for removal...
+     Removing loci...
+Outputting migrate-n file...
+*** DONE! ***
+```
+
+Then I manually re-ordered the populations to run from north to south in the output file, and moved it into the migrate folder.
+
+# Isolation by Distance
+
+## SNPs
+
+### Calculate Distance Matrices
+
+#### Calculate Fst
 
 Calculate Fst ($\theta_{WC}$) of Weir and Cockerham.
 
@@ -175,15 +438,15 @@ snps <- calc_pairwise_fst(snps,"pop",fst_over_one_minus_fst = F,verbose=T,
 fst <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$fst
 fstps <- get.snpR.stats(snps,facets = "pop",stats = "fst")$fst.matrix$pop$p
 #FDR correction to q-values
-fstqs <- fstps[,2:10] %>% as.matrix %>% as.vector %>% p.adjust("BY") %>%
-            matrix(ncol = 9) %>% bind_cols(fstps[,1]) %>% relocate(p1)
+fstqs <- fstps[,2:9] %>% as.matrix %>% as.vector %>% p.adjust("BY") %>%
+            matrix(ncol = 8) %>% bind_cols(fstps[,1]) %>% relocate(p1)
 names(fstqs) <- names(fstps)
 
 #add extra row and column to the data frame, then make it a square matrix
-fst <- tibble(fst) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
-fst <- as.matrix(fst[,2:11])
-fstqs <- tibble(fstqs) %>% add_column(Hawaii = rep(NA,9),.before = 2) %>% add_row(.after = 9)
-fstqs <- as.matrix(fstqs[,2:11])
+fst <- tibble(fst) %>% add_column(French_Frigate_Shoals = rep(NA,8),.before = 2) %>% add_row(.after = 8)
+fst <- as.matrix(fst[,2:10])
+fstqs <- tibble(fstqs) %>% add_column(French_Frigate_Shoals = rep(NA,8),.before = 2) %>% add_row(.after = 8)
+fstqs <- as.matrix(fstqs[,2:10])
 #set diagonal equal to zero
 diag(fst) <- 0
 diag(fstqs) <- 0
@@ -193,12 +456,12 @@ dimnames(fst)[[1]] <- dimnames(fst)[[2]]
 
 fstqs[lower.tri(fstqs)] <- t(fstqs)[lower.tri(fstqs)]
 dimnames(fstqs)[[1]] <- dimnames(fstqs)[[2]]
-#reorder and also drop pioneer banks, which has n = 3
+#reorder
 #fst <- fst[c(1,6,7,8,3,2,5,9,4),c(1,6,7,8,3,2,5,9,4)] # this is south to north
-fst <- fst[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)] # this is north to south
+fst <- fst[c(4,9,5,1,3,8,7,6,2),c(4,9,5,1,3,8,7,6,2)] # this is north to south
 fst_dist <- as.dist(t(fst), diag = T)
 
-fstqs <- fstqs[c(4,9,5,2,3,8,7,6,1),c(4,9,5,2,3,8,7,6,1)]
+fstqs <- fstqs[c(4,9,5,1,3,8,7,6,2),c(4,9,5,1,3,8,7,6,2)]
 fstqs_dist <- as.dist(t(fstqs), diag = T)
 
 fst_qs <- fst
@@ -215,7 +478,7 @@ fst_qs[upper.tri(fst_qs)] <- fstqs[upper.tri(fstqs)]
 #do this for 109 migrate loci!
 ```
 
-### Calculate Geographic Distance
+#### Calculate Geographic Distance
 
 ```{r, eval = F}
 
@@ -228,23 +491,23 @@ attr(gcdists, "Labels") <- dimnames(fst)[[1]]
 
 ```
 
-### Read Matrices Back In
+#### Read Matrices Back In
 
 ```{r}
 #read in the two distance matrices that were created above
 gen.dist.mat <- read.csv(file = "IBD/Ptuberculosa_Fst_SNPs.csv") 
 #linearize
-gen.dist.mat <- gen.dist.mat/(1-gen.dist.mat)                           
-geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
+gen.dist.mat.og <- gen.dist.mat/(1-gen.dist.mat)                           
+geo.dist.mat.og <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
 
 # convert to distance matrix
-geo.dist <- as.dist(geo.dist.mat)
-gen.dist <- as.dist(gen.dist.mat)
+geo.dist <- as.dist(geo.dist.mat.og)
+gen.dist <- as.dist(gen.dist.mat.og)
 
-gen.df <- melt(as.matrix(gen.dist), varnames = c("row", "col")) %>% 
+gen.df <- reshape2::melt(as.matrix(gen.dist), varnames = c("row", "col")) %>% 
                     filter(value %in% as.matrix(gen.dist)[lower.tri(gen.dist)]) %>% 
                     distinct(value, .keep_all=T)  %>% rename(fst = value)
-geo.df <- melt(as.matrix(geo.dist), varnames = c("row", "col")) %>% rename(distance = value)
+geo.df <- reshape2::melt(as.matrix(geo.dist), varnames = c("row", "col")) %>% rename(distance = value)
 
 dist.df <- gen.df %>% left_join(geo.df, by=c("row","col"))
 
@@ -252,7 +515,7 @@ dist.df <- gen.df %>% left_join(geo.df, by=c("row","col"))
 
 ```
 
-## Calculate linear model
+### Calculate linear model
 
 First to get the slope $m$ we need to make a simple linear model, calculating significance with a Mantel test. 
 
@@ -264,35 +527,31 @@ mantelr <- round(mantelt_withOahu$obs, 2)
 pvalue <- round(mantelt_withOahu$pvalue, 5)
 
 ibd_plot <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point(shape = "triangle") + 
+                geom_point(shape = "triangle", size = 3) + 
                 geom_smooth(method=lm) + xlab("Great Circle Distance (km)") + 
                 ylab(expression(F["ST"]/1-F["ST"])) + 
+                ylim(-0.025, 0.11) + xlim(0,3000) +
                 geom_text(label = paste("m =", slope, 
                                         "; Mantel r =", mantelr,
                                         ", p =", pvalue ), 
-                          mapping = aes(x = 1000, y = 0.04))
+                          mapping = aes(x = 800, y = 0.11), size = 4) +
+                 theme(axis.text = element_text(size = rel(1.5)), 
+                                axis.title = element_text(size = rel(1.5)))
 
 ibd_plot
 
-#ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot)
+#ggsave("figures/final_figures/final_ibd_plot_allpops.pdf",ibd_plot,  width = 7, height = 5, units = "in")
 ```
 
-### Remove Oahu
-Because we have clear evidence of recent genetic exchange between Oahu and Kure (Midway) I'm going to take a closer look at those points with `gghighlight()`.
+#### Remove Oahu
+
+Because of initial findings with Structure, I'm going to take a closer look at those $F_{st}$ involving Oahu with `gghighlight()`.
 
 ```{r}
-ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point(fill = "grey40", color = "red",shape = "circle") + 
-                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
-                ylab(expression(F["ST"]/1-F["ST"])) + 
-              gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T,
-                        unhighlighted_params = (aes(color = NULL, shape = "triangle"))) +
-                 theme(axis.text = element_text(size = rel(1.5)), 
-                                axis.title = element_text(size = rel(2)))
-
 #remove Oahu
-gen.dist.mat <- gen.dist.mat[-4,-4]
-geo.dist.mat <- geo.dist.mat[-4,-4]
+
+gen.dist.mat <- gen.dist.mat.og[-6,-6]
+geo.dist.mat <- geo.dist.mat.og[-6,-6]
 geo.dist <- as.dist(geo.dist.mat)
 gen.dist <- as.dist(gen.dist.mat)
 dist.df_withoutOahu <- dist.df %>% filter(row != "Oahu" & col != "Oahu")
@@ -304,53 +563,116 @@ slope <- round(lmodel_withoutOahu$coefficients[2],7)
 mantelr <- round(mantelt_withoutOahu$obs, 2)
 pvalue <- round(mantelt_withoutOahu$pvalue, 5)
 
-ibd_plot_oahu <- ibd_plot_oahu +  geom_text(label = paste("m =", slope, 
+ibd_plot_oahu <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "triangle", size = 4) + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") +
+                geom_smooth(data = dist.df_withoutOahu, method = lm, color = "blue") +
+                ylab(expression(F["ST"]/1-F["ST"])) + 
+                gghighlight(row == "Oahu" | col == "Oahu", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle", size = 3))) +
+                ylim(-0.025, 0.11) + xlim(0,3000) +
+                geom_text(label = paste("m =", slope, 
                                         "; Mantel r =", mantelr,
                                         ", p =", pvalue ), 
-                                        mapping = aes(x = 1000, y = 0.04))
+                         mapping = aes(x = 800, y = 0.11), size = 4) +
+                 theme(axis.text = element_text(size = rel(1.5)), 
+                                axis.title = element_text(size = rel(1.5)))
+
+
+
+
+dist.df_O <- dist.df %>% filter(row == "Oahu" | col == "Oahu")
+lmodel_Oahu <- lm(fst ~ distance , dist.df_O)
+mantelt_Oahu <- mantel.randtest(dist(dist.df_O$fst), dist(dist.df_O$distance), nrepet=10000)
+slope <- round(lmodel_Oahu$coefficients[2],7)
+mantelr <- round(mantelt_Oahu$obs, 2)
+pvalue <- round(mantelt_Oahu$pvalue, 5)
+
+ibd_plot_oahu <- ibd_plot_oahu + geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                         mapping = aes(x = 800, y = 0.105), size = 4,
+                         color = "red")
 
 ibd_plot_oahu
 
-dist.df_O <- dist.df %>% filter(row == "Oahu" | col == "Oahu")
-lmodel_withOahu <- lm(fst ~ distance , dist.df_O)
-mantelt_withOahu <- mantel.randtest(dist(dist.df_O$fst), dist(dist.df_O$distance), nrepet=10000)
-mantelt_withOahu
-#ggsave("figures/final_figures/final_ibd_plot_withoutoahu.pdf",ibd_plot_oahu)
+
+#ggsave("figures/final_figures/final_ibd_plot_noOahu.pdf",ibd_plot_Kure,  width = 7, height = 5, units = "in")
+
+
 ```
 
-### Remove Kure
+Wow! the negative slope of comparisons involving Oahu is almost exactly the same as the positive slope for the other islands.
+
+
+#### Remove Kure
 
 ```{r}
+gen.dist.mat <- gen.dist.mat.og[-1,-1]
+geo.dist.mat <- geo.dist.mat.og[-1,-1]
+geo.dist <- as.dist(geo.dist.mat)
+gen.dist <- as.dist(gen.dist.mat)
+dist.df_withoutKure <- dist.df %>% filter(row != "Kure" & col != "Kure")
+lmodel_withoutKure <- lm(fst ~ distance , dist.df_withoutKure)
+mantelt_withoutKure <- mantel.randtest(gen.dist,geo.dist, nrepet = 10000)
+mantelt_withoutKure
 
-ibd_plot_kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
-                geom_point(fill = "grey40", color = "red",shape = "circle") + 
-                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") + 
+slope <- round(lmodel_withoutKure$coefficients[2],7)
+mantelr <- round(mantelt_withoutKure$obs, 2)
+pvalue <- round(mantelt_withoutKure$pvalue, 5)
+
+ibd_plot_Kure <- ggplot(dist.df,aes(x=distance,y=fst)) +
+                geom_point(fill = "grey40", color = "red",shape = "triangle", size = 4) + 
+                geom_smooth(method=lm, color = "red") + xlab("Great Circle Distance (km)") +
+                geom_smooth(data = dist.df_withoutKure, method = lm, color = "blue") +
                 ylab(expression(F["ST"]/1-F["ST"])) + 
-              gghighlight(row == "Kure" | col == "Kure", keep_scales = T,
-                        unhighlighted_params = (aes(color = NULL, shape = "triangle")))
-ibd_plot_kure
-#ggsave("figures/final_figures/final_ibd_plot_withoutkure.pdf",ibd_plot_kure)
+                gghighlight(row == "Kure" | col == "Kure", keep_scales = T,
+                        unhighlighted_params = (aes(color = NULL, shape = "triangle", size = 3))) +
+                ylim(-0.025, 0.11) + xlim(0,3000) +
+                geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                         mapping = aes(x = 800, y = 0.11), size = 4) +
+                 theme(axis.text = element_text(size = rel(1.5)), 
+                                axis.title = element_text(size = rel(1.5)))
+
+
+
+
+dist.df_O <- dist.df %>% filter(row == "Kure" | col == "Kure")
+lmodel_Kure <- lm(fst ~ distance , dist.df_O)
+mantelt_Kure <- mantel.randtest(dist(dist.df_O$fst), dist(dist.df_O$distance), nrepet=10000)
+slope <- round(lmodel_Kure$coefficients[2],7)
+mantelr <- round(mantelt_Kure$obs, 2)
+pvalue <- round(mantelt_Kure$pvalue, 5)
+
+ibd_plot_Kure <- ibd_plot_Kure + geom_text(label = paste("m =", slope, 
+                                        "; Mantel r =", mantelr,
+                                        ", p =", pvalue ), 
+                         mapping = aes(x = 800, y = 0.105), size = 4,
+                         color = "red")
+
+ibd_plot_Kure
+#ggsave("figures/final_figures/final_ibd_plot_noKure.pdf",ibd_plot_Kure,  width = 7, height = 5, units = "in")
+
 ```
 
-Kure still has a positive slope
 
 # Structure
 
 I wanted to take a closer look at how Structure [@pritchardInferencePopulationStructure2000] sees these data. 'Ale'a had already tried with a location prior and admixture, but given low values of m below, I wanted to try without admixture and with an extra long MCMC chain (1 million steps)
 
-I also tried the USEPOPINFO setting to put an even stronger prior that the individuals did not move.
-
-
 ## Parameter settings
 
 ### MAINPARAMS
-```
+
+```{bash, eval = F}
 #define BURNIN 250000
 #define NUMREPS 1000000
 #define INFILE structure_infile
 #define OUTFILE structure_outfile
-#define NUMINDS 90
-#define NUMLOCI 24517
+#define NUMINDS 72
+#define NUMLOCI 2833
 #define PLOIDY 2
 #define MISSING -9
 #define ONEROWPERIND 0
@@ -427,7 +749,7 @@ I also tried the USEPOPINFO setting to put an even stronger prior that the indiv
 I used [Structure Threader](https://structure-threader.readthedocs.io/en/latest/) to run many values of K in parallel for 5 replicates each. Command line for structure_threader
 
 ```{bash, eval = F}
-structure_threader run -K 9 -R 5 -t 45  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
+structure_threader run -K 10 -R 5 -t 45  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
 
 #for usepop
 structure_threader run -Klist 9 -R 5 -t 5  -i ../structure_infile -o ./output -st /opt/conda/bin/structure --params ./mainparams 
@@ -440,7 +762,7 @@ I used [pophelper](http://www.royfrancis.com/pophelper/) to calculate optimal K 
 ### Admixture, location prior
 
 ```{r, eval=F}
-popmap <- read_tsv("popmap.tsv")
+popmap <- read_tsv("filtered_data/popmap_SNPs_n72.tsv")
 
 files <- list.files("structure/admix_loc/output/",pattern = "str",full.names = T)
 admix_loc <- readQ(files) #read in the files
@@ -448,12 +770,12 @@ admix_loc_tab <- tabulateQ(admix_loc) #tabulate log-likelihoods
 admix_loc_summ <- summariseQ(admix_loc_tab) #take the mean across replicates
 evannoMethodStructure(admix_loc_summ,writetable = T,
                       returnplot = T,exportplot = T, exportpath ="structure/admix_loc",
-                      xaxisbreaks = 1:9)
+                      xaxisbreaks = 1:10)
 
 admix_loc_align <- alignK(admix_loc, type = "auto") #align k clusters so they are the same across replicates (like clumpak)
 
 # summarize across replicates. This is not working because the sortQ function has 
-# been broken by recent updates to R. My Ks are alread sorted so I used the code from within the function thusly:
+# been broken by recent updates to R. My Ks are already sorted so I used the code from within the function thusly:
 #admix_loc_merge <- mergeQ(admix_loc_align) 
         mergy<-function(x){
             return(list(Reduce(`+`, x)/length(x)))
@@ -468,12 +790,26 @@ admix_loc_all_plots <- plotQ(admix_loc_align, imgoutput = "join", returnplot = T
               exportplot = T, exportpath = "structure/admix_loc", imgtype = "pdf", 
               grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
               showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6)
-#and the final plot
-admix_loc_p1 <- plotQ(admix_loc_merged, imgoutput = "join", returnplot = T,
+#alignK is not matching layers correctly, so I am doing this sort
+admix_loc_merged2 <- alignK(as.qlist(admix_loc_merged), "across")
+names(admix_loc_merged2[[1]]) <- names(admix_loc_merged2[[1]][c(2,1)])
+names(admix_loc_merged2[[2]]) <- names(admix_loc_merged2[[2]][c(2,1,3)])
+names(admix_loc_merged2[[3]]) <- names(admix_loc_merged2[[3]][c(2,1,3,4)])
+names(admix_loc_merged2[[5]]) <- names(admix_loc_merged2[[5]][c(6,1, 3,2,5,4)])
+names(admix_loc_merged2[[6]]) <- names(admix_loc_merged2[[6]][c(6,1,3,2,5,4,7)])
+names(admix_loc_merged2[[7]]) <- names(admix_loc_merged2[[7]][c(8,1,4,2,5,6,7,3)])
+#names(admix_loc_merged2[[7]]) <- names(admix_loc_merged2[[7]][c(6,1,3,2,5,4,7,8)])
+names(admix_loc_merged2[[8]]) <- names(admix_loc_merged2[[8]][c(8,1,7,2,5,6,4,3,9)])
+#names(admix_loc_merged2[[9]]) <- names(admix_loc_merged2[[9]][c(6,1,7,2,5,3,4,8,9,10)])
+#final plot
+admix_loc_p1 <- plotQ(admix_loc_merged2[-9], imgoutput = "sep", returnplot = T,
               exportplot = T, exportpath = "structure/admix_loc", imgtype = "pdf",
               grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
               showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6,
               showyaxis = F, showticks = F)
+
+
+
 ```
 
 ![Evanno Plot with admixture](structure/admix_loc/evannoMethodStructure.png)
@@ -491,7 +827,7 @@ noadmix_loc <- readQ(files)
 noadmix_loc_tab <- tabulateQ(noadmix_loc)
 noadmix_loc_summ <- summariseQ(noadmix_loc_tab)
 evannoMethodStructure(noadmix_loc_summ,writetable = T,returnplot = T,exportplot = T, exportpath ="structure/noadmix_loc",
-                      xaxisbreaks = 1:9)
+                      xaxisbreaks = 1:10)
 
 noadmix_loc_align <- alignK(noadmix_loc, type = "across")
 
@@ -515,622 +851,215 @@ noadmix_loc_p1 <- plotQ(noadmix_loc_merged, imgoutput = "join", returnplot = T,
               showyaxis = F, showticks = F)
 
 
+
 ```
 
 ![Evanno Plot with no admixture](structure/noadmix_loc/evannoMethodStructure.png)
 
 
-![Q Plot with no admixture](structure/noadmix_k1-9_plots.png)
-# Haplotypes from dDocent
+![Q Plot with no admixture](structure/noadmix_loc/k1-9_Qplots.png)
 
-## Filter SNPs
+# ConStruct
 
-'Ale' already filtered the SNPs quite a bit, but I need to start that process over because coalescent programs are sensitive to ascertainment bias. Also, need to knit them back into haplotypes. As Peter Beerli says on page 15 of the migrate-n manual:
+[ConStruct] [@bradburdInferringContinuousDiscrete2018] attempts to categorize genetically homenous groups, like Structure, but it considers continuous variation (Isolation by Distance) as it does so. I'm going to follow Gideon's vignettes to perform the analysis.
 
->We use a rather restrictive ascertainment models for SNPs ?. A better approach than using SNPs is the use of short reads which may or many not contain SNPs. I find that SNPs are an inferior datatype because commonly researchers are adding criteria such as a minor SNP allele must occur at a frequency higher than x, and singletons are excluded etc.
+## Read and Convert Data
 
-> We have found ALL variable sites and use them even if there are only a few members of another alleles present. In principal it is as you would sequence a stretch of DNA and then remove the invariant sites. Each stretch is treated as completely linked. You can combine many of such “loci” to improve your estimates.
+### Empirical Data
 
-
-I've installed dDocent into a dedicated environment following instructions [here](https://www.ddocent.com/bioconda/). 
-
-```{bash, eval = F}
-conda activate ddocent_env
-```
-
-Following the tutorial, but altering filtering parameters. Keeping all SNPs with even a single occurence (Minor Allele Count = 1), but they must occur in 90% of individuals (mac 1) and be of high quality (minQ 30). We are keeping genotypes with as few as 3 reads. This is because evidence to keep these SNPs is based on their existence in multiple individuals.
-
-```{bash, eval = F}
-vcftools --vcf ../TotalRawSNPs.vcf --max-missing 0.1 --mac 1 --minQ 30 --minDP 3 --recode --recode-INFO-all --out rawg.1mac1dp3
-
-```
-
->After filtering, kept 93 out of 93 Individuals
-Outputting VCF file...
-After filtering, kept 28128 out of a possible 52804 Sites
-Run Time = 9.00 seconds
-
-Run this error checking script to see the potential impact of shallow-sequenced genotypes
-
-```{bash, eval = F}
-ErrorCount.sh rawg.1mac1dp3.recode.vcf
-
-<!-- This script counts the number of potential genotyping errors due to low read depth -->
-<!-- It report a low range, based on a 50% binomial probability of observing the second allele in a heterozygote and a high range based on a 25% probability. -->
-<!-- Potential genotyping errors from genotypes from only 1 read range from 0.0 to 0.0 -->
-<!-- Potential genotyping errors from genotypes from only 2 reads range from 0.0 to 0.0 -->
-<!-- Potential genotyping errors from genotypes from only 3 reads range from 3808.875 to 12797.82 -->
-<!-- Potential genotyping errors from genotypes from only 4 reads range from 3860.25 to 19517.424 -->
-<!-- Potential genotyping errors from genotypes from only 5 reads range from 913.78125 to 6930 -->
-<!-- 93 number of individuals and 28128 equals 2615904 total genotypes -->
-<!-- Total genotypes not counting missing data 2508832 -->
-<!-- Total potential error rate is between 0.0034210765208670807 and 0.015642834593946504 -->
-<!-- SCORCHED EARTH SCENARIO -->
-<!-- WHAT IF ALL LOW DEPTH HOMOZYGOTE GENOTYPES ARE ERRORS????? -->
-<!-- The total SCORCHED EARTH error rate is 0.04841934414101861. -->
-```
+From Structure to ConStruct format. Also create a geographic distance matrix, and a matrix of lat/longs for plotting.
 
 
+```{r, eval =F}
+conStruct.infile <- structure2conStruct(infile = "structure/structure_infile", 
+                                        onerowperind= F,
+                                        start.loci = 3,
+                                        start.samples = 1,
+                                        missing.datum = -9,
+                                        outfile = "structure/construct_infile")
 
-Look at missing data per individual
+popmap <- read_tsv("popmap.tsv")
 
-```{bash, eval = F}
-vcftools --vcf rawg.1mac1dp3.recode.vcf --missing-indv
+popmap <- popmap %>% right_join(tibble(IndID = dimnames(conStruct.infile)[[1]]))
 
-mawk '!/IN/' out.imiss | cut -f5 > totalmissing
-gnuplot << \EOF 
-set terminal dumb size 120, 30
-set autoscale 
-unset label
-set title "Histogram of % missing data per individual"
-set ylabel "Number of Occurrences"
-set xlabel "% of missing data"
-#set yr [0:100000]
-binwidth=0.01
-bin(x,width)=width*floor(x/width) + binwidth/2.0
-plot 'totalmissing' using (bin($1,binwidth)):(1.0) smooth freq with boxes
-pause -1
+
+localities <- read_csv("./figures/hypotheses_as_graphs/hawaii_vertices.csv") %>% 
+                filter(sampled == "black") %>% map_df(rev)
+localities$island[3] <- "Kamo"
+localities$island[6] <- "O'ahu"
+
+popmap <- popmap %>% left_join(localities, by = join_by(Name == island ))
+
+latlongs <- matrix(c(popmap$long, popmap$lat), ncol = 2)
+
+#calculate pairwise geographic distances between individuals
+ind_geog_dists <- pointDistance(latlongs,latlongs,lonlat = T, allpairs = T)/1000
+
+
+write.csv(latlongs, file = "conStruct/empirical/ind_coordinates.csv", quote = F, row.names = F)
+
+
+write.csv(ind_geog_dists, file = "conStruct/empirical/ind_geog_matrix.csv", quote = F, row.names = F)
 
 ```
 
-```{bash, eval = F}
-                                                                                                                        
-                                         Histogram of % missing data per individual                                     
-     20 +-----------------------------------------------------------------------------------------------------------+   
-        |    * *      +            +             +            +             +            +             +            |   
-        |    * **                                             'totalmissing' using (bin($1,binwidth)):(1.0) ******* |   
-        |    * **                                                                                                   |   
-        |    * **                                                                                                   |   
-        |    * **                                                                                                   |   
-     15 |-+  * **                                                                                                 +-|   
-        |    * **                                                                                                   |   
-        |   ** **                                                                                                   |   
-        |   ** **                                                                                                   |   
-        |   ** **                                                                                                   |   
-     10 |-+ ** **                                                                                                 +-|   
-        |   ** **                                                                                                   |   
-        |   ** ***                                                                                                  |   
-        |   ** ***                                                                                                  |   
-        |   ** ***                                                                                                  |   
-        |   ** *****                                                                                                |   
-      5 |-+ ** *** *                                                                                              +-|   
-        |  *** *** ****                                                                                             |   
-        |  *** *** ** *                                                                                             |   
-        |  *** *** ** *                                                                                             |   
-        |  *** *** ** *******                                                                                       |   
-        |***** *** ** *** * *******************************************************************************         |   
-      0 +-----------------------------------------------------------------------------------------------------------+   
-        0            0.1          0.2           0.3          0.4           0.5          0.6           0.7          0.8  
-                                                      % of missing data                                                 
-```
+## Run a spatial model
 
-'Ale' has probably removed any really bad individuals already. I'll keep all of these for now.
-
-Now filter based on missingness within populations. Puritz wrote a script for this that creates lots of output, so I created ./filterpop directory to run it in. I am removing loci that are missing 10% of data in any of 10 populations. I altered popmap to remove spaces from pop names too.
-
-```{bash, eval=F}
-pop_missing_filter.sh ../rawg.1mac1dp3.recode.vcf ../../popmap 0.1 10 rawg1mac1dp3allpops.1.vcf
-```
-
-This filter keeps loci with Allele Balance  between 0.25 and 0.75. From Jon:
-
->Allele balance is: a number between 0 and 1 representing the ratio of reads showing the reference allele to all reads, considering only reads from individuals called as heterozygous Because RADseq targets specific locations of the genome, we expect that the allele balance in our data (for real loci) should be close to 0.5
-
-So this will keep only really high quality SNPs
-
-```{bash, eval=F}
- vcffilter -s -f "AB > 0.25 & AB < 0.75 | AB < 0.01" ./filterpops/rawg1mac1dp3allpops.1.vcf.recode.vcf > rawg.1mac1dp3allpop.1.ABfil.vcf
- 
- mawk '!/#/' *ABfil.vcf | wc -l
-2756
-```
-
-Now remove SNPs that occur on both strands of a read. Jon: 
-
-> Unless you are using super small genomic fragment or really long reads (MiSeq). A SNP should be covered only by forward or only reverse reads. The filter is based on proportions, so that a few extraneous reads won’t remove an entire locus.... In plain english, it’s keeping loci that have over 100 times more forward alternate reads than reverse alternate reads and 100 times more forward reference reads than reverse reference reads along with the reciprocal....That only removes a small proportion of loci, but these loci are likely to be paralogs, microbe contamination, or weird PCR chimeras.
-
-```{bash. eval = F}
-vcffilter -f "SAF / SAR > 100 & SRF / SRR > 100 | SAR / SAF > 100 & SRR / SRF > 100" -s rawg.1mac1dp3allpop.1.ABfil.vcf > rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf
-
-mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.FRfil.vcf | wc -l
-7
-```
-
-Hmmm... that's a bit too stringent... maybe these were done on a MiSeq?
-
-
-> The next filter looks at the ratio of mapping qualities between reference and alternate alleles...The rationale here is that, again, because RADseq loci and alleles all should start from the same genomic location there should not be large discrepancy between the mapping qualities of two alleles.
-
-```{bash eval =F}
-vcffilter -f "MQM / MQMR > 0.9 & MQM / MQMR < 1.05" rawg.1mac1dp3allpop.1.ABfil.vcf > rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf
-mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf | wc -l
-2512
-```
-
->Yet another filter that can be applied is whether or not their is a discrepancy in the properly paired status of for reads supporting reference or alternate alleles....Since de novo assembly is not perfect, some loci will only have unpaired reads mapping to them. This is not a problem. The problem occurs when all the reads supporting the reference allele are paired but not supporting the alternate allele. That is indicative of a problem.
-
-```{bash eval = F}
-vcffilter -f "PAIRED > 0.05 & PAIREDR > 0.05 & PAIREDR / PAIRED < 1.75 & PAIREDR / PAIRED > 0.25 | PAIRED < 0.05 & PAIREDR < 0.05" -s rawg.1mac1dp3allpop.1.ABfil.MQfil.vcf > rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf
-
-mawk '!/#/' rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf| wc -l
-2141
-```
-
-
-```{bash eval = F}
-dDocent_filters rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.vcf rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf 
-This script will automatically filter a FreeBayes generated VCF file using criteria related to site depth,
-quality versus depth, strand representation, allelic balance at heterzygous individuals, and paired read representation.
-The script assumes that loci and individuals with low call rates (or depth) have already been removed. 
-
-Contact Jon Puritz (jpuritz@gmail.com) for questions and see script comments for more details on particular filters 
-
-Number of sites filtered based on allele balance at heterozygous loci, locus quality, and mapping quality / Depth
- 1192 of 2141 
-
-Are reads expected to overlap?  In other words, is fragment size less than 2X the read length?  Enter yes or no.
-yes
-Is this from a mixture of SE and PE libraries? Enter yes or no.
-no
-Number of additional sites filtered based on properly paired status
- 0 of 949 
-
-Number of sites filtered based on high depth and lower than 2*DEPTH quality score
- 78 of 949 
-
-
-                                                                                                                        
-                                                                                                                        
-                                               Histogram of mean depth per site                                         
-       30 +---------------------------------------------------------------------------------------------------------+   
-          |    +    +   **+    +    +    +     +    +    +    +     +    +    +    +     +    +    +    +     +    +|   
-          |             **                                'meandepthpersite' using (bin($1,binwidth)):(1.0) ******* |   
-          |         *** **                                                                                          |   
-       25 |-+       * * **                                                                                        +-|   
-          |        ** ****    **                                                                                    |   
-          |        ** ****    **                                                                                    |   
-          |        ** ****    **                                                                                    |   
-       20 |-+   ** ** ****    **                                                                                  +-|   
-          | **  ** ** ****    **                                                                                    |   
-          | **  ** ** *****   ** **                                                                                 |   
-       15 |***  ** ** *****   ** **                                                                               +-|   
-          |**** ** ** *****   ** **                                                                                 |   
-          |**** ** ** ******* ** **                                                                                 |   
-          |**** ***** ******* ** **              **                                                                 |   
-       10 |********** *************   ***        **                                                               +-|   
-          |********** ************** ****     ** **                                                                 |   
-          |********** ************** ****     ** **                                                                 |   
-          |********** ********************** *** ***          *****                                                 |   
-        5 |********** ******************** * ************     * ***                                               +-|   
-          |********** ******************** **************  ** * *******  **                                         |   
-          |********** ******************** ******************** ****************** ************ *** ***  ***       *|   
-          |********** ******************** ******************** ************ *** *** ****** * *** *** **** *********|   
-        0 +---------------------------------------------------------------------------------------------------------+   
-          10   15   20    25   30   35   40    45   50   55   60    65   70   75   80    85   90   95  100   105  110   
-                                                          Mean Depth                                                    
-                                                                                                                        
-If distrubtion looks normal, a 1.645 sigma cutoff (~90% of the data) would be 10141.7555
-The 95% cutoff would be 101
-Would you like to use a different maximum mean depth cutoff than 101, yes or no
-no
-Number of sites filtered based on maximum mean depth
- 81 of 949 
-
-Number of sites filtered based on within locus depth mismatch
- 36 of 868 
-
-Total number of sites filtered
- 1309 of 2141 
-
-Remaining sites
- 832 
-
-Filtered VCF file is called rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf.FIL.recode.vcf
-
-Filter stats stored in rawg.1mac1dp3allpop.1.ABfil.MQfil.MapFil.dDFil.vcf.filterstats
-(ddocent_env) ecrandall@Argonaute:~/eric_data/ptuberculosa/filtering$ 
-```
-
-This script apparently does many of the other steps that I did above manually, so I started from an earlier checkpoint
-
-```{bash, eval = F}
-dDocent_filters  rawg1mac1dp3allpops.1.vcf.recode.vcf  rawg.1mac1dp3allpop.1.dDfil.vcf 
-This script will automatically filter a FreeBayes generated VCF file using criteria related to site depth,
-quality versus depth, strand representation, allelic balance at heterzygous individuals, and paired read representation.
-The script assumes that loci and individuals with low call rates (or depth) have already been removed. 
-
-Contact Jon Puritz (jpuritz@gmail.com) for questions and see script comments for more details on particular filters 
-
-Number of sites filtered based on allele balance at heterozygous loci, locus quality, and mapping quality / Depth
- 23877 of 25261 
-
-Are reads expected to overlap?  In other words, is fragment size less than 2X the read length?  Enter yes or no.
-yes
-Is this from a mixture of SE and PE libraries? Enter yes or no.
-no
-Number of additional sites filtered based on properly paired status
- 197 of 1384 
-
-Number of sites filtered based on high depth and lower than 2*DEPTH quality score
- 1673 of 1187 
-
-
-                                                                                                                        
-                                                                                                                        
-                                               Histogram of mean depth per site                                         
-       60 +---------------------------------------------------------------------------------------------------------+   
-          | +    +     +    +     +    +    +     +    +     +    +     +    +    +     +    +     +    +     +    +|   
-          |                                               'meandepthpersite' using (bin($1,binwidth)):(1.0) ******* |   
-          |           **                                                                                            |   
-       50 |-+         **                                                                                          +-|   
-          |           **                                                                                            |   
-          |        ** **                                                                                            |   
-          |        ** **   **                                                                                       |   
-       40 |-+      ** **   **                                                                                     +-|   
-          |    **  ** **   **                                                                                       |   
-          |    ** *** ***  ** **                                                                                    |   
-       30 |-+  *********** *****                                                                                  +-|   
-          | ** *********** *****                                                                                    |   
-          | ** *****************                                                                                    |   
-          | ********************                                                                                    |   
-       20 |-********************  **                                                                              +-|   
-          |********************** ***                                                                               |   
-          |********************** ***                                                                               |   
-          |****************************     *                                                                       |   
-       10 |**************************** *** *                                                                     +-|   
-          |******************************** **   **    ***** **                                                     |   
-          |**************************************************** **       **         ***                             |   
-          |************************************************************************** ****  **  ** +  *** **  +*****|   
-        0 +---------------------------------------------------------------------------------------------------------+   
-            12   18    24   30    36   42   48    54   60    66   72    78   84   90    96  102   108  114   120  126   
-                                                          Mean Depth                                                    
-                                                                                                                        
-If distrubtion looks normal, a 1.645 sigma cutoff (~90% of the data) would be 11589.30825
-The 95% cutoff would be 116
-Would you like to use a different maximum mean depth cutoff than 116, yes or no
-no
-Number of sites filtered based on maximum mean depth
- 109 of 1187 
-
-Number of sites filtered based on within locus depth mismatch
- 21 of 1072 
-
-Total number of sites filtered
- 24210 of 25261 
-
-Remaining sites
- 1051 
-
-Filtered VCF file is called rawg.1mac1dp3allpop.1.dDfil.vcf.FIL.recode.vcf
-
-Filter stats stored in rawg.1mac1dp3allpop.1.dDfil.vcf.filterstats
-
-mv rawg.1mac1dp3allpop.1.dDfil.vcf.FIL.recode.vcf rawg.1mac1dp3allpop.1.dDfil.vcf
-```
-
-Now to filter by HWE
-
->The next filter to apply is HWE. Heng Li also found that HWE is another excellent filter to remove erroneous variant calls. We don’t want to apply it across the board, since population structure will create departures from HWE as well. We need to apply this by population. I’ve included a perl script written by Chris Hollenbeck, one of the PhD student’s in my current lab that will do this for us.
-
->Let’s filter our SNPs by population specific HWE First, we need to convert our variant calls to SNPs To do this we will use another command from vcflib called vcfallelicprimatives
-
-```{bash, eval =F}
-vcfallelicprimitives rawg.1mac1dp3allpop.1.dDfil.vcf --keep-info --keep-geno > rawg.1mac1dp3allpop.1.dDfil.prim.vcf
-```
-
-> This will decompose complex variant calls into phased SNP and INDEL genotypes and keep the INFO flags for loci and genotypes. Next, we can feed this VCF file into VCFtools to remove indels.
-
-```{bash, eval =F}
-vcftools --vcf rawg.1mac1dp3allpop.1.dDfil.prim.vcf --remove-indels --recode --recode-INFO-all --out SNP.rawg.1mac1dp3allpop.1.dDfil
-```
-
->Outputting VCF file...
-After filtering, kept 1096 out of a possible 1126 Sites
-Run Time = 0.00 seconds
-
-Now apply the HWE filter, in filterhwe folder
-
-```{bash, eval = F}
-filter_hwe_by_pop.pl -v ../SNP.rawg.1mac1dp3allpop.1.dDfil.recode.vcf -p ../../popmap -o SNP.rawg.1mac1dp3allpop.1.dDfil.HWE -h 0.01 -c 0.1
-
-<!-- Processing population: BigIsland (17 inds) -->
-<!-- Processing population: FrenchFrigateShoals (9 inds) -->
-<!-- Processing population: Kauai (15 inds) -->
-<!-- Processing population: Kure (10 inds) -->
-<!-- Processing population: MaroReef (5 inds) -->
-<!-- Processing population: Maui (10 inds) -->
-<!-- Processing population: Molokai (10 inds) -->
-<!-- Processing population: Oahu (10 inds) -->
-<!-- Processing population: Pearl_Hermes (4 inds) -->
-<!-- Processing population: PioneerBanks (3 inds) -->
-<!-- Outputting results of HWE test for filtered loci to 'filtered.hwe' -->
-<!-- Kept 997 of a possible 1096 loci (filtered 99 loci) -->
-```
-
-
-Hmm... the HWE filter is not working great, likely because of low sample sizes. It's leaving me with mostly loci without individuals with alternate homozygotes 
-
-```{bash, eval = F}
-conda deactivate
-```
-
-## Haplotyping
-
-### rad_haplotyper.pl
-
-Chris Hollenbeck has created a script that can get haplotypes from dDocent output. First, gotta remove the -RG from the .bam and .bai files.
-
-```{bash, eval = F}
-for f in *.bam; do mv "$f" "${f%-RG.bam}.bam" ; done
-for f in *.bam.bai; do  mv "$f" "${f%-RG.bam.bai}.bam.bai" ; done
-```
-
-Now, to install the rad_haplotyper environment following [these](https://github.com/chollenbeck/rad_haplotyper) instructions
-
-hmmm ... rad_haplotyper isn't working because the Vcf Perl module changed its name to VCF... breaking the script. I tried a few minor modifications but couldn't fix it. Created an issue in the github site.
-
-Remember to remove the environment: $ conda remove rad_haplotyper_env
-
-
-
-### Microhaplot
-
-I am now going to try [microhaplot](https://ngthomas.github.io/microhaplot/index.html) by Thomas Ng and Eric Anderson!!
-
-Now, have to convert the bam files to sam files.
-
-```{bash eval = F}
-for bam in *.bam                                                                                                      
-do
-echo $bam
-samtools view -h -o ../sam_files/${bam%.bam}.sam $bam
-done
-
-for bam in *.bam                                                                                                      
-do
-echo $bam
-mv $bam ${bam%-RG.bam}.bam
-done
-
-for bam in *.bai                                                                                                      
-do
-echo $bam
-mv $bam ${bam%-RG.bam.bai}.bam.bai
-done
-
-for bam in *.bam                                                                                                      
-do
-echo $bam
-samtools idxstats $bam > ./idxstats/${bam%.bam}_idxstats.txt
-done
-
-
-for bam in *.bam                                                                                                      
-do
-echo $bam
-samtools view -h -o /Users/edc5240/Datasets/Ptuberculosa/sam_files/${bam%.bam}.sam $bam
-done
-```
-
-#### Tutorial
-
-Do the [tutorial](https://ngthomas.github.io/microhaplot/articles/microhaplot-walkthrough.html)
+I wrote the following as an r-script to run on Orbicella in parallel at multiple values of K. Ran it for two chains, 40,000 iterations each.
 
 ```{r, eval = F}
-library(microhaplot)
-shiny_dir <- "/Volumes/GoogleDrive-103325533945714033178/My Drive/Ptuberculosa/Ptuberculosa_data/shiny_dir"
-microhaplot::mvShinyHaplot(shiny_dir)
+# usage: Rscript run_ConStruct_K.R K T n.chains n.iter conStruct.data popmap popdists
+# where K is the number of layers (i.e. Structure clusters) to be included in the analysis
+# and T (or F) indicates whether to run the spatial model
+# n.chains is the number of MCMC chains
+# conStruct.data is an .RData object with conStruct formatted data
+# latlongs.name is a csv file of lat longs of each individual
+# ind.geog.dists.name is a csv file of individual pairwise distances
 
-app.path <- file.path(shiny_dir, "microhaplot")
-microhaplot::runShinyHaplot(app.path)
+require(tidyverse)
+require(conStruct)
+
+args = commandArgs(trailingOnly=TRUE)
+
+
+if (length(args) < 4) {
+  stop("Must supply K, spatial(T/F), n.chains, n.iter in this order", call.=FALSE)
+}
+
+K <- args[1] %>% as.numeric()
+spatial <- args[2] %>% as.logical()
+n.chains <- args[3] %>% as.numeric()
+n.iter <- args[4] %>% as.numeric()
+conStruct.data.name <- args[5] %>% as.character()
+latlongs.name <- args[6] %>% as.character()
+ind.geog.dists.name <- args[7] %>% as.character()
+
+
+if(spatial){
+  prefix <- "sp"
+}else{
+  prefix <- "nonsp"
+}
+
+## Read and Convert Data
+print("Reading In The Data and Converting it for use by ConStruct")
+load(conStruct.data.name) 
+latlongs<- read_csv(latlongs.name) %>% as.matrix()
+ind_geog_dists <- read.csv(file = ind.geog.dists.name,header =T) %>% as.matrix()
+
+
+## Run a spatial model
+print(c("Running a conStruct model for K = ",K, "spatial = ", spatial))
+spatial9 <- conStruct(spatial = T, K = K,
+                      freqs = freqs,
+                      geoDist = ind_geog_dists,
+                      coords = latlongs,
+                      prefix = paste(prefix,"K",K, sep = "_"),
+                      n.iter = n.iter,
+                      n.chains = n.chains)
 ```
 
-
-#### Load Data
-Then follow along [here](https://ngthomas.github.io/microhaplot/articles/microhaplot-data-prep.html) to get data into microhaplot. 
-
-```{r, eval = F}
-library(microhaplot)
-
-run.label <- "Ptuberculosa"
-
-path <- "/Users/edc5240/Datasets/Ptuberculosa"
-sam.path <- "/Users/edc5240/Datasets/Ptuberculosa/sam_files"
-# untar(system.file("extdata",
-#                   "sebastes_sam.tar.gz",
-#                   package="microhaplot"),
-#       exdir = sam.path)
-
-
-label.path <- file.path(path, "labels.txt")
-vcf.path <- file.path(path, "mm0.9minq30mac3thin500.recode.vcf")
-
-mvShinyHaplot(file.path(path,"shiny_dir"))
-app.path <- file.path(path,"shiny_dir", "microhaplot")
-
-haplo.read.tbl <- prepHaplotFiles(run.label = run.label,
-                            sam.path = sam.path,
-                            out.path = path,
-                            label.path = label.path,
-                            vcf.path = vcf.path,
-                            app.path = app.path)
-
-runShinyHaplot(path = "/Users/edc5240/Datasets/Ptuberculosa/shiny_dir/microhaplot")
-```
-
-Working with the data in microhaplot was OK, but I kept getting unexplained N's in the output, and it was going to take some coding effort to translate the output into migrate format. Moreover, microhaplot only kept the variable sites, which isn't ideal for migrate's mutation model. So I am giving up on this front, and am going to try to generate haplotypes with Stacks.
-
-# Haplotypes from Stacks
-
-## Setup
-
-Need first to copy all the fastq files over from Google Drive, where 'Ale'a put them. I split them into 4 tranches to keep the number of files under 50 as required by gdown. Note that the folder protocol won't take urls, but just the ID.
-
-```{bash eval = F}
-gdown --id 1ES3yMzZS8JkWROiE1jdfTp6KBjxDdCXO --folder --remaining-ok --output firstbatch
-gdown --id 1Ofta4RLcf6vddIiAA6dLCkdrYngADW1d --folder --remaining-ok --output secondbatch
-gdown --id 1Og6JQNlhgprYvLTxJtMBlCCj72qRxLOw --folder --remaining-ok --output thirdbatch
-gdown --id 1Ojnlj3L_8UFoPUVxaqvLKTLs8qq_S9ml --folder --remaining-ok --output fourthbatch
-
-```
-
-
-Need to rename the files into Illumina format in order for Stacks to recognize the paired reads
-
-```{bash eval = F}
-cd raw
-
-for f in *.F.fq.gz
-do
-mv $f ${f/_1.F.fq.gz/_R1_001.fastq.gz}
-done
-
-for f in *.R.fq.gz
-do
-mv $f ${f/_1.R.fq.gz/_R2_001.fastq.gz}
-done
-
-cd ..
-```
-
-## Process RadTags
-
-'Ale'a said:
-
->It was an ezRAD protocol developed by the Tobo lab. The restriction enzymes used were both MboI and Sau3AI. The sequences have indexes removed but still need to be trimmed/ends cleaned.
-
-So I will process the radtags to remove adapters and the sau3AI cut site (GATC, which is the same as MboI).
-This command cleans data removing reads with uncalled bases, low phred scores, rescue barcodes and rad-tags.
-
-```{bash eval = F}
-
-process_radtags -p ./raw/ -o ./cleaned/ --rescue --clean --quality --paired --filter_illumina --renz-1 sau3AI \
---adapter-1 AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
---adapter-2 AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
-
-```
-
-> 724964572 total sequences
-        0 failed Illumina filtered reads (0.0%)
-227835784 reads contained adapter sequence (31.4%)
-        0 barcode not found drops (0.0%)
- 28941251 low quality read drops (4.0%)
- 63374437 RAD cutsite not found drops (8.7%)
-404813100 retained reads (55.8%)
-
-## Pipeline
-
-
-Hmm... gotta rename the cleaned files too
-
-```{bash eval = F}
-cd cleaned
-for f in *001.1.fq.gz
-do
-mv $f ${f/_R[12]_001.1.fq.gz/.1.fq.gz}
-done
-
-for f in *001.2.fq.gz
-do
-mv $f ${f/_R[12]_001.2.fq.gz/.2.fq.gz}
-done
-```
-
-
-I'm going to use the denovo_map.pl pipeline. This command will take data from `./cleaned` and the popmap I created for dDocent and -m 3 reads per stack, -n 4 distance between stacks, -M 4 distance between catalog loci. Running on 12 -T threads and only keeping loci that appear in 75% of individuals in all 10 populations
-
-```{bash eval = F}
-denovo_map.pl --samples ./cleaned/ --popmap ../popmap --out-path ./pipeline --paired \
--m 3 -n 4 -M 4 -T 12 -r 75 -p 10 -X "populations: --fasta-samples" -X "populations: --filter-haplotype-wise"
-```
-
-Copy it down
-
-```{bash eval = F}
-scp -r  ecrandall@128.118.123.64:eric_data/ptuberculosa/stacks/pipeline/output1 ./stacks_output              
-```
-
-## Populations
-
-Now I need to re-run `populations` to get more statistics. Original populations output is in output1, this will be in output2.
-
-```{bash eval = F}
-populations -P ../ -O ./ -M ../../../popmap -t 12 -p 10 -r 75 -H --hwe --fstats --p-value-cutoff 0.99 --fasta-loci --fasta-samples --vcf --genepop --structure --treemix --fasta-samples-raw 
-```
-
-## Fasta2Genotype
-
-Paul Maier created [this script](http://www.mountainmanmaier.com/software/) to convert Stacks haplotypes to migrate format. I had to remove all the [individualName] tokens from the populations.samples.fa to get it to work.
-
-```{bash eval = F}
-python2 /Applications/migrate/migrate-4.4.4/fasta2genotype/fasta2genotype.py populations.samples2.fa NA ../popmap.tsv  populations.snps.vcf ptuberculosa.mig
-
-```
+Start ConStruct runs for K = 1 - 10 in different `tmux` sessions
 
 ```{bash, eval = F}
-###################################################################
-###                                                             ###
-###       Fasta2Genotype | Data Conversion | Version 1.10       ###
-###                                                             ###
-###                        Cite as follows:                     ###
-###                                                             ###
-###   Maier P.A., Vandergast A.G., Ostoja S.M., Aguilar A.,     ###
-###   Bohonak A.J. (2019). Pleistocene glacial cycles drove     ###
-###   lineage diversification and fusion in the Yosemite toad   ###
-###   (Anaxyrus canorus). Evolution, in press.                  ###
-###   https://www.doi.org/10.1111/evo.13868                     ###
-###                                                             ###
-###################################################################
 
-Output type? [1] Migrate [2] Arlequin [3] DIYABC [4] LFMM [5] Phylip [6] G-Phocs [7] Treemix [8] Haplotype: 1
-Remove restriction enzyme or adapter sequences? These may bias data. [1] Yes [2] No: 2
-Coverage Cutoff (number reads for locus)? Use '0' to ignore coverage: 0
-Remove monomorphic loci? [1] Yes [2] No: 2
-Remove loci with excess heterozygosity? This can remove paralogs. [1] Yes [2] No: 1
-Maximum heterozygosity cutoff for removing loci out of Hardy-Weinberg? 0.5
-Filter for allele frequency? False alleles might bias data. [1] Yes [2] No: 2
-Filter for missing genotypes? These might bias data. [1] Yes [2] No: 2
- 
-**************************************************************************************************************
-***                                       ... BEGINNING CONVERSION ...                                     ***
-**************************************************************************************************************
- 
-Cataloging loci...
-Counting locus lengths...
-Cataloging populations...
-Counting gene copies...
-Counting alleles for each locus...
-Identifying loci with excess heterozygosity...
-     Calculating observed heterozygosity and homozygosity...
-     Calculating expected heterozygosity and homozygosity...
-     Flagging loci with excess heterozygosity for removal...
-     Removing loci...
-     Removed 2 overly heterozygous loci.
-Outputting migrate-n file...
-*** DONE! ***
+for j in {1..10}
+do
+echo "now starting job $j"
+tmux new -A -s cs$j -d
+tmux send-keys -t cs$j "conda activate R" Enter
+tmux send-keys -t cs$j "Rscript run_ConStruct_K.R.txt $j T 2 40000 construct_infile.RData ind_coordinates.csv ind_geog_matrix.csv | tee -a ConStructLog$j.txt" Enter
+done
+
 ```
 
-Then I manually re-ordered the populations to run from north to south in the output file, and moved it into the migrate folder.
+## Calculate Layer Contributions
+
+This is code from Gideon's "How to compare conStruct model runs" vignette.
+
+```{r}
+# Loop through output files generated by conStruct 
+#   runs with K=1 through 10 and calculate the 
+#   layer contributions for each layer in each run  
+
+layer.contributions <- matrix(NA,nrow=10,ncol=10)
+construct.admix.props <- list()
+# load the conStruct.results.Robj and data.block.Robj
+#   files saved at the end of a conStruct run
+load("conStruct/sp_K_1_conStruct.results.Robj")
+load("conStruct/sp_K_1_data.block.Robj")
+
+
+# calculate layer contributions
+layer.contributions[,1] <- c(calculate.layer.contribution(conStruct.results[[1]],data.block),rep(0,4))
+layer.contributions[6,1] <- 0
+tmp <- conStruct.results[[1]]$MAP$admix.proportions
+
+admix.df <- data.frame(tmp)
+names(admix.df) <- paste0("Cluster",1:dim(admix.df)[2])
+construct.admix.props[[paste0("conStruct_K",1)]] <- admix.df
+
+for(i in 2:10){
+    # load the conStruct.results.Robj and data.block.Robj
+    #   files saved at the end of a conStruct run
+    load(sprintf("conStruct/sp_K_%s_conStruct.results.Robj",i))
+    load(sprintf("conStruct/sp_K_%s_data.block.Robj",i))
+    
+    # match layers up across runs to keep plotting colors consistent
+    #   for the same layers in different runs
+    tmp.order <- match.layers.x.runs(tmp,conStruct.results[[1]]$MAP$admix.proportions)  
+
+    # calculate layer contributions
+    layer.contributions[,i] <- c(calculate.layer.contribution(conStruct.results=conStruct.results[[1]],
+                                                             data.block=data.block,
+                                                             layer.order=tmp.order),
+                                    rep(0,10-i))
+    tmp <- conStruct.results[[1]]$MAP$admix.proportions[,tmp.order]
+    admix.df <- data.frame(tmp)
+    names(admix.df) <- paste0("Cluster",1:dim(admix.df)[2])
+   construct.admix.props[[paste0("conStruct_K",i)]] <- admix.df[,tmp.order]
+}
+
+
+structure_K_colors <- c("#2121D9","#9999FF","#DF0101", "#04B404","#FFFB23","#FF9326","#A945FF", "#0089B2", "#B26314")
+
+
+layer_contributions_plot <- barplot(layer.contributions,
+        col=structure_K_colors,
+        las = 1,
+        xlab="",
+        ylab="layer contributions",
+        names.arg=paste0("K = ",1:10))
+
+layer_contributions_plot
+
+#write.csv(layer.contributions, "tables/layer_contributions.csv", quote = F, row.names = T, col.names = 1:10)
+
+```
+
+## Visualize Results
+
+ConStruct automagically creates structure Q-plots and even pie charts for geography. But I'd like to get the plots into the same format as the Structure output.
+
+```{r, eval = F}
+
+
+construct.admix.props.q <-as.qlist(construct.admix.props)
+
+
+
+conStruct_p1 <- plotQ(construct.admix.props.q[2:9], imgoutput = "join", returnplot = T,
+              exportplot = T, exportpath = "conStruct/", imgtype = "pdf",
+              grplab = popmap["Name"], selgrp = "Name", barbordersize = 1, grplabsize = 0.9,
+              showindlab = F, grplabangle = 45, grplabheight = 2, grplabpos = 0.6,
+              showyaxis = F, showticks = F)
+
+conStruct_p1
+
+
+```
+
+![ConStruct Q Plot](conStruct/conStruct_Qplot.jpg)
 
 # Migrate
 
@@ -2123,7 +2052,7 @@ posteriors12_long <- posteriors12 %>% pivot_longer(starts_with(c("Theta_", "M_",
 
 
 # read in a population key to translate numbers into names in figures
-popkey <- read_csv("popkey.csv")
+popkey <- read_csv("filtered_data/popkey.csv")
 names(popkey$Pop) <- popkey$Index
 #make a new labeling key
 posterior_parameters <- names(posteriors12) %>% str_subset("Theta|M_|Nm_|D_|d_")
@@ -3591,7 +3520,7 @@ Now read and plot the results
 ```{r, warning=FALSE}
 
 #read in the empirical haplotype data as numbered haps
-haps <- read.genepop("IBD/ptuberculosa.haps.gen", quiet = T)
+haps <- read.genepop("filtered_data/Ptuberculosa_filtered_haps.gen", quiet = T)
 #fst_haps <- mat_pw_fst(haps)
 fst_haps <- genet.dist(genind2hierfstat(haps), method = "Nei87")
 fst_haps <- fst_haps / (1-fst_haps)
@@ -3823,7 +3752,7 @@ bayes-posteriorbins= 2000 2000
 I ran all the models for 5 replicates during the month of January. The runs would have been completed much sooner, but Kinilau went down due to power failures many times during this period. I also had to rerun a number of models which still had histogram bins set to 500 (which changes the marginal likelihood of the model - upward bias).
 
 
-## A strong prior on Oahu-Kure divergence?
+### A strong prior on Oahu-Kure divergence?
 
 For models with Divergence between Oahu and Kure, I considered using the very stong prior below, which corresponds to maximum split of 1.63e-6 (assumes fast mutation rate of 1e-8 * 163 years since founding of Midway naval base)
 
@@ -3857,6 +3786,28 @@ In the end, I didn't apply this prior to any of the models for the following rea
 
 But note that for equilibrium models with just the divergence from Oahu to Kure, the strong prior **did** improve the marginal likelihood.
 
+### Models based on conStruct
+
+ConStruct indicated K = 4 with a somewhat chaotic set of populations - all of NWHI plus Oahu and Molokai in one group, Kauai and Maui as one group, and the Big Island as different group. So I will test that with two more models - one in equilibriu, and one with divergence of group 2 from group 1 and group 3 from group 2/
+
+```
+population-relabel={1 1 1 1 2 1 2 1 3}
+
+construct_K4
+custom-migration={
+***
+***
+***
+}
+
+construct_K4_D
+custom-migration={
+***
+D**
+*D*
+}
+
+```
 
 ## Copy it Down
 
@@ -3886,17 +3837,14 @@ likelist3 %>% map(bfcalcs)
 The final model marginal likelihood estimates based on the mean of 5 replicates:
 
 ```{r}
+model_letters <- c("C","F","M","B","A","H","I","K","J","D","E","L","G","M","N","Q","R","S","P")
+
 like3.df <-  likelist3 %>% bind_rows() %>% group_by(model)
 
 means3 <- like3.df %>% summarize(bezier.corrected = mean(bezier.corrected))
   
 
-final_model3 <- bfcalcs(means3)
-
-model_letters <- c("C","B","A","G","H","J","I","D","E","F","K","L","N","O","P","M")
-
-
-final_model3 <- final_model3 %>% bind_cols(model_letters=model_letters) %>% arrange(model_letters)
+final_model3 <- bfcalcs(means3) %>% bind_cols(model_letters=model_letters) %>% arrange(model_letters)
 
 final_model3
 
@@ -3936,7 +3884,7 @@ likesPlot_letters <- likelist3 %>% bind_rows() %>% bind_cols(model_letters2) %>%
 
 likesPlot_letters
 
-likesPlot_letters + ylim(-70200, -69000)
+likesPlot_letters + ylim(-73500, -69000)
 
 ```
 
@@ -3952,7 +3900,7 @@ For the model with divergence-with-gene-flow from north to south, followed by di
 #
 Dir <- "/Users/eric/Library/CloudStorage/OneDrive-ThePennsylvaniaStateUniversity/Documents/Research/Ptuberculosa/migrate/run6"
       
-winningModel <- "stepping.stone.splitsD.2way.NS.KO.D"
+winningModel <- "stepping.stone.splitsD.2way.NS.KO.D_final"
 
 #posteriors <- list()
 
@@ -3982,7 +3930,7 @@ posterior_long <- posterior %>% pivot_longer(starts_with(c("Theta_", "M_",
 
 # read in a population key to translate numbers into names in figures
 popkey <- read_csv("popkey.csv")
-names(popkey$Pop) <- popkey$Index
+names(popkey$Hawaiian_Pop) <- popkey$Index
 #make a new labeling key
 posterior_parameters <- names(posterior) %>% str_subset("Theta|M_|Nm_|D_|d_")
 
@@ -3990,11 +3938,19 @@ parameter_key <- posterior_parameters %>%
                                   str_replace("(\\d)_(\\d)", "\\1 to \\2") %>%
                                   str_replace("M_", "m/mu " ) %>% 
                                   str_replace("Theta_", "theta ") %>% 
-                                  str_replace_all(popkey$Pop) %>% 
+                                  str_replace_all(popkey$Hawaiian_Pop) %>% 
                                   str_replace("Nm_", "4Nem ") 
+
+parameter_key <- parameter_key[c(1,2,3,4,5,6,7,8,9,
+                                 18,12,11,14,13,16,15,10,19,17,21,20,23,22,25,24,
+                                 34,28,27,30,29,32,31,26,35,33,37,36,39,38,41,40,
+                                 43,44,45,46,47,48,49,42)]
                                   
 
-names(parameter_key) <- posterior_parameters
+names(parameter_key) <- posterior_parameters[c(1,2,3,4,5,6,7,8,9,
+                                 18,12,11,14,13,16,15,10,19,17,21,20,23,22,25,24,
+                                 34,28,27,30,29,32,31,26,35,33,37,36,39,38,41,40,
+                                 43,44,45,46,47,48,49,42)]
 
 ```
 
@@ -4138,7 +4094,7 @@ D_8_9            1          1
 ```{r, eval = F}
 
 
-theta_plot <- posteriors_long %>%  
+theta_plot <- posterior_long %>%  
     filter(str_detect(parameter, "Theta_")) %>%  
     ggplot() + 
     geom_density(mapping = aes(x = value, group=Locus, color
@@ -4186,25 +4142,33 @@ thetas_density <-  ggplot(thetas_long, aes(x = x, y = Density,
         geom_line(linewidth = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
         scale_color_discrete(type = theta.colors, 
-                             labels = parameter_key) +
+                             labels = str_replace(parameter_key, "theta ",""),
+                             name= TeX("$\\Theta$ Parameter")) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") +
-        ylim(0,0.175) + xlim(0,0.005)
+                  linetype="dotted") + labs(x = TeX("$\\Theta$")) +
+        ylim(0,0.175) + xlim(0,0.005) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 
 thetas_ridges <- ggplot(thetas_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors, 
+                             labels = str_replace(parameter_key, "theta ",""),
+                             name= TeX("$\\Theta$ Parameter")) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
-        labs(x = TeX("$\\Theta$")) + xlim(0,0.005)
+        labs(x = TeX("$\\Theta = 4N_{e}\\mu$")) + xlim(0,0.005) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 
 thetas_violins <- ggplot(thetas_long, aes(x = Parameter, y = x, 
                                           violinwidth = Density*10, 
                                           fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors, labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors, 
+                             labels = str_replace(parameter_key, "theta ",""),
+                             name= TeX("$\\Theta$ Parameter")) +
         scale_x_discrete(limits = rev, labels = NULL, breaks = NULL) +
-        labs(y = TeX("$\\Theta$")) + ylim(0,0.005)
+        labs(y = TeX("$\\Theta$")) + ylim(0,0.005) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 
 
 # get stats for each summed-over-loci posterior
@@ -4213,15 +4177,15 @@ theta_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = thetas,
                                                              parameter = .x),
                                       .id = "parameter")
 
-write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
-
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
-ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
+# write_csv(theta_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/theta_stats.csv")
+# 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.jpg",thetas_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.jpg",thetas_ridges, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.jpg",thetas_violins,width = 10.7, height = 6.42)
+# 
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_density.pdf",thetas_density,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_ridges.pdf",thetas_ridges,width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/thetas_violins.pdf",thetas_violins, width = 10.7, height = 6.42)
 #https://adiradaniel.netlify.app/post/ggmultipane/#using-ggpubrggarrange
 #to make multipanel figures
 ```
@@ -4245,7 +4209,7 @@ theta_stats
 ```{r, eval = F}
 
 
-M_plot <- posteriors_long %>%  
+M_plot <- posterior_long %>%  
     filter(str_detect(parameter, "M_")) %>%  
     ggplot() + 
     geom_density(mapping = aes(x = value, group=Locus, color
@@ -4269,8 +4233,7 @@ parameter_type <- "M"
 parameters <- names(posterior) %>%
                         str_subset(parameter_type)
 
-parameter_key2 <- parameters
-names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+parameter_key2 <- subset(parameter_key, grepl(pattern = parameter_type, x = names(parameter_key)))
 
 #summarize the posterior for theta
 Ms <- summarize_posterior(posterior, parameter_type = parameter_type, 
@@ -4284,46 +4247,55 @@ Ms_long <- Ms %>% dplyr::select(all_of(c("x","prior",parameters))) %>%
                             values_to = "Density") 
 
 migration.colors <- c(rbind(theta.colors, theta.colors.dark))
-migration.colors <- migration.colors[c(1,3,4,5,6,7,8,9,2,10,11,12,13,14,15,16)]
+migration.colors <- migration.colors[c(1,3,4,5,6,7,8,2,9,10,11,12,13,14,15,16)]
 #plot
 Ms_density <-  ggplot(Ms_long, aes(x = x, y = Density, 
                     color = Parameter)) +
         geom_line(size = 1) + 
         scale_x_continuous(limits = c(0,1000)) + 
-        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+       scale_color_discrete(type = migration.colors, 
+                             labels = str_replace(parameter_key2, "m/mu ",""),
+                             name= TeX("$\\frac{m}{\\mu}$ Parameter")) +
+        labs(x = TeX("$\\frac{m}{\\mu}$")) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted")
-  
+                  linetype="dotted") + 
+        theme(axis.text.x = element_text(size = rel(2)))
+
+ 
            
 #plot
 M_ridges <- ggplot(Ms_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
         scale_x_continuous(limits = c(0,1000)) +
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_fill_discrete(type = migration.colors, 
+                             labels = str_replace(parameter_key2, "m/mu ",""),
+                             name= TeX("$\\frac{m}{\\mu}$ Parameter")) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
-        labs(x = TeX("$\\frac{m}{\\mu}$"))
+        labs(x = TeX("$\\frac{m}{\\mu}$")) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 
 #get stats for each summed-over-loci posterior
+parameter_key3 <- setNames(names(parameter_key2), parameter_key2)
 
-# Ms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
-#                                                               parameter = .x),
-#                                        .id = "parameter")
-#  
+Ms_stats <- parameter_key3 %>% map_dfr(.f = ~ posterior_stats(df = Ms, 
+                                                               parameter = .x),
+                                        .id = "parameter")
+  
 # write_csv(Ms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/Mmu_stats.csv")
 # 
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.jpg",
-#         Ms_density, width = 10.7, height = 6.42)
+#          Ms_density, width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.jpg",
-#         M_ridges, width = 10.7, height = 6.42)
-#  
+#          M_ridges, width = 10.7, height = 6.42)
+# 
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_density.pdf",Ms_density, width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/Mmu_ridges.pdf",
-#        M_ridges, width = 10.7, height = 6.42)
-#  
+#         M_ridges, width = 10.7, height = 6.42)
+# 
 # M_ridges2<-M_ridges + theme(legend.position = "none")
-# ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/", 
-#         width = 10.7, height = 6.42)
+# ggsave(filename = "M_ridges_nolegend.pdf",plot=M_ridges2, path = "./figures/stepping.stone.splitsD.2way.NS.KO.D/",
+#          width = 10.7, height = 6.42)
 ```
 
 
@@ -4353,7 +4325,7 @@ Nm_plot <- posterior_long %>%
     facet_wrap(~parameter, scales = "free_y",
                labeller = labeller(parameter= parameter_key), 
                dir = "v",nrow=2) +
-    theme(axis.text.x = element_text(size = rel(0.6)))
+
 
 #ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_loci.pdf",Nm_plot,width = 10.7, height = 6.42)
 
@@ -4370,8 +4342,8 @@ parameter_type <- "Nm"
 parameters <- names(posterior) %>%
                         str_subset(parameter_type)
 
-parameter_key2 <- parameters
-names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+parameter_key2 <- subset(parameter_key, grepl(pattern = parameter_type, x = names(parameter_key)))
+
 
 #summarize the posterior for nm parameters
 nms <- summarize_posterior(posterior, parameter_type = parameter_type, 
@@ -4390,38 +4362,48 @@ Nms_density <-  ggplot(nms_long, aes(x = x, y = Density,
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(type = migration.colors, labels = parameter_key) +
+       scale_color_discrete(type = migration.colors, 
+                             labels = str_replace(parameter_key2, "4Nem ",""),
+                             name= TeX("$4N_{e}m$ Parameter")) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,3)
+                  linetype="dotted") + xlim(0,3) + 
+        theme(axis.text.x = element_text(size = rel(2)))
   
            
 #plot
-nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density*10, 
+nm_ridges <- ggplot(nms_long, aes(x = x, y = Parameter, height = Density*5, 
                     fill = Parameter)) +
         geom_ridgeline(stat = "identity") + 
         #scale_x_log10(limits = c(0.01,100)) +
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
+        scale_fill_discrete(type = migration.colors, 
+                             labels = str_replace(parameter_key2, "4Nem ",""),
+                             name= TeX("$4N_{e}m$ Parameter")) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("$4N_em$")) +
-        xlim(0,3)
+        xlim(0,3) + 
+        theme(axis.text.x = element_text(size = rel(2)))
   
 nm_violins <- ggplot(nms_long, aes(x = Parameter, y = x, violinwidth = Density*10, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = migration.colors, labels = parameter_key) +
-        ylim(0,3)
+        scale_fill_discrete(type = migration.colors, 
+                             labels = str_replace(parameter_key2, "4Nem ",""),
+                             name= TeX("$4N_{e}m$ Parameter")) + 
+        labs(y = TeX("$4N_em$")) +
+        ylim(0,3) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 # get stats for each summed-over-loci posterior
-
-nms_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
+parameter_key3 <- setNames(names(parameter_key2), parameter_key2)
+nms_stats <- parameter_key3 %>% map_dfr(.f = ~ posterior_stats(df = nms, 
                                                              parameter = .x),
                                       .id = "parameter")
 
-write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
- 
+# write_csv(nms_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/4Nm_stats.csv")
+#  
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.jpg",Nms_density,width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.jpg",nm_ridges,width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.jpg",nm_violins,width = 10.7, height = 6.42)
-#  
+# 
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_density.pdf",Nms_density,width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_ridges.pdf",nm_ridges,width = 10.7, height = 6.42)
 # ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/4Nm_violins.pdf",nm_violins,width = 10.7, height = 6.42)
@@ -4462,6 +4444,7 @@ D_plot <- posterior_long %>%
 
 ```
 
+##### Summed Over Loci Plots
 
 ```{r, eval = F}
 parameter_type <- "D"
@@ -4469,8 +4452,8 @@ parameter_type <- "D"
 parameters <- names(posterior) %>%
                         str_subset(parameter_type)
 
-parameter_key2 <- parameters
-names(parameter_key2) <- parameter_key[names(parameter_key) %in% parameter_key2]
+parameter_key2 <- subset(parameter_key, grepl(pattern = parameter_type, x = names(parameter_key)))
+
 
 #summarize the posterior for D parameters
 ds <- summarize_posterior(posterior, parameter_type = parameter_type, 
@@ -4480,7 +4463,7 @@ ds <- summarize_posterior(posterior, parameter_type = parameter_type,
 ds_long <- ds %>% dplyr::select(all_of(c("x","prior",parameters))) %>% 
                 pivot_longer(starts_with(c(paste0(parameter_type,"_"))), 
                             names_to = "Parameter",
-                            values_to = "Density")
+                            values_to = "Density") 
 
           
 #plot
@@ -4488,42 +4471,51 @@ ds_density <-  ggplot(ds_long, aes(x = x, y = Density,
                     color = Parameter)) +
         geom_line(size = 1) + 
         #scale_x_log10(limits = c(5e-4,1e-2)) + 
-        scale_color_discrete(type =theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
+        scale_color_discrete(type = theta.colors[c(3,4,5,6,7,8,9,1)], 
+                             labels = str_replace(parameter_key2, "D_",""),
+                             name= TeX("d Parameter")) +
         geom_line(aes(x = x, y=prior), color = "grey",
-                  linetype="dotted") + xlim(0,0.00125)
+                  linetype="dotted") + xlim(0,0.00125) + 
+        theme(axis.text.x = element_text(size = rel(2)))
   
            
 #plot
 ds_ridges <- ggplot(ds_long, aes(x = x, y = Parameter, height = Density, 
                     fill = Parameter)) +
         geom_density_ridges(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
+        scale_fill_discrete(type = theta.colors[c(3,4,5,6,7,8,9,1)], 
+                             labels = str_replace(parameter_key2, "D_",""),
+                             name= TeX("d Parameter")) +
         scale_y_discrete(limits = rev, labels = NULL, breaks = NULL) +
         labs(x = TeX("Divergence Time (generations x $\\mu)$")) +
-        xlim(0,0.00125)
+        xlim(0,0.00125) + 
+        theme(axis.text.x = element_text(size = rel(2)))
   
 ds_violins <- ggplot(ds_long, aes(x = Parameter, y = x, violinwidth = Density*20, 
                     fill = Parameter)) +
         geom_violin(stat = "identity") + 
-        scale_fill_discrete(type = theta.colors[c(3,4,5,6,1,7,8,9)], labels = parameter_key) +
-        ylim(0,0.00125)
+       scale_fill_discrete(type = theta.colors[c(3,4,5,6,7,8,9,1)], 
+                             labels = str_replace(parameter_key2, "D_",""),
+                             name= TeX("d Parameter")) +
+        ylim(0,0.00125) + 
+        theme(axis.text.x = element_text(size = rel(2)))
 # get stats for each summed-over-loci posterior
-
-ds_stats <- parameter_key2 %>% map_dfr(.f = ~ posterior_stats(df = ds, 
+parameter_key3 <- setNames(names(parameter_key2), parameter_key2)
+ds_stats <- parameter_key3 %>% map_dfr(.f = ~ posterior_stats(df = ds, 
                                                              parameter = .x),
                                       .id = "parameter")
 
 # write_csv(ds_stats, "tables/stepping.stone.splitsD.2way.NS.KO.D/D_stats.csv")
 # 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.jpg",ds_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.jpg",ds_ridges, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.jpg",ds_violins, width = 10.7, height = 6.42)
 # 
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.pdf",ds_density)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.pdf",ds_ridges)
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.pdf",ds_violins)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_density.pdf",ds_density, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_ridges.pdf",ds_ridges, width = 10.7, height = 6.42)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/D_violins.pdf",ds_violins, width = 10.7, height = 6.42)
 # ds_ridges2 <- ds_ridges + theme(legend.position = "none")
-# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2)
+# ggsave("figures/stepping.stone.splitsD.2way.NS.KO.D/ds_ridges_nolegend.pdf",ds_ridges2,width = 10.7, height = 6.42)
 
 ```
 
@@ -4553,7 +4545,7 @@ Divergence time is estimated at `r t` years before present
 
 ## Simulations with Migrate-derived parameters
 
-OK. Just double checking that the new results make sense. Here is the parmfile for a coalescent simulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and a migration rate that is `r mean(mmu_stats$mode)` times greater (`r 6e-6 * mean(mmu_stats$mode)`). From the present, there are 15 demes of `r mean(theta_stats$mode)/(4*1.2e-8)` effective individuals each, with an emigration rate of 6e-6, which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At `r t` generations, there is a founder event of F individuals in one deme, which, at `r t+1` generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
+OK. Just double checking that the new results make sense. Here is the parmfile for a coalescent simulation with a 1.2e-8 mutation rate (* 500bp = 6e-6) [@zhangEvolutionaryResponsesReefbuilding2022], and a migration rate that is `r mean(mmu_stats$mode)` times greater (`r 6e-6 * mean(mmu_stats$mode)`). From the present, there are 15 demes of `r mean(theta_stats$mode)/(4*1.2e-8)` effective individuals each, with an emigration rate of 6e-6 (which, when multiplied by the per-locus mutation rate (rather than per-site used in the paper), works out to 0.00262), which results in immigration rates of close to this value (see file EmpImmmigRate), exchanging individuals only with neighboring populations (stepping-stone model). Absorbing boundaries. At `r t` generations, there is a founder event of F individuals in one deme, which, at `r t+1` generations comes from a larger population of 100K effective individuals. Sampling is exactly as in the empirical observations in terms of 9 islands being sampled with the same sample sizes as we have.
 
 I have varied the simulations to test the effect of [F]ounder event as such:
 
@@ -4624,30 +4616,14 @@ Ind_Per_Pop_Sampled = 10 4 5 9 15 10 10 10 17
 
 ```
 
-### SNPs
-
-  I'm also doing this with 25K SNPs to see how Structure evaluates it.
-  
-```{}
-
-%%%%%%%%%% MARKERS PARAMETERS %%%%%%%%%
-Locus_Number = 25000
-Mutation_Rate = 0.000000012
-Mutation_Model = SNP
-Transition_Transversion_ratio = 2
-Equilibrium_Frequencies = 0.25 0.25 0.25 0.25
-Polymorphic_Loci_Only= False
-Ploidy = Diploid
-```
-
 
 ### Per-Locus FST
 Now read and plot the results
 
 ```{r, warning=FALSE}
-
+theta.colors <- rev(brewer.pal(9,"Spectral"))
 #read in the empirical haplotype data as numbered haps
-haps <- read.genepop("IBD/ptuberculosa.haps.gen", quiet = T)
+haps <- read.genepop("filtered_data/Ptuberculosa_filtered_haps.gen", quiet = T)
 #fst_haps <- mat_pw_fst(haps)
 fst_haps <- genet.dist(genind2hierfstat(haps), method = "Nei87")
 fst_haps <- fst_haps / (1-fst_haps)
@@ -4697,12 +4673,14 @@ sim_geo_dists <- pointDistance(sim_geo_points,lonlat=F) %>% as.dist()
 geo.dist.mat <- read.csv(file = "IBD/Ptuberculosa_pairwise_great_circle_distances_km.csv")
 geo.dist <- as.dist(geo.dist.mat)
 
-# (WC Theta is not working for reasons I can't figure out, so using Nei 87)
+# (using Nei 87 for multi-allelic data)
 fsts <- sims %>% map(\(x) genet.dist(genind2hierfstat(x), method = "Nei87"))
 
-ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x)), aes(x = Lattice_Dist, y = Fst)) + 
+ibd_plots <- fsts %>% map(\(x) ggplot(tibble(Lattice_Dist = as.vector(sim_geo_dists), Fst = as.vector(x)), 
+                                      aes(x = Lattice_Dist, y = Fst)) + 
                              geom_point() + ylim(-0.02,0.075) +
-                              labs(x = "Lattice Distance", y = TeX("$F_{ST}$")) + geom_smooth(method=lm, color = "blue") ) 
+                              labs(x = "Lattice Distance", y = TeX("$F_{ST}$")) + 
+                            geom_smooth(method=lm, color = "blue") ) 
                 
 fst_haps.mat <- as.matrix(fst_haps)
 
@@ -4733,6 +4711,9 @@ ibd_compare <- cowplot::plot_grid(plotlist = ibd_plots, labels = names(ibd_plots
 #lmodel_sims <- lm(fst ~ distance , sim_dists.df)
 
 ```
+
+
+
 
 
 # Literature Cited

@@ -1,0 +1,91 @@
+name	island
+187KURPtu	Kure 
+188KURPtu	Kure 
+190KURPtu	Kure 
+191KURPtu	Kure 
+192KURPtu	Kure 
+193KURPtu	Kure 
+197KURPtu	Kure 
+198KURPtu	Kure 
+202KURPtu	Kure 
+204KURPtu	Kure 
+178PHPtu	Pearl Hermes
+179PHPtu	Pearl Hermes
+180PHPtu	Pearl Hermes
+181PHPtu	Pearl Hermes
+164MRPtu	Maro Reef
+165MRPtu	Maro Reef
+169MRPtu	Maro Reef
+172MRPtu	Maro Reef
+175MRPtu	Maro Reef
+149FFSPtu	French Frigate Shoals
+150FFSPtu	French Frigate Shoals
+151FFSPtu	French Frigate Shoals
+152FFSPtu	French Frigate Shoals
+153FFSPtu	French Frigate Shoals
+158FFSPtu	French Frigate Shoals
+159FFSPtu	French Frigate Shoals
+160FFSPtu	French Frigate Shoals
+161FFSPtu	French Frigate Shoals
+445KAPtu	Kauai
+451KAPtu	Kauai
+458KAPtu	Kauai
+460KAPtu	Kauai
+461KAPtu	Kauai
+469KAPtu	Kauai
+471KAPtu	Kauai
+478KAPtu	Kauai
+480KAPtu	Kauai
+481KAPtu	Kauai
+482KAPtu	Kauai
+483KAPtu	Kauai
+485KAPtu	Kauai
+486KAPtu	Kauai
+491KAPtu	Kauai
+92OAPtu	Oahu
+93OAPtu	Oahu
+113OAPtu	Oahu
+117OAPtu	Oahu
+123OAPtu	Oahu
+127OAPtu	Oahu
+129OAPtu	Oahu
+132OAPtu	Oahu
+133OAPtu	Oahu
+137OAPtu	Oahu
+314MOPtu	Molokai
+317MOPtu	Molokai
+319MOPtu	Molokai
+322MOPtu	Molokai
+326MOPtu	Molokai
+330MOPtu	Molokai
+332MOPtu	Molokai
+348MOPtu	Molokai
+350MOPtu	Molokai
+352MOPtu	Molokai
+78MAPtu	Maui
+79MAPtu	Maui
+80MAPtu	Maui
+85MAPtu	Maui
+220MAPtu	Maui
+222MAPtu	Maui
+228MAPtu	Maui
+233MAPtu	Maui
+238MAPtu	Maui
+246MAPtu	Maui
+393BIPtu	Hawaii
+397BIPtu	Hawaii
+398BIPtu	Hawaii
+399BIPtu	Hawaii
+405BIPtu	Hawaii
+408BIPtu	Hawaii
+412BIPtu	Hawaii
+413BIPtu	Hawaii
+414BIPtu	Hawaii
+415BIPtu	Hawaii
+420BIPtu	Hawaii
+421BIPtu	Hawaii
+422BIPtu	Hawaii
+423BIPtu	Hawaii
+424BIPtu	Hawaii
+428BIPtu	Hawaii
+429BIPtu	Hawaii

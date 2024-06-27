@@ -861,7 +861,7 @@ noadmix_loc_p1 <- plotQ(noadmix_loc_merged, imgoutput = "join", returnplot = T,
 
 # ConStruct
 
-[ConStruct] [@bradburdInferringContinuousDiscrete2018] attempts to categorize genetically homenous groups, like Structure, but it considers continuous variation (Isolation by Distance) as it does so. I'm going to follow Gideon's vignettes to perform the analysis.
+[ConStruct] [@bradburdInferringContinuousDiscrete2018] attempts to categorize genetically homogeneous groups, like Structure, but it considers continuous variation (Isolation by Distance) as it does so. I'm going to follow Gideon's vignettes to perform the analysis.
 
 ## Read and Convert Data
 
@@ -3786,28 +3786,6 @@ In the end, I didn't apply this prior to any of the models for the following rea
 
 But note that for equilibrium models with just the divergence from Oahu to Kure, the strong prior **did** improve the marginal likelihood.
 
-### Models based on conStruct
-
-ConStruct indicated K = 4 with a somewhat chaotic set of populations - all of NWHI plus Oahu and Molokai in one group, Kauai and Maui as one group, and the Big Island as different group. So I will test that with two more models - one in equilibriu, and one with divergence of group 2 from group 1 and group 3 from group 2/
-
-```
-population-relabel={1 1 1 1 2 1 2 1 3}
-
-construct_K4
-custom-migration={
-***
-***
-***
-}
-
-construct_K4_D
-custom-migration={
-***
-D**
-*D*
-}
-
-```
 
 ## Copy it Down
 
@@ -3837,7 +3815,7 @@ likelist3 %>% map(bfcalcs)
 The final model marginal likelihood estimates based on the mean of 5 replicates:
 
 ```{r}
-model_letters <- c("C","F","M","B","A","H","I","K","J","D","E","L","G","M","N","Q","R","S","P")
+model_letters <- c("C","B","A","G","H","J","I","D","E","F","K","L","M","O","P","Q","N")
 
 like3.df <-  likelist3 %>% bind_rows() %>% group_by(model)
 

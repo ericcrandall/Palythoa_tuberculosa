@@ -1061,6 +1061,42 @@ conStruct_p1
 
 ![ConStruct Q Plot](conStruct/conStruct_Qplot.jpg)
 
+## Effect of Missing Data
+
+The SNP dataset unfortunately has a lot of missing data. Does this have any effect on ConStruct inference? I used BCFtools to evaluate the distribution of missing data.
+
+
+
+```{bash, eval = F}
+ bcftools query --list-samples Ptuberculosa_filtered_SNPs.vcf > samples.txt
+ bcftools stats -S samples.txt Ptuberculosa_filtered_SNPs.vcf > bcftoolsoutput.txt
+ plot-vcfstats bcftoolsoutput.txt
+
+
+```
+
+I then manually merged this output with admixture proportions for each layer for K = 4 from ConStruct.
+
+```{r}
+
+bc <- read_csv("filtered_data/bcfstats/bcftools_conStruct.csv")
+
+l1<-lm(Construct_L1 ~ Missing_Percent, data = bc)
+l2<-lm(Construct_L2 ~ Missing_Percent, data = bc)
+l3<-lm(Construct_L3 ~ Missing_Percent, data = bc)
+l4<-lm(Construct_L4 ~ Missing_Percent, data = bc)
+
+bc %>% dplyr::select(Missing_Percent, Construct_L1, Construct_L2, Construct_L3, Construct_L4) %>% 
+  gather(-Missing_Percent, key = "var", value = "value") %>% 
+  ggplot(aes(x = Missing_Percent, y = value)) +
+    facet_wrap(~ var, scales = "free") +
+    geom_point() +
+    geom_smooth(method = "lm") + ylab("Layer Admixture Proportion") + xlab("% Missing Data")
+
+```
+
+None of the correlations are significant.
+
 # Migrate
 
 ## Install Migrate
@@ -3858,11 +3894,13 @@ likesPlot_letters <- likelist3 %>% bind_rows() %>% bind_cols(model_letters2) %>%
               ggplot(mapping = aes(x=model_letters2, y = bezier.corrected)) +
               geom_boxplot() +
               labs(x = "Metapopulation Model", 
-                   y = "Bezier Corrected Marginal Likelihood")
+                   y = "Bezier Corrected Marginal Likelihood") + ylim(-73500, -69000)
 
 likesPlot_letters
 
-likesPlot_letters + ylim(-73500, -69000)
+likesPlot_letters 
+
+ggsave("figures/final_figures/MarginalLikelihoodsPlot.pdf",likesPlot_letters,width = 10.7, height = 6.42)
 
 ```
 
